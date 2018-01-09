@@ -41,8 +41,8 @@ public class RobotPlayer {
         }
 
         //do research
-        gc.queueResearch(Unittype.Ranger);
-        gc.queueResearch(Unittype.Rocket);
+        gc.queueResearch(UnitType.Ranger);
+        gc.queueResearch(UnitType.Rocket);
 
         //end turn
         gc.nextTurn();
