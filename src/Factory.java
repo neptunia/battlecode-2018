@@ -10,6 +10,10 @@ public class Factory {
 		this.curUnit = curUnit;
 		this.gc = gc;
 
+		if (curUnit.isFactoryProducing()) {
+			return;
+		}
+
 		Direction[] directions = Direction.values();
 
 		VecUnitID garrison = curUnit.structureGarrison();
@@ -23,11 +27,11 @@ public class Factory {
 					}
 				}
 			}
-		} else {
-			//produce unit
-			if (gc.canProduceRobot(curUnit.id(), bc.UnitType.Knight)) {
-				gc.produceRobot(curUnit.id(), bc.UnitType.Knight);
-			}
+		}
+		
+		//produce unit
+		if (gc.canProduceRobot(curUnit.id(), bc.UnitType.Knight)) {
+			gc.produceRobot(curUnit.id(), bc.UnitType.Knight);
 		}
 
 		return;
