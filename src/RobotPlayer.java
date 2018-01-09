@@ -15,8 +15,6 @@ public class RobotPlayer {
             VecUnit myUnits = gc.myUnits();
             long numberOfUnits = myUnits.size();
 
-                    
-
             //iterate through units
             // might need to fix this later; what happens if I create a new unit in the middle of this loop?
             for (int i = 0; i < numberOfUnits; i++) {

@@ -48,11 +48,11 @@ public class Worker {
 	public static void workOnBlueprint() {
 		Location curLoc = unit.location();
 		VecUnit nearby = gc.senseNearbyUnits(curLoc.mapLocation(), 2);
-
 		for (int i = 0; i < nearby.size(); i++) {
 			Unit toBuild = nearby.get(i);
 			if (gc.canBuild(curUnit.id(), toBuild.id())) {
 				gc.build(curUnit.id(), toBuild.id());
+				return;
 			}
 		}
 	}
@@ -61,7 +61,7 @@ public class Worker {
 		for (int i = 0; i < directions.length; i++) {
 			if (gc.karbonite() > bc.UnitType.Factory.blueprint_cost() && gc.can_blueprint(curUnit.id(), bc.UnitType.Factory, directions[i])) {
 				gc.blueprint(curUnit.id(), bc.UnitTypeFactory, directions[i]);
-				break;
+				return;
 			}
 		}
 	}
@@ -70,6 +70,7 @@ public class Worker {
 		for (int i = 0; i < directions.length; i++) {
 			if (gc.isMoveReady(curUnit.id()) && gc.canMove(curUnit.id(), directions[i])) {
 				gc.moveRobot(curUnit.id(), directions[i]);
+				return;
 			}
 		}
 	}
