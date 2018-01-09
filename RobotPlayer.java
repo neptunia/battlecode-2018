@@ -5,15 +5,18 @@ public class RobotPlayer {
 
 	static GameController gc;
 	
-	@SuppressWarnings("unused")
-    public static void run(GameController gc) throws GameActionException {
+	public static void main(String args[]) {
 
-        this.gc = gc;
+		GameController gc = new GameController();
+
+        long currentRound = gc.round();
+
+        MapLocation loc = new MapLocation(Planet.Earth, 10, 20);
 
         VecUnit myUnits = gc.myUnits();
         long numberOfUnits = myUnits.size();
 
-        long currentRound = gc.round();
+        
 
         //iterate through units
         for (int i = 0; i < numberOfUnits; i++) {
