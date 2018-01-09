@@ -19,6 +19,7 @@ public class RobotPlayer {
         
 
         //iterate through units
+        // might need to fix this later; what happens if I create a new unit in the middle of this loop?
         for (int i = 0; i < numberOfUnits; i++) {
         	Unit curUnit = myUnits.get(i);
         	//perform unit task based on unit type
