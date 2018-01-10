@@ -22,6 +22,9 @@ public class Worker {
 					break;
 				}
 			}
+			//guesstimate enemy location
+			MapLocation temp = curUnit.location().mapLocation();
+			RobotPlayer.enemyLocation = new MapLocation(Planet.Earth, RobotPlayer.gridX - temp.getX(), RobotPlayer.gridY - temp.getY());
 		}
 
 		//try to work on a blueprint nearby
@@ -48,6 +51,7 @@ public class Worker {
 		}
 	}
 
+	//senses nearby units and updates RobotPlayer.map
 	public static VecUnit getNearby(MapLocation maploc, int radius) {
 		VecUnit nearby = gc.senseNearbyUnits(maploc, radius);
 		for (int i = 0; i < nearby.size(); i++) {

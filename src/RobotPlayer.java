@@ -4,7 +4,10 @@ import bc.*;
 
 public class RobotPlayer {
 
-    static boolean[][] passable, visible;
+    static boolean[][] passable;
+    static Unit[][] map;
+    static int gridX, gridY;
+    static MapLocation enemyLocation = null;
     static GameController gc;
 	
 	public static void main(String args[]) {
@@ -85,8 +88,10 @@ public class RobotPlayer {
         PlanetMap planetmap = gc.startingMap(Planet.Earth);
         int width = planetmap.getWidth();
         int height = planetmap.getHeight();
+        gridX = width;
+        gridY = height;
         map = new boolean[width][height];
-        visible = new boolean[width][height];
+        visible = new Unit[width][height];
         for (int i = 0; i < width; i++) {
             for (int a = 0; a < height; a++) {
                 MapLocation temp = new MapLocation(Planet.Earth, i, a);

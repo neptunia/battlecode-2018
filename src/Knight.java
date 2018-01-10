@@ -45,7 +45,10 @@ public class Knight {
 		return curUnit.movementHeat() < 10;
 	}
 
+	//pathing
 	public static void move() {
+		MapLocation target = getTarget();
+		//TODO implement nav to target
 		for (int i = 0; i < directions.length; i++) {
 			if (gc.isMoveReady(curUnit.id()) && gc.canMove(curUnit.id(), directions[i])) {
 				gc.moveRobot(curUnit.id(), directions[i]);
@@ -54,6 +57,12 @@ public class Knight {
 		}
 	}
 
+	//get target unit should be pathing towards
+	public static MapLocation getTarget() {
+		return RobotPlayer.enemyLocation;
+	}
+
+	//senses nearby units and updates RobotPlayer.map with detected units
 	public static VecUnit getNearby(MapLocation maploc, int radius) {
 		VecUnit nearby = gc.senseNearbyUnits(maploc, radius);
 		for (int i = 0; i < nearby.size(); i++) {
