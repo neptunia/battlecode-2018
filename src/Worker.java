@@ -5,6 +5,7 @@ public class Worker {
 	static Unit curUnit;
 	static GameController gc;
 	static Direction[] directions = Direction.values();
+	static int targetBlueprint = -1;
 
 	public static void run(GameController gc, Unit curUnit) {
 
@@ -20,22 +21,41 @@ public class Worker {
 				}
 			}
 			//guesstimate enemy location
-			MapLocation temp = curUnit.location().mapLocation();
-			RobotPlayer.enemyLocation = new MapLocation(Planet.Earth, RobotPlayer.gridX - temp.getX(), RobotPlayer.gridY - temp.getY());
+			if (RobotPlayer.enemyLocation == null) {
+				RobotPlayer.enemyLocation = new MapLocation(Planet.Earth, RobotPlayer.gridX - temp.getX(), RobotPlayer.gridY - temp.getY());
+			}
 		}
 
-		//try to work on a blueprint nearby
-		workOnBlueprint();
+		//go to current blueprint working on and do it
+		if (targetBlueprint != -1) {
+			Unit toWorkOn = gc.unit(targetBlueprint);
+			MapLocation blueprintLoc = toWorkOn.location().mapLocation();
+			MapLocation curLoc = curUnit.location().mapLocation();
+			if (distance(blueprintLoc.getX(), blueprintLoc.getY(), curLoc.getX(), curLoc.getY()) <= 2) {
+				if (!buildBlueprint(targetBlueprint)) {
+					System.out.println("SUM TING WONG :(");
+				} else {
+					//finished building
+					if (toWorkOn.health == toWorkOn.maxHealth) {
+						targetBlueprint = -1;
+					}
+				}
+			} else {
+				move(blueprintLoc);
+			}
+		} else {
+			buildFactory();
+		}
 		
-		//try to build a factory in all dirs
-		buildFactory();
-
-		//can't build factory, try moving in some dir
-		move();
 
 		return;
 	}
 
+	public static float distance(int x1, int y1, int x2, int y2) {
+		return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+	}
+
+	/* try to work on any blueprints nearby
 	public static void workOnBlueprint() {
 		MapLocation curLoc = curUnit.location().mapLocation();
 		VecUnit nearby = getNearby(curLoc, 2);
@@ -46,6 +66,15 @@ public class Worker {
 				return;
 			}
 		}
+	}*/
+
+	//build blueprint given structure unit id
+	public static boolean buildBlueprint(int id) {
+		if (gc.canBuild(curUnit.id(), id)) {
+			gc.build(curUnit.id(), id);
+			return true;
+		}
+		return false;
 	}
 
 	//senses nearby units and updates RobotPlayer.map
@@ -59,6 +88,7 @@ public class Worker {
 		return nearby;
 	}
 
+	//builds a factory in an open space around worker
 	public static void buildFactory() {
 		for (int i = 0; i < directions.length; i++) {
 			if (gc.canBlueprint(curUnit.id(), UnitType.Factory, directions[i])) {
@@ -68,7 +98,9 @@ public class Worker {
 		}
 	}
 
-	public static void move() {
+	//move towards target location
+	public static void move(MapLocation target) {
+		//TODO implement pathfinding
 		for (int i = 0; i < directions.length; i++) {
 			if (gc.isMoveReady(curUnit.id()) && gc.canMove(curUnit.id(), directions[i])) {
 				gc.moveRobot(curUnit.id(), directions[i]);

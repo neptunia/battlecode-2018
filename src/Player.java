@@ -1,6 +1,6 @@
 import bc.*;
 
-public class RobotPlayer {
+public class Player {
 
     static boolean[][] passable;
     static Unit[][] map;
