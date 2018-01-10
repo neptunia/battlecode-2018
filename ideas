@@ -3,11 +3,18 @@ ideas:
 1) pods of units
 run a* once for each pod
 snake/ant pathing following leader in each pod
-complexity
 
 2) find minimum number of points such that there is always a straight line path to such a point whose distance is less than n (n subject to change) for every point on the map 
 compute bfs for each of these points
 to pathfind, for each point, go directly to closest waypoint, then follow the bfs shortest path
+
+3) always path to places for which we do not have vision yet using a* (maybe some optimization too)
+
+considerations:
+how would we select target points to path to???
+how time expensive is calling senseNearbyUnits???
+
+
 
 avoid swarm block:
 map out each unit on a tile
