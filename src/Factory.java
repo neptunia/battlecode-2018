@@ -19,15 +19,13 @@ public class Factory {
 		Direction[] directions = Direction.values();
 
 		VecUnitID garrison = curUnit.structureGarrison();
-		if (garrison.size() > 0) {
-			for (int i = 0; i < garrison.size(); i++) {
-				//unload units
-				for (int a = 0; a < directions.length; a++) {
-					if (gc.canUnload(garrison.get(i), directions[a])) {
-						gc.unload(garrison.get(i), directions[a]);
-						//TODO update RobotPlayer.map with location of placed down robot
-						break;
-					}
+		for (int i = 0; i < garrison.size(); i++) {
+			//unload units
+			for (int a = 0; a < directions.length; a++) {
+				if (gc.canUnload(curUnit.id(), directions[a])) {
+					gc.unload(curUnit.id(), directions[a]);
+					//TODO update RobotPlayer.map with location of placed down robot
+					break;
 				}
 			}
 		}
