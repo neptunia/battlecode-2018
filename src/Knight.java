@@ -14,20 +14,12 @@ public class Knight {
 		Knight.gc = gc;
 
 		//attack enemies that are near you
-		try {
-			if (canAttack()) {
-				attackNearbyEnemies();
-			}
-		} catch (Exception e) {
-			System.out.println("problem in attacking");
+		if (canAttack()) {
+			attackNearbyEnemies();
 		}
 
-		try {
-			if (canMove()) {
-				move();
-			}
-		} catch (Exception e) {
-			System.out.println("problem in moving");
+		if (canMove()) {
+			move();
 		}
 	}
 
