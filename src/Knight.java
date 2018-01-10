@@ -30,7 +30,7 @@ public class Knight {
 	}
 
 	public static void attackNearbyEnemies() {
-		VecUnit nearbyUnits = gc.senseNearbyUnits(curUnit.location().mapLocation(), curUnit.attackRange());
+		VecUnit nearbyUnits = getNearby(curUnit.location().mapLocation(), curUnit.attackRange());
 		for (int i = 0; i < nearbyUnits.size(); i++) {
 			Unit unit = nearbyUnits.get(i);
 			//if can attack this enemy unit
@@ -52,6 +52,16 @@ public class Knight {
 				return;
 			}
 		}
+	}
+
+	public static VecUnit getNearby(MapLocation maploc, int radius) {
+		VecUnit nearby = gc.senseNearbyUnits(maploc, radius);
+		for (int i = 0; i < nearby.size(); i++) {
+			Unit unit = nearby.get(i);
+			MapLocation temp = unit.location().mapLocation();
+			RobotPlayer.map[temp.getX()][temp.getY()] = unit;
+		}
+		return nearby;
 	}
 
 }

@@ -24,23 +24,11 @@ public class Worker {
 			}
 		}
 
-		/*if (curUnit.workerHasActed()) {
-			return;
-		}*/
-
 		//try to work on a blueprint nearby
 		workOnBlueprint();
-
-		/*if (curUnit.workerHasActed()) {
-			return;
-		}*/
 		
 		//try to build a factory in all dirs
 		buildFactory();
-
-		/*if (curUnit.workerHasActed()) {
-			return;
-		}*/
 
 		//can't build factory, try moving in some dir
 		move();
@@ -50,7 +38,7 @@ public class Worker {
 
 	public static void workOnBlueprint() {
 		Location curLoc = curUnit.location();
-		VecUnit nearby = gc.senseNearbyUnits(curLoc.mapLocation(), 2);
+		VecUnit nearby = getNearby(curLoc, 2);
 		for (int i = 0; i < nearby.size(); i++) {
 			Unit toBuild = nearby.get(i);
 			if (gc.canBuild(curUnit.id(), toBuild.id())) {
@@ -58,6 +46,16 @@ public class Worker {
 				return;
 			}
 		}
+	}
+
+	public static VecUnit getNearby(MapLocation maploc, int radius) {
+		VecUnit nearby = gc.senseNearbyUnits(maploc, radius);
+		for (int i = 0; i < nearby.size(); i++) {
+			Unit unit = nearby.get(i);
+			MapLocation temp = unit.location().mapLocation();
+			RobotPlayer.map[temp.getX()][temp.getY()] = unit;
+		}
+		return nearby;
 	}
 
 	public static void buildFactory() {

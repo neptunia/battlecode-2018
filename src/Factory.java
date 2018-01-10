@@ -25,6 +25,7 @@ public class Factory {
 				for (int a = 0; a < directions.length; a++) {
 					if (gc.canUnload(garrison.get(i), directions[a])) {
 						gc.unload(garrison.get(i), directions[a]);
+						//TODO update RobotPlayer.map with location of placed down robot
 						break;
 					}
 				}

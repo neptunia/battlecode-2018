@@ -3,10 +3,16 @@ import java.io.*;
 import bc.*;
 
 public class RobotPlayer {
+
+    static boolean[][] passable, visible;
+    static GameController gc;
 	
 	public static void main(String args[]) {
         try {
             GameController gc = new GameController();
+            RobotPlayer.gc = gc;
+
+            initialize();
 
 
             while (true) {
@@ -72,6 +78,24 @@ public class RobotPlayer {
             }
         } catch (Exception e) {
             System.out.println("even worse");
+        }
+    }
+
+    public static void initialize() {
+        PlanetMap planetmap = gc.startingMap(Planet.Earth);
+        int width = planetmap.getWidth();
+        int height = planetmap.getHeight();
+        map = new boolean[width][height];
+        visible = new boolean[width][height];
+        for (int i = 0; i < width; i++) {
+            for (int a = 0; a < height; a++) {
+                MapLocation temp = new MapLocation(Planet.Earth, i, a);
+                if (isPassableTerrainAt(temp)) {
+                    map[i][a] = true;
+                } else {
+                    map[i][a] = false;
+                }
+            }
         }
     }
 
