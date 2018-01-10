@@ -1,5 +1,3 @@
-import java.util.*;
-import java.io.*;
 import bc.*;
 
 public class RobotPlayer {
@@ -34,6 +32,7 @@ public class RobotPlayer {
                                 try {
                                     Factory.run(gc, curUnit);
                                 } catch (Exception e) {
+                                    e.printStackTrace();
                                     System.out.println("Factory ded");
                                 }
                                 break;
@@ -44,6 +43,7 @@ public class RobotPlayer {
                                 try {
                                     Knight.run(gc, curUnit);
                                 } catch (Exception e) {
+                                    e.printStackTrace();
                                     System.out.println("knight ded");
                                 }
                                 break;
@@ -60,6 +60,7 @@ public class RobotPlayer {
                                 try {
                                     Worker.run(gc, curUnit);
                                 } catch (Exception e) {
+                                    e.printStackTrace();
                                     System.out.println("worker ded");
                                 }
                         }
@@ -70,16 +71,19 @@ public class RobotPlayer {
                         gc.queueResearch(UnitType.Ranger);
                         gc.queueResearch(UnitType.Rocket);
                     } catch (Exception e) {
+                        e.printStackTrace();
                         System.out.println("research ded");
                     }
 
                     //end turn
                 } catch (Exception e) {
+                    e.printStackTrace();
                     System.out.println("fuck me");
                 }
                 gc.nextTurn();
             }
         } catch (Exception e) {
+            e.printStackTrace();
             System.out.println("even worse");
         }
     }

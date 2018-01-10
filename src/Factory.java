@@ -1,5 +1,3 @@
-import java.util.*;
-import java.io.*;
 import bc.*;
 
 public class Factory {
