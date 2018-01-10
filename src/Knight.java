@@ -13,15 +13,21 @@ public class Knight {
 		Knight.curUnit = curUnit;
 		Knight.gc = gc;
 
-		MapLocation location = curUnit.location().mapLocation();
-
 		//attack enemies that are near you
-		if (canAttack()) {
-			attackNearbyEnemies();
+		try {
+			if (canAttack()) {
+				attackNearbyEnemies();
+			}
+		} catch (Exception e) {
+			System.out.println("problem in attacking");
 		}
 
-		if (canMove()) {
-			move();
+		try {
+			if (canMove()) {
+				move();
+			}
+		} catch (Exception e) {
+			System.out.println("problem in moving");
 		}
 	}
 
@@ -35,7 +41,7 @@ public class Knight {
 			Unit unit = nearbyUnits.get(i);
 			//if can attack this enemy unit
 			if (unit.team() != gc.team() && gc.isAttackReady(curUnit.id()) && gc.canAttack(curUnit.id(), unit.id())) {
-				gc.attack(unit.id(), curUnit.id());
+				gc.attack(curUnit.id(), unit.id());
 				return;
 			}
 		}
