@@ -1,0 +1,48 @@
+ideas:
+
+1) pods of units
+run a* once for each pod
+snake/ant pathing following leader in each pod
+complexity
+
+2) find minimum number of points such that there is always a straight line path to such a point whose distance is less than n (n subject to change) for every point on the map 
+compute bfs for each of these points
+to pathfind, for each point, go directly to closest waypoint, then follow the bfs shortest path
+
+avoid swarm block:
+map out each unit on a tile
+using the above pathfinding, if a unit is blocked by another friendly unit, check if that friendly unit has moved yet or not. if not, move them to another square iff the total distance of both units to their respective target squares is less than the total before each of them moved. in short, if moving is beneficial as a whole
+
+
+
+2 implementation)
+
+given an map
+
+each passable point will contribute weights around it with direct paths with a gradient radiating outward for its target radius n (most weight near the point and less outwards)
+
+define direct path as a path between two points such that there exists a path from point a to b without having to steer out of the minimum x, y coord nor maximum x, y coord
+
+for example
+
+x..
+...
+...
+...
+...
+..x
+
+if there is anything covering an entire row or an entire horizontal, then there exists no direct paths
+
+x..   xo.
+...   .o.
+...   .o.
+ooo   .o.
+...   .o.
+..x   .ox
+
+then, after computing weights for the entire map, select the point with the maximum weight as a intermediate point
+every point not already selected's weight will be subtracted to disaccount for its weight since it is already covered from an intermediate point
+
+repeat until all squares are covered
+
