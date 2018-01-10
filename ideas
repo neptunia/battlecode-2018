@@ -8,7 +8,7 @@ snake/ant pathing following leader in each pod
 compute bfs for each of these points
 to pathfind, for each point, go directly to closest waypoint, then follow the bfs shortest path
 
-3) always path to places for which we do not have vision yet using a* (maybe some optimization too)
+3) always path to places for which we do still have vision of using a* (maybe some optimization too)
 
 considerations:
 how would we select target points to path to???
