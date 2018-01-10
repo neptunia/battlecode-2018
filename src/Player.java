@@ -11,7 +11,7 @@ public class Player {
 	public static void main(String args[]) {
         try {
             GameController gc = new GameController();
-            RobotPlayer.gc = gc;
+            Player.gc = gc;
 
             initialize();
 

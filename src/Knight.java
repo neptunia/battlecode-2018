@@ -59,7 +59,7 @@ public class Knight {
 
 	//get target unit should be pathing towards
 	public static MapLocation getTarget() {
-		return RobotPlayer.enemyLocation;
+		return Player.enemyLocation;
 	}
 
 	//senses nearby units and updates RobotPlayer.map with detected units
@@ -68,7 +68,7 @@ public class Knight {
 		for (int i = 0; i < nearby.size(); i++) {
 			Unit unit = nearby.get(i);
 			MapLocation temp = unit.location().mapLocation();
-			RobotPlayer.map[temp.getX()][temp.getY()] = unit;
+			Player.map[temp.getX()][temp.getY()] = unit;
 		}
 		return nearby;
 	}

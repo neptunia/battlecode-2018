@@ -21,8 +21,9 @@ public class Worker {
 				}
 			}
 			//guesstimate enemy location
-			if (RobotPlayer.enemyLocation == null) {
-				RobotPlayer.enemyLocation = new MapLocation(Planet.Earth, RobotPlayer.gridX - temp.getX(), RobotPlayer.gridY - temp.getY());
+			if (Player.enemyLocation == null) {
+				MapLocation temp = curUnit.location().mapLocation();
+				Player.enemyLocation = new MapLocation(Planet.Earth, Player.gridX - temp.getX(), Player.gridY - temp.getY());
 			}
 		}
 
@@ -36,7 +37,7 @@ public class Worker {
 					System.out.println("SUM TING WONG :(");
 				} else {
 					//finished building
-					if (toWorkOn.health == toWorkOn.maxHealth) {
+					if (toWorkOn.health() == toWorkOn.maxHealth()) {
 						targetBlueprint = -1;
 					}
 				}
@@ -51,7 +52,7 @@ public class Worker {
 		return;
 	}
 
-	public static float distance(int x1, int y1, int x2, int y2) {
+	public static double distance(int x1, int y1, int x2, int y2) {
 		return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 	}
 
@@ -83,7 +84,7 @@ public class Worker {
 		for (int i = 0; i < nearby.size(); i++) {
 			Unit unit = nearby.get(i);
 			MapLocation temp = unit.location().mapLocation();
-			RobotPlayer.map[temp.getX()][temp.getY()] = unit;
+			Player.map[temp.getX()][temp.getY()] = unit;
 		}
 		return nearby;
 	}
