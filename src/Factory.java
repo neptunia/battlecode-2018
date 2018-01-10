@@ -1,5 +1,6 @@
 import java.util.*;
 import java.io.*;
+import bc.*;
 
 public class Factory {
 
@@ -7,12 +8,10 @@ public class Factory {
 	static GameController gc;
 
 	public static void run(GameController gc, Unit curUnit) {
-		this.curUnit = curUnit;
-		this.gc = gc;
 
-		if (curUnit.isFactoryProducing()) {
+		/*if (curUnit.isFactoryProducing()) {
 			return;
-		}
+		}*/
 
 		Direction[] directions = Direction.values();
 
@@ -21,8 +20,8 @@ public class Factory {
 			for (int i = 0; i < garrison.size(); i++) {
 				//unload units
 				for (int a = 0; a < directions.length; a++) {
-					if (gc.canUnload(garrison.get(i).id(), directions[a])) {
-						gc.unload(garrison.get(i).id(), directions[a]);
+					if (gc.canUnload(garrison.get(i), directions[a])) {
+						gc.unload(garrison.get(i), directions[a]);
 						break;
 					}
 				}

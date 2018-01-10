@@ -1,5 +1,7 @@
 import java.util.*;
 import java.io.*;
+import bc.*;
+import bc.UnitType.*;
 
 public class RobotPlayer {
 
@@ -23,19 +25,25 @@ public class RobotPlayer {
                 Unit curUnit = myUnits.get(i);
                 //perform unit task based on unit type
                 switch (curUnit.unitType()) {
-                    case UnitType.Factory:
+                    case Factory:
                     	Factory.run(gc, curUnit);
-                    case UnitType.Healer:
-                    	Healer.run(gc, curUnit);
-                    case UnitType.Knight:
+                    	break;
+                    //case UnitType.Healer:
+                    //	Healer.run(gc, curUnit);
+                    //  break;
+                    case Knight:
                     	Knight.run(gc, curUnit);
-                    case UnitType.Mage:
-                    	Mage.run(gc, curUnit);
-                    case UnitType.Ranger:
-                    	Ranger.run(gc, curUnit);
-                    case UnitType.Rocket:
-                    	Rocket.run(gc, curUnit);
-                    case UnitType.Worker:
+                    	break;
+                    //case UnitType.Mage:
+                    //	Mage.run(gc, curUnit);
+                    //  break;
+                    //case UnitType.Ranger:
+                    //	Ranger.run(gc, curUnit);
+                    //  break;
+                    //case UnitType.Rocket:
+                    //	Rocket.run(gc, curUnit);
+                    //  break;
+                    case Worker:
                     	Worker.run(gc, curUnit);
                 }
             }
