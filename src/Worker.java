@@ -1,8 +1,5 @@
 import bc.*;
 
-import java.util.*;
-import java.io.*;
-
 public class Worker {
 
 	static Unit curUnit;
