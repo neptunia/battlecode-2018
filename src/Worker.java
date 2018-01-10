@@ -62,8 +62,8 @@ public class Worker {
 
 	public static void buildFactory() {
 		for (int i = 0; i < directions.length; i++) {
-			if (gc.canBlueprint(curUnit.id(), bc.UnitType.Factory, directions[i])) {
-				gc.blueprint(curUnit.id(), bc.UnitType.Factory, directions[i]);
+			if (gc.canBlueprint(curUnit.id(), UnitType.Factory, directions[i])) {
+				gc.blueprint(curUnit.id(), UnitType.Factory, directions[i]);
 				break;
 			}
 		}

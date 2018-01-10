@@ -32,8 +32,8 @@ public class Factory {
 		}
 		
 		//produce unit
-		if (gc.canProduceRobot(curUnit.id(), bc.UnitType.Knight)) {
-			gc.produceRobot(curUnit.id(), bc.UnitType.Knight);
+		if (gc.canProduceRobot(curUnit.id(), UnitType.Knight)) {
+			gc.produceRobot(curUnit.id(), UnitType.Knight);
 		}
 
 		return;
