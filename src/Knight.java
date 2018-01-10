@@ -37,7 +37,7 @@ public class Knight {
 			Unit unit = nearbyUnits.get(i);
 			//if can attack this enemy unit
 			if (unit.team() != gc.team() && gc.isAttackReady(curUnit.id()) && gc.canAttack(curUnit.id(), unit.id())) {
-				gc.attack(unit.id(), curUnit.id());
+				gc.attack(curUnit.id(), unit.id());
 				return;
 			}
 		}
