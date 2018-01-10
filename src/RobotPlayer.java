@@ -86,19 +86,19 @@ public class RobotPlayer {
 
     public static void initialize() {
         PlanetMap planetmap = gc.startingMap(Planet.Earth);
-        int width = planetmap.getWidth();
-        int height = planetmap.getHeight();
+        int width = (int) planetmap.getWidth();
+        int height = (int) planetmap.getHeight();
         gridX = width;
         gridY = height;
-        map = new boolean[width][height];
-        visible = new Unit[width][height];
+        map = new Unit[width][height];
+        passable = new boolean[width][height];
         for (int i = 0; i < width; i++) {
             for (int a = 0; a < height; a++) {
                 MapLocation temp = new MapLocation(Planet.Earth, i, a);
-                if (isPassableTerrainAt(temp)) {
-                    map[i][a] = true;
+                if (planetmap.isPassableTerrainAt(temp) == 1) {
+                    passable[i][a] = true;
                 } else {
-                    map[i][a] = false;
+                    passable[i][a] = false;
                 }
             }
         }

@@ -14,7 +14,7 @@ public class Worker {
 		Worker.gc = gc;
 		Worker.curUnit = curUnit;
 
-		if (gc.round() == 1) {
+		if (gc.round() == 2) {
 			//Initial replication
 			for (int i = 0; i < directions.length; i++) {
 				if (gc.canReplicate(curUnit.id(), directions[i])) {
@@ -40,7 +40,7 @@ public class Worker {
 	}
 
 	public static void workOnBlueprint() {
-		Location curLoc = curUnit.location();
+		MapLocation curLoc = curUnit.location().mapLocation();
 		VecUnit nearby = getNearby(curLoc, 2);
 		for (int i = 0; i < nearby.size(); i++) {
 			Unit toBuild = nearby.get(i);

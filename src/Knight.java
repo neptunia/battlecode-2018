@@ -30,7 +30,7 @@ public class Knight {
 	}
 
 	public static void attackNearbyEnemies() {
-		VecUnit nearbyUnits = getNearby(curUnit.location().mapLocation(), curUnit.attackRange());
+		VecUnit nearbyUnits = getNearby(curUnit.location().mapLocation(), (int)curUnit.attackRange());
 		for (int i = 0; i < nearbyUnits.size(); i++) {
 			Unit unit = nearbyUnits.get(i);
 			//if can attack this enemy unit
