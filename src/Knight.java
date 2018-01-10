@@ -13,21 +13,17 @@ public class Knight {
 		Knight.curUnit = curUnit;
 		Knight.gc = gc;
 
-		//attack enemies that are near you
-		try {
-			if (canAttack()) {
-				attackNearbyEnemies();
-			}
-		} catch (Exception e) {
-			System.out.println("problem in attacking");
+		if (curUnit.location().isInGarrison()) {
+			return;
 		}
 
-		try {
-			if (canMove()) {
-				move();
-			}
-		} catch (Exception e) {
-			System.out.println("problem in moving");
+		//attack enemies that are near you
+		if (canAttack()) {
+			attackNearbyEnemies();
+		}
+
+		if (canMove()) {
+			move();
 		}
 	}
 
@@ -36,12 +32,12 @@ public class Knight {
 	}
 
 	public static void attackNearbyEnemies() {
-		VecUnit nearbyUnits = getNearby(curUnit.location().mapLocation(), (int)curUnit.attackRange());
+		VecUnit nearbyUnits = getNearby(curUnit.location().mapLocation(), curUnit.attackRange());
 		for (int i = 0; i < nearbyUnits.size(); i++) {
 			Unit unit = nearbyUnits.get(i);
 			//if can attack this enemy unit
 			if (unit.team() != gc.team() && gc.isAttackReady(curUnit.id()) && gc.canAttack(curUnit.id(), unit.id())) {
-				gc.attack(curUnit.id(), unit.id());
+				gc.attack(unit.id(), curUnit.id());
 				return;
 			}
 		}
