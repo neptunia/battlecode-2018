@@ -4,8 +4,6 @@ import bc.*;
 import bc.UnitType.*;
 
 public class RobotPlayer {
-
-	static GameController gc;
 	
 	public static void main(String args[]) {
 

@@ -9,6 +9,9 @@ public class Factory {
 
 	public static void run(GameController gc, Unit curUnit) {
 
+		Factory.curUnit = curUnit;
+		Factory.gc = gc;
+
 		/*if (curUnit.isFactoryProducing()) {
 			return;
 		}*/

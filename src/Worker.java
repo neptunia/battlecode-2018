@@ -11,6 +11,9 @@ public class Worker {
 
 	public static void run(GameController gc, Unit curUnit) {
 
+		Worker.gc = gc;
+		Worker.curUnit = curUnit;
+
 		if (gc.round() == 1) {
 			//Initial replication
 			for (int i = 0; i < directions.length; i++) {

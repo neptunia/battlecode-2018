@@ -10,6 +10,9 @@ public class Knight {
 
 	public static void run(GameController gc, Unit curUnit) {
 
+		Knight.curUnit = curUnit;
+		Knight.gc = gc;
+
 		MapLocation location = curUnit.location().mapLocation();
 
 		//attack enemies that are near you
