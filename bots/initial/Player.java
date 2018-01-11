@@ -6,6 +6,7 @@ public class Player {
     static Unit[][] map;
     static int gridX, gridY;
     static MapLocation enemyLocation = null;
+    static MapLocation startingLocation = null;
     static GameController gc;
 	
 	public static void main(String args[]) {

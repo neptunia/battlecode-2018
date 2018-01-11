@@ -24,6 +24,7 @@ public class Worker {
 			//guesstimate enemy location
 			if (Player.enemyLocation == null) {
 				MapLocation temp = curUnit.location().mapLocation();
+				Player.startingLocation = temp;
 				Player.enemyLocation = new MapLocation(Planet.Earth, Player.gridX - temp.getX(), Player.gridY - temp.getY());
 			}
 		}

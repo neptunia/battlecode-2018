@@ -7,10 +7,126 @@ public class Knight {
 	static GameController gc;
 	static Direction[] directions = Direction.values();
 	static HashMap<Integer, HashSet<Integer>> visited = new HashMap<Integer, HashSet<Integer>>();
+	static HashMap<Integer, MapLocation> targets = new HashMap<Integer, MapLocation>();
 
 	public static void run(GameController gc, Unit curUnit) {
 
 		Knight.curUnit = curUnit;
+		Knight.gc = gc;
+
+		if (curUnit.location().isInGarrison()) {
+			return;
+		}
+		MapLocation tgt = getTarget();
+		if (tgt != null) {
+			if (CheckWithinRange()) {
+				// if i win, go in
+				move(tgt);
+			} else {
+				// retreat
+				setTarget(curunit, Player.startingLocation());
+
+			}
+		} else {
+			if (CheckWithinRange()) {
+				// target???
+				//setTarget(curunit, Player.enemyLocation());
+				targetEnemy();
+				move(tgt);
+			} else {
+				// explore
+				setTarget(curunit, Player.enemyLocation());
+
+			}
+		}
+
+
+		//attack enemies that are near you
+		if (canAttack()) {
+			attackNearbyEnemies();
+		}
+
+		if (getTarget() == curUnit.location().mapLocation()) {
+			setTarget(curUnit, null);
+		}
+	}
+
+	public static void setTarget(Unit unit, MapLocation x) {
+		targets.put(unit.id(), x);
+	}
+
+	public static MapLocation getTarget() {
+		if (!targets.containsKey(curUnit.id())) {
+			targets.put(curUnit.id(), null);
+			return null;
+		} else {
+			return targets.get(curUnit.id());
+		}
+	}
+
+	public static void TargetEnemy() {
+		VecUnit nearbyUnits = getNearby(curUnit.location().mapLocation(), (int) curUnit.visionRange());
+		MapLocation tl = null;
+		for (int i = 0; i < nearbyUnits.size(); i++) {
+			Unit unit = nearbyUnits.get(i);
+			if (unit.team() != gc.team()) {
+				// enemy
+				tl = unit.location().mapLocation();
+				break;
+				
+			}
+		}
+		setTarget(curunit, tl);
+		for (int i = 0; i < nearbyUnits.size(); i++) {
+			Unit unit = nearbyUnits.get(i);
+			if (unit.team() == gc.team()) {
+				// enemy
+				setTarget(unit, tl);
+			}
+		}
+	}
+
+
+	public static boolean CheckWithinRange() {
+		VecUnit nearbyUnits = getNearby(curUnit.location().mapLocation(), (int) curUnit.visionRange());
+		
+		int friendlyArmyCount = 1;
+		int enemyArmyCount = 0;
+		int enemyCount = 0;
+
+
+		for (int i = 0; i < nearbyUnits.size(); i++) {
+			Unit unit = nearbyUnits.get(i);
+			if (unit.team() != gc.team()) {
+				// enemy
+				if (unit.unitType() == UnitType.Knight || unit.unitType() == UnitType.Mage || unit.unitType() == UnitType.Healer || unit.unitType() == UnitType.Ranger) {
+					enemyArmyCount += 1;
+				}
+				enemyCount += 1;
+			} else {
+				if (unit.unitType() == UnitType.Knight || unit.unitType() == UnitType.Mage || unit.unitType() == UnitType.Healer || unit.unitType() == UnitType.Ranger) {
+					friendlyArmyCount += 1;
+				}
+			}
+		}
+		return (friendlyArmyCount >= enemyArmyCount && enemyCount > 0);
+	}
+
+	public static void getTarget() {
+		if (!targets.containsKey(curUnit.id())) {
+			Integer temp = -1;
+			temp.add(hash);
+			visited.put(curUnit.id(), temp);
+		} else {
+			visited.get(curUnit.id()).add(hash);
+		}
+	}
+
+	/*
+	public static void run(GameController gc, Unit curUnit) {
+
+		Knight.curUnit = curUnit;
+		Knight.gc = gc;
 
 		if (curUnit.location().isInGarrison()) {
 			return;
@@ -24,7 +140,7 @@ public class Knight {
 		if (canMove()) {
 			move(getTarget());
 		}
-	}
+	}*/
 
 	public static boolean canAttack() {
 		return curUnit.attackHeat() < 10;
@@ -77,11 +193,6 @@ public class Knight {
 		return true;
 	}
 
-	//get target unit should be pathing towards
-	public static MapLocation getTarget() {
-		return Player.enemyLocation;
-	}
-
 	public static int hash(int x, int y) {
 		return 69 * x + y;
 	}
@@ -90,6 +201,8 @@ public class Knight {
 		int x1 = first.getX(), y1 = first.getY(), x2 = second.getX(), y2 = second.getY();
 		return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
 	}
+
+
 
 	//senses nearby units and updates RobotPlayer.map with detected units
 	public static VecUnit getNearby(MapLocation maploc, int radius) {
