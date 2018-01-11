@@ -35,11 +35,9 @@ public class Worker {
 			if (distance(blueprintLoc.getX(), blueprintLoc.getY(), curLoc.getX(), curLoc.getY()) <= 2) {
 				if (!buildBlueprint(targetBlueprint)) {
 					System.out.println("SUM TING WONG :(");
-				} else {
-					//finished building
-					if (toWorkOn.health() == toWorkOn.maxHealth()) {
-						targetBlueprint = -1;
-					}
+				}
+				if (toWorkOn.health() == toWorkOn.maxHealth()) {
+					targetBlueprint = -1;
 				}
 			} else {
 				move(blueprintLoc);
@@ -91,9 +89,10 @@ public class Worker {
 
 	//builds a factory in an open space around worker
 	public static void buildFactory() {
-		for (int i = 0; i < directions.length; i++) {
+		for (int i = 0; i < directions.length - 2; i++) {
 			if (gc.canBlueprint(curUnit.id(), UnitType.Factory, directions[i])) {
 				gc.blueprint(curUnit.id(), UnitType.Factory, directions[i]);
+				targetBlueprint = gc.senseUnitAtLocation(curUnit.location().mapLocation().add(directions[i])).id();
 				break;
 			}
 		}
