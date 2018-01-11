@@ -53,3 +53,35 @@ every point not already selected's weight will be subtracted to disaccount for i
 
 repeat until all squares are covered
 
+
+bug pathing implementation
+
+def blocked by ally:
+	if both unit's next move squares are not where they currently are
+		wait a turn
+	else
+		move to a different square
+
+prevlocation = null
+while not at target
+	if path to goal is clear of obstacles and enemies
+		if blocked by ally
+			goto func blocked by ally
+		else
+			take path to goal
+	else //follow obstacle
+		if prevlocation is null
+			set prevlocation to current location
+			select obstacle wall closest to target
+			//obstacle wall is one that has a unpassable tile directly left right up or down to it
+			if blocked by ally
+				goto func blocked by ally
+			else
+				move to it
+		else
+			select obstacle wall that's != prevlocation
+
+			if blocked by ally
+				goto func blocked by ally
+			else
+				move to it
