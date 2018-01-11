@@ -36,12 +36,16 @@ public class Worker {
 			} else {
 				MapLocation blueprintLoc = toWorkOn.location().mapLocation();
 				MapLocation curLoc = curUnit.location().mapLocation();
-				if (distance(blueprintLoc.getX(), blueprintLoc.getY(), curLoc.getX(), curLoc.getY()) <= 2) {
+				if (distance(blueprintLoc, curLoc) <= 2) {
 					if (!buildBlueprint(targetBlueprint)) {
 						System.out.println("SUM TING WONG :(");
 					}
 				} else {
-					move(blueprintLoc);
+					if (gc.isMoveReady(curUnit.id())) {
+						if (!move(blueprintLoc)) {
+							System.out.println("CANT MOVE");
+						}
+					}
 				}
 			}
 		} else {
@@ -52,22 +56,10 @@ public class Worker {
 		return;
 	}
 
-	public static double distance(int x1, int y1, int x2, int y2) {
+	public static double distance(MapLocation first, MapLocation second) {
+		int x1 = first.getX(), y1 = first.getY(), x2 = second.getX(), y2 = second.getY();
 		return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 	}
-
-	/* try to work on any blueprints nearby
-	public static void workOnBlueprint() {
-		MapLocation curLoc = curUnit.location().mapLocation();
-		VecUnit nearby = getNearby(curLoc, 2);
-		for (int i = 0; i < nearby.size(); i++) {
-			Unit toBuild = nearby.get(i);
-			if (gc.canBuild(curUnit.id(), toBuild.id())) {
-				gc.build(curUnit.id(), toBuild.id());
-				return;
-			}
-		}
-	}*/
 
 	//build blueprint given structure unit id
 	public static boolean buildBlueprint(int id) {
@@ -76,17 +68,6 @@ public class Worker {
 			return true;
 		}
 		return false;
-	}
-
-	//senses nearby units and updates RobotPlayer.map
-	public static VecUnit getNearby(MapLocation maploc, int radius) {
-		VecUnit nearby = gc.senseNearbyUnits(maploc, radius);
-		for (int i = 0; i < nearby.size(); i++) {
-			Unit unit = nearby.get(i);
-			MapLocation temp = unit.location().mapLocation();
-			Player.map[temp.getX()][temp.getY()] = unit;
-		}
-		return nearby;
 	}
 
 	//builds a factory in an open space around worker
@@ -101,14 +82,24 @@ public class Worker {
 	}
 
 	//move towards target location
-	public static void move(MapLocation target) {
+	public static boolean move(MapLocation target) {
 		//TODO implement pathfinding
+		double smallest = 999999;
+		Direction d = null;
+		MapLocation curLoc = curUnit.location().mapLocation();
 		for (int i = 0; i < directions.length; i++) {
-			if (gc.isMoveReady(curUnit.id()) && gc.canMove(curUnit.id(), directions[i])) {
-				gc.moveRobot(curUnit.id(), directions[i]);
-				return;
+			MapLocation newSquare = curLoc.add(directions[i]);
+			if (gc.canMove(curUnit.id(), directions[i]) && distance(newSquare, target) < smallest) {
+				smallest = distance(newSquare, target);
+				d = directions[i];
 			}
 		}
+		if (d == null) {
+			//can't move
+			return false;
+		}
+		gc.move(curUnit.id(), d);
+		return true;
 	}
 
 }
