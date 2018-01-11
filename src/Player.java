@@ -23,11 +23,6 @@ public class Player {
 
                     //iterate through units
                     // might need to fix this later; what happens if I create a new unit in the middle of this loop?
-                    //updates locations of all of my units
-                    for (int i = 0; i < numberOfUnits; i++) {
-                        Unit curUnit = myUnits.get(i);
-                        map[curUnit.location().mapLocation().getX()][curUnit.location().mapLocation().getY()] = curUnit;
-                    }
                     for (int i = 0; i < numberOfUnits; i++) {
                         Unit curUnit = myUnits.get(i);
                         //perform unit task based on unit type
