@@ -12,7 +12,7 @@ public class Worker {
 		Worker.gc = gc;
 		Worker.curUnit = curUnit;
 
-		if (gc.round() == 2) {
+		if (gc.round() == 1) {
 			//Initial replication
 			for (int i = 0; i < directions.length; i++) {
 				if (gc.canReplicate(curUnit.id(), directions[i])) {
