@@ -58,9 +58,9 @@ public class Worker {
 		return;
 	}
 
-	public static double distance(MapLocation first, MapLocation second) {
+	public static int distance(MapLocation first, MapLocation second) {
 		int x1 = first.getX(), y1 = first.getY(), x2 = second.getX(), y2 = second.getY();
-		return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+		return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
 	}
 
 	//build blueprint given structure unit id
@@ -90,7 +90,7 @@ public class Worker {
 	//move towards target location
 	public static boolean move(MapLocation target) {
 		//TODO implement pathfinding
-		double smallest = 999999;
+		int smallest = 999999;
 		Direction d = null;
 		MapLocation curLoc = curUnit.location().mapLocation();
 		int hash = hash(curLoc.getX(), curLoc.getY());
@@ -110,6 +110,7 @@ public class Worker {
 		}
 		if (d == null) {
 			//can't move
+			//check around unit for friendly units and look at their target to decide whether to find another path or wait for them
 			visited.remove(curUnit.id());
 			return false;
 		}
