@@ -7,7 +7,7 @@ public class Worker {
 	static GameController gc;
 	static Direction[] directions = Direction.values();
 	static int targetBlueprint = -1;
-	static HashMap<Integer, String> visited = new HashMap<Integer, String>();
+	static HashMap<Integer, HashSet<Integer>> visited = new HashMap<Integer, HashSet<Integer>>();
 
 	public static void run(GameController gc, Unit curUnit) {
 
@@ -95,19 +95,22 @@ public class Worker {
 		MapLocation curLoc = curUnit.location().mapLocation();
 		int hash = hash(curLoc.getX(), curLoc.getY());
 		if (!visited.containsKey(curUnit.id())) {
-			visited.put(curUnit.id(), Integer.toString(hash) + ",");
+			HashSet<Integer> temp = new HashSet<Integer>();
+			temp.add(hash);
+			visited.put(curUnit.id(), temp);
 		} else {
-			visited.put(curUnit.id(), visited.get(curUnit.id()) + Integer.toString(hash) + ",");
+			visited.get(curUnit.id()).add(hash);
 		}
 		for (int i = 0; i < directions.length; i++) {
 			MapLocation newSquare = curLoc.add(directions[i]);
-			if (!visited.get(curUnit.id()).contains(Integer.toString(hash(newSquare.getX(), newSquare.getY()))) && gc.canMove(curUnit.id(), directions[i]) && distance(newSquare, target) < smallest) {
+			if (!visited.get(curUnit.id()).contains(hash(newSquare.getX(), newSquare.getY())) && gc.canMove(curUnit.id(), directions[i]) && distance(newSquare, target) < smallest) {
 				smallest = distance(newSquare, target);
 				d = directions[i];
 			}
 		}
 		if (d == null) {
 			//can't move
+			visited.remove(curUnit.id());
 			return false;
 		}
 		gc.moveRobot(curUnit.id(), d);
