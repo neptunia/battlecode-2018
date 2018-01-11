@@ -1,4 +1,5 @@
 import bc.*;
+import java.util.*;
 
 public class Worker {
 
@@ -92,16 +93,15 @@ public class Worker {
 		double smallest = 999999;
 		Direction d = null;
 		MapLocation curLoc = curUnit.location().mapLocation();
-		int hash = hash(curLoc.getX(), curLoc.getY())
+		int hash = hash(curLoc.getX(), curLoc.getY());
 		if (!visited.containsKey(hash(curLoc.getX(), curLoc.getY()))) {
 			visited.put(hash, Integer.toString(hash) + ",");
 		} else {
-			visited.put(hash, visited.get(hash) + Integer.toString(hash + ",");
+			visited.put(hash, visited.get(hash) + Integer.toString(hash) + ",");
 		}
-		visited.put(hash(curLoc.getX(), curLoc.getY()), )
 		for (int i = 0; i < directions.length; i++) {
 			MapLocation newSquare = curLoc.add(directions[i]);
-			if (!visited.get(hash).contains(hash(newSquare.getX(), newSquare.getY())) && gc.canMove(curUnit.id(), directions[i]) && distance(newSquare, target) < smallest) {
+			if (!visited.get(hash).contains(Integer.toString(hash(newSquare.getX(), newSquare.getY()))) && gc.canMove(curUnit.id(), directions[i]) && distance(newSquare, target) < smallest) {
 				smallest = distance(newSquare, target);
 				d = directions[i];
 			}
@@ -110,7 +110,7 @@ public class Worker {
 			//can't move
 			return false;
 		}
-		gc.move(curUnit.id(), d);
+		gc.moveRobot(curUnit.id(), d);
 		return true;
 	}
 
