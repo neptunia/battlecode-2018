@@ -97,7 +97,7 @@ public class Worker {
 		if (!visited.containsKey(curUnit.id())) {
 			visited.put(curUnit.id(), Integer.toString(hash) + ",");
 		} else {
-			visited.put(curUnit.id(), visited.get(hash) + Integer.toString(hash) + ",");
+			visited.put(curUnit.id(), visited.get(curUnit.id()) + Integer.toString(hash) + ",");
 		}
 		for (int i = 0; i < directions.length; i++) {
 			MapLocation newSquare = curLoc.add(directions[i]);
