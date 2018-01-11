@@ -4,11 +4,11 @@ public class Factory {
 
 	static Unit curUnit;
 	static GameController gc;
+	static int c = 0;
 
 	public static void run(GameController gc, Unit curUnit) {
 
 		Factory.curUnit = curUnit;
-		Factory.gc = gc;
 
 		/*if (curUnit.isFactoryProducing()) {
 			return;
@@ -30,7 +30,12 @@ public class Factory {
 		
 		//produce unit
 		if (gc.canProduceRobot(curUnit.id(), UnitType.Knight)) {
-			gc.produceRobot(curUnit.id(), UnitType.Knight);
+			if (c % 4 == 0){
+				gc.produceRobot(curUnit.id(), UnitType.Knight);
+			} else {
+				gc.produceRobot(curUnit.id(), UnitType.Mage);
+			}
+			c += 1;
 		}
 
 		return;

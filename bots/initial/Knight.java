@@ -11,7 +11,6 @@ public class Knight {
 	public static void run(GameController gc, Unit curUnit) {
 
 		Knight.curUnit = curUnit;
-		Knight.gc = gc;
 
 		if (curUnit.location().isInGarrison()) {
 			return;
@@ -78,6 +77,11 @@ public class Knight {
 		return true;
 	}
 
+	//get target unit should be pathing towards
+	public static MapLocation getTarget() {
+		return Player.enemyLocation;
+	}
+
 	public static int hash(int x, int y) {
 		return 69 * x + y;
 	}
@@ -85,11 +89,6 @@ public class Knight {
 	public static int distance(MapLocation first, MapLocation second) {
 		int x1 = first.getX(), y1 = first.getY(), x2 = second.getX(), y2 = second.getY();
 		return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
-	}
-
-	//get target unit should be pathing towards
-	public static MapLocation getTarget() {
-		return Player.enemyLocation;
 	}
 
 	//senses nearby units and updates RobotPlayer.map with detected units

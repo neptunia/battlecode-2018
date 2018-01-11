@@ -11,6 +11,14 @@ public class Player {
 	public static void main(String args[]) {
         try {
             GameController gc = new GameController();
+
+            Mage.gc = gc;
+            Rocket.gc = gc;
+            Healer.gc = gc;
+            Factory.gc = gc;
+            Ranger.gc = gc;
+            Knight.gc = gc;
+            Worker.gc = gc;
             Player.gc = gc;
 
             initialize();
@@ -35,9 +43,14 @@ public class Player {
                                     System.out.println("Factory ded");
                                 }
                                 break;
-                            //case UnitType.Healer:
-                            //	Healer.run(gc, curUnit);
-                            //  break;
+                            case Healer:
+                                try {
+                                    Healer.run(gc, curUnit);
+                                } catch (Exception e) {
+                                    e.printStackTrace();;
+                                    System.out.println("Healer ded");
+                                }
+                                break;
                             case Knight:
                                 try {
                                     Knight.run(gc, curUnit);
@@ -46,15 +59,30 @@ public class Player {
                                     System.out.println("knight ded");
                                 }
                                 break;
-                            //case UnitType.Mage:
-                            //	Mage.run(gc, curUnit);
-                            //  break;
-                            //case UnitType.Ranger:
-                            //	Ranger.run(gc, curUnit);
-                            //  break;
-                            //case UnitType.Rocket:
-                            //	Rocket.run(gc, curUnit);
-                            //  break;
+                            case Mage:
+                                try {
+                                    Mage.run(gc, curUnit);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    System.out.println("mage ded");
+                                }
+                                break;
+                            case Ranger:
+                            	try {
+                            	    Ranger.run(gc, curUnit);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    System.out.println("mage ded");
+                                }
+                                break;
+                            case Rocket:
+                                try {
+                                    Rocket.run(gc, curUnit);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    System.out.println("mage ded");
+                                }
+                                break;
                             case Worker:
                                 try {
                                     Worker.run(gc, curUnit);
