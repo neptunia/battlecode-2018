@@ -30,17 +30,19 @@ public class Worker {
 		//go to current blueprint working on and do it
 		if (targetBlueprint != -1) {
 			Unit toWorkOn = gc.unit(targetBlueprint);
-			MapLocation blueprintLoc = toWorkOn.location().mapLocation();
-			MapLocation curLoc = curUnit.location().mapLocation();
-			if (distance(blueprintLoc.getX(), blueprintLoc.getY(), curLoc.getX(), curLoc.getY()) <= 2) {
-				if (!buildBlueprint(targetBlueprint)) {
-					System.out.println("SUM TING WONG :(");
-				}
-				if (toWorkOn.health() == toWorkOn.maxHealth()) {
-					targetBlueprint = -1;
-				}
+			if (toWorkOn.health() == toWorkOn.maxHealth()) {
+				targetBlueprint = -1;
+				buildFactory();
 			} else {
-				move(blueprintLoc);
+				MapLocation blueprintLoc = toWorkOn.location().mapLocation();
+				MapLocation curLoc = curUnit.location().mapLocation();
+				if (distance(blueprintLoc.getX(), blueprintLoc.getY(), curLoc.getX(), curLoc.getY()) <= 2) {
+					if (!buildBlueprint(targetBlueprint)) {
+						System.out.println("SUM TING WONG :(");
+					}
+				} else {
+					move(blueprintLoc);
+				}
 			}
 		} else {
 			buildFactory();
