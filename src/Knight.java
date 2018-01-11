@@ -1,4 +1,5 @@
 import bc.*;
+import java.util.*;
 
 public class Knight {
 
@@ -72,6 +73,15 @@ public class Knight {
 		}
 		gc.moveRobot(curUnit.id(), d);
 		return true;
+	}
+
+	public static int hash(int x, int y) {
+		return 69 * x + y;
+	}
+
+	public static double distance(MapLocation first, MapLocation second) {
+		int x1 = first.getX(), y1 = first.getY(), x2 = second.getX(), y2 = second.getY();
+		return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 	}
 
 	//get target unit should be pathing towards
