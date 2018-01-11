@@ -6,6 +6,7 @@ public class Worker {
 	static GameController gc;
 	static Direction[] directions = Direction.values();
 	static int targetBlueprint = -1;
+	static HashMap<Integer, String> visited = new HashMap<Integer, String>();
 
 	public static void run(GameController gc, Unit curUnit) {
 
@@ -81,15 +82,26 @@ public class Worker {
 		}
 	}
 
+	public static int hash(int x, int y) {
+		return 69 * x + y;
+	}
+
 	//move towards target location
 	public static boolean move(MapLocation target) {
 		//TODO implement pathfinding
 		double smallest = 999999;
 		Direction d = null;
 		MapLocation curLoc = curUnit.location().mapLocation();
+		int hash = hash(curLoc.getX(), curLoc.getY())
+		if (!visited.containsKey(hash(curLoc.getX(), curLoc.getY()))) {
+			visited.put(hash, Integer.toString(hash) + ",");
+		} else {
+			visited.put(hash, visited.get(hash) + Integer.toString(hash + ",");
+		}
+		visited.put(hash(curLoc.getX(), curLoc.getY()), )
 		for (int i = 0; i < directions.length; i++) {
 			MapLocation newSquare = curLoc.add(directions[i]);
-			if (gc.canMove(curUnit.id(), directions[i]) && distance(newSquare, target) < smallest) {
+			if (!visited.get(hash).contains(hash(newSquare.getX(), newSquare.getY())) && gc.canMove(curUnit.id(), directions[i]) && distance(newSquare, target) < smallest) {
 				smallest = distance(newSquare, target);
 				d = directions[i];
 			}
