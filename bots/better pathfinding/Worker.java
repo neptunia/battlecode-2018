@@ -182,6 +182,7 @@ public class Worker {
 		}
 	}
 
+	//check if a square is the border of an obstacle (aka if an obstacle is on left right up or down of it)
 	public static boolean checkAdjacentToObstacle(MapLocation test) {
 		Direction[] temp = {Direction.North, Direction.South, Direction.East, Direction.South};
 		for (int i = 0; i < temp.length; i++) {

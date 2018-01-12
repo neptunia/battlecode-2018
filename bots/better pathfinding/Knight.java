@@ -71,6 +71,7 @@ public class Knight {
 
 	}
 
+	//try to attack a target unit
 	public static void tryAttack(int id) {
 		if (gc.canAttack(curUnit.id(), id)) {
 			gc.attack(curUnit.id(), id);
@@ -82,6 +83,7 @@ public class Knight {
 		VecUnit nearby = gc.senseNearbyUnits(curUnit.location().mapLocation(), curUnit.visionRange());
 		int tempTarget = -1;
 		int smallest = 9999999;
+		//find nearest target
 		for (int i = 0; i < nearby.size(); i++) {
 			Unit temp3 = nearby.get(i);
 			if (temp3.team() != gc.team()) {
@@ -94,6 +96,7 @@ public class Knight {
 				}
 			}
 		}
+		//if found a target, set that as target for units around me
 		if (smallest != 9999999) {
 			for (int i = 0; i < nearby.size(); i++) {
 				Unit temp3 = nearby.get(i);
@@ -106,6 +109,7 @@ public class Knight {
 		return ret;
 	}
 
+	//count number of nearby enemies and allies
 	public static Pair countNearby() {
 		Pair ret = new Pair();
 		VecUnit nearby = gc.senseNearbyUnits(curUnit.location().mapLocation(), curUnit.visionRange());
@@ -113,17 +117,14 @@ public class Knight {
 			Unit temp3 = nearby.get(i);
 			if (temp3.team() != gc.team()) {
 				ret.enemy++;
-			}
-		}
-		for (int i = 0; i < nearby.size(); i++) {
-			Unit temp3 = nearby.get(i);
-			if (temp3.team() == gc.team()) {
+			} else {
 				ret.friendly++;
 			}
 		}
 		return ret;
 	}
 
+	//struct to store two ints lol
 	public static class Pair {
 		int friendly;
 		int enemy;
@@ -160,6 +161,7 @@ public class Knight {
 		return curUnit.attackHeat() < 10;
 	}
 
+	//attack nearest enemy found
 	public static void attackNearbyEnemies() {
 		VecUnit nearbyUnits = getNearby(curUnit.location().mapLocation(), (int) curUnit.attackRange());
 		for (int i = 0; i < nearbyUnits.size(); i++) {
@@ -215,8 +217,6 @@ public class Knight {
 		int x1 = first.getX(), y1 = first.getY(), x2 = second.getX(), y2 = second.getY();
 		return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
 	}
-
-
 
 	//senses nearby units and updates RobotPlayer.map with detected units
 	public static VecUnit getNearby(MapLocation maploc, int radius) {
