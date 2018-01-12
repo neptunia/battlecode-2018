@@ -156,7 +156,7 @@ public class Worker {
 			for (int i = 0; i < directions.length; i++) {
 				MapLocation test = curUnit.location().mapLocation().add(directions[i]);
 				//TODO check if isPassable returns true or false for allies
-				if (checkAdjacentToObstacle(test) && distance(test, target) < smallest) {
+				if (checkPassable(test) && checkAdjacentToObstacle(test) && distance(test, target) < smallest) {
 					smallest = distance(test, target);
 					toMove = directions[i];
 					wall = test;
@@ -177,7 +177,7 @@ public class Worker {
 			for (int i = 0; i < directions.length; i++) {
 				MapLocation test = curUnit.location().mapLocation().add(directions[i]);
 				//TODO check if isPassable returns true or false for allies
-				if (checkAdjacentToObstacle(test) && hash(test) != previousHash) {
+				if (checkPassable(test) && checkAdjacentToObstacle(test) && hash(test) != previousHash) {
 					wall = test;
 					toMove = directions[i];
 				}
@@ -199,17 +199,21 @@ public class Worker {
 	public static boolean checkAdjacentToObstacle(MapLocation test) {
 		Direction[] temp = {Direction.North, Direction.South, Direction.East, Direction.South};
 		for (int i = 0; i < temp.length; i++) {
-			boolean allyThere = true;
-			try {
-				gc.senseUnitAtLocation(test.add(temp[i]));
-			} catch (Exception e) {
-				allyThere = false;
-			}
-			if (Player.planetMap.isPassableTerrainAt(test.add(temp[i])) == 0 || allyThere) {
+			if (checkPassable(test.add(temp[i]))) {
 				return true;
 			}
 		}
 		return false;
+	}
+
+	public static boolean checkPassable(MapLocation test) {
+		boolean allyThere = true;
+		try {
+			gc.senseUnitAtLocation(test);
+		} catch (Exception e) {
+			allyThere = false;
+		}
+		return Player.planetMap.isPassableTerrainAt(test) == 0 || allyThere;
 	}
 
 	//move towards target location
