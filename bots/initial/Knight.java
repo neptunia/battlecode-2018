@@ -23,7 +23,7 @@ public class Knight {
 		if (!targets.containsKey(curUnit.id())) {
 			//try to find an enemy target in range
 			nearbyInfo = findTarget();
-		} else if (gc.unit(targets.get(curUnit.id())).health() == 0) {
+		} else if (gc.senseUnitAtLocation(targets.get(curUnit.id())).health() == 0) {
 			//already killed this unit, remove
 			targets.remove(curUnit.id());
 			nearbyInfo = findTarget();
@@ -58,7 +58,7 @@ public class Knight {
 
 	public static Pair findTarget() {
 		Pair ret = new Pair();
-		VecUnit nearby = senseNearbyUnits(curUnit.location().mapLocation(), curUnit.visionRange());
+		VecUnit nearby = gc.senseNearbyUnits(curUnit.location().mapLocation(), curUnit.visionRange());
 		MapLocation tempTarget = null;
 		int smallest = 9999999;
 		for (int i = 0; i < nearby.size(); i++) {
@@ -87,19 +87,17 @@ public class Knight {
 
 	public static Pair countNearby() {
 		Pair ret = new Pair();
-		VecUnit nearby = senseNearbyUnits(curUnit.location().mapLocation(), curUnit.visionRange());
+		VecUnit nearby = gc.senseNearbyUnits(curUnit.location().mapLocation(), curUnit.visionRange());
 		for (int i = 0; i < nearby.size(); i++) {
 			Unit temp3 = nearby.get(i);
 			if (temp3.team() != gc.team()) {
 				ret.enemy++;
 			}
 		}
-		if (tempTarget != null) {
-			for (int i = 0; i < nearby.size(); i++) {
-				Unit temp3 = nearby.get(i);
-				if (temp3.team() == gc.team()) {
-					ret.friendly++;
-				}
+		for (int i = 0; i < nearby.size(); i++) {
+			Unit temp3 = nearby.get(i);
+			if (temp3.team() == gc.team()) {
+				ret.friendly++;
 			}
 		}
 		return ret;
