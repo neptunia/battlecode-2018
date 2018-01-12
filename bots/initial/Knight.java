@@ -35,17 +35,19 @@ public class Knight {
 		}
 
 		//if this knight has a target
-		if (targets.containsKey(curUnit.id())) {
-			//move towards them
-			if (nearbyInfo.friendly > nearbyInfo.enemy) {
-				move(targets.get(curUnit.id()));
+		if (canMove()) {
+			if (targets.containsKey(curUnit.id())) {
+				//move towards them
+				if (nearbyInfo.friendly > nearbyInfo.enemy) {
+					move(targets.get(curUnit.id()));
+				} else {
+					//enemy too strank
+					move(Player.startingLocation);
+				}
 			} else {
-				//enemy too strank
-				move(Player.startingLocation);
+				//explore
+				move(Player.enemyLocation);
 			}
-		} else {
-			//explore
-			move(Player.enemyLocation);
 		}
 
 		//attack first enemy
