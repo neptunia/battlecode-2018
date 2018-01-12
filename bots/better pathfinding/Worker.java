@@ -6,8 +6,9 @@ public class Worker {
 	static Unit curUnit;
 	static GameController gc;
 	static Direction[] directions = Direction.values();
-	static int targetBlueprint = -1;
 	static HashMap<Integer, HashSet<Integer>> visited = new HashMap<Integer, HashSet<Integer>>();
+	//target blueprint to work on for each worker
+	static HashMap<Integer, Integer> target = new HashMap<Integer, Integer>();
 
 	public static void run(GameController gc, Unit curUnit) {
 
@@ -30,7 +31,8 @@ public class Worker {
 		}
 
 		//go to current blueprint working on and do it
-		//TODO iff fairly close to it already
+		int targetBlueprint = target.get(curUnit.id());
+
 		if (targetBlueprint != -1) {
 			Unit toWorkOn = gc.unit(targetBlueprint);
 			if (toWorkOn.health() == toWorkOn.maxHealth()) {
@@ -44,7 +46,7 @@ public class Worker {
 						System.out.println("SUM TING WONG :(");
 					}
 				} else {
-					if (gc.isMoveReady(curUnit.id())) {
+					if (canMove()) {
 						if (!move(blueprintLoc)) {
 							System.out.println("CANT MOVE");
 						}
@@ -74,11 +76,21 @@ public class Worker {
 	}
 
 	//builds a factory in an open space around worker
+	//TODO improve factory building scheme
 	public static void buildFactory() {
 		for (int i = 0; i < directions.length - 2; i++) {
 			if (gc.canBlueprint(curUnit.id(), UnitType.Factory, directions[i])) {
 				gc.blueprint(curUnit.id(), UnitType.Factory, directions[i]);
-				targetBlueprint = gc.senseUnitAtLocation(curUnit.location().mapLocation().add(directions[i])).id();
+				int targetBlueprint = gc.senseUnitAtLocation(curUnit.location().mapLocation().add(directions[i])).id();
+				//tell all nearby workers to go work on it
+				//TODO maybe bfs within n range for workers to work on the factory
+				VecUnit nearby = gc.senseNearbyUnits(curUnit.location().mapLocation(), 4);
+				for (int a = 0; a < nearby.size(), a++) {
+					Unit temp = nearby.get(a);
+					if (temp.team() == gc.team() && temp.UnitType() == UnitType.Worker) {
+						target.put(temp.id(), targetBlueprint);
+					}
+				}
 				break;
 			}
 		}
@@ -117,6 +129,10 @@ public class Worker {
 		}
 		gc.moveRobot(curUnit.id(), d);
 		return true;
+	}
+
+	public static boolean canMove() {
+		return curUnit.movementHeat() < 10;
 	}
 
 }
