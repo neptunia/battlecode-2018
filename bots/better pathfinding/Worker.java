@@ -199,7 +199,13 @@ public class Worker {
 	public static boolean checkAdjacentToObstacle(MapLocation test) {
 		Direction[] temp = {Direction.North, Direction.South, Direction.East, Direction.South};
 		for (int i = 0; i < temp.length; i++) {
-			if (Player.planetMap.isPassableTerrainAt(test.add(temp[i])) == 0 || gc.senseUnitAtLocation(test.add(temp[i])) != null) {
+			boolean allyThere = true;
+			try {
+				gc.senseUnitAtLocation(test.add(temp[i]));
+			} catch (Exception e) {
+				allyThere = false;
+			}
+			if (Player.planetMap.isPassableTerrainAt(test.add(temp[i])) == 0 || allyThere) {
 				return true;
 			}
 		}
