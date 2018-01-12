@@ -20,10 +20,12 @@ public class Knight {
 
 		Pair nearbyInfo = null;
 
+		//if i dont have a target right now
 		if (!targets.containsKey(curUnit.id())) {
 			//try to find an enemy target in range
 			nearbyInfo = findTarget();
 		} else {
+			//remove unit if it is already killed
 			try {
 				gc.unit(targets.get(curUnit.id()))
 			} catch (Exception e) {
@@ -40,26 +42,29 @@ public class Knight {
 		}
 
 		//if this knight has a target
-		if (canMove()) {
-			if (targets.containsKey(curUnit.id())) {
-				//move towards them
-				if (nearbyInfo.friendly >= nearbyInfo.enemy) {
+		if (targets.containsKey(curUnit.id())) {
+			//move towards them if my army is stronger
+			if (nearbyInfo.friendly >= nearbyInfo.enemy) {
+				if (canMove()) {
 					move(gc.unit(targets.get(curUnit.id())).location().mapLocation());
-					if (canAttack()) {
-						tryAttack(targets.get(curUnit.id()));
-					}
-				} else {
-					//enemy too strank
-					move(Player.startingLocation);
+				}
+				if (canAttack()) {
+					tryAttack(targets.get(curUnit.id()));
 				}
 			} else {
-				//explore
+				//otherwise run away!!!
+				if (canMove()) {
+					move(Player.startingLocation);
+				}
+			}
+		} else {
+			//otherwise explore
+			if (canMove()) {
 				move(Player.enemyLocation);
 			}
 		}
 
-		//attack first enemy
-		//TODO should change later
+		//if i couldnt attack my target, attack anyone around me i can attack
 		if (canAttack()) {
 			attackNearbyEnemies();
 		}

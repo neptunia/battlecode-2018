@@ -34,22 +34,26 @@ public class Worker {
 			}
 		}
 
-		//go to current blueprint working on and do it
 		int targetBlueprint = target.get(curUnit.id());
 
+		//if i dont have a target blueprint
 		if (targetBlueprint != -1) {
 			Unit toWorkOn = gc.unit(targetBlueprint);
+			//already done working on
 			if (toWorkOn.health() == toWorkOn.maxHealth()) {
 				targetBlueprint = -1;
 				buildFactory();
 			} else {
+				//goto it and build it
 				MapLocation blueprintLoc = toWorkOn.location().mapLocation();
 				MapLocation curLoc = curUnit.location().mapLocation();
 				if (distance(blueprintLoc, curLoc) <= 2) {
+					//next to it, i can work on it
 					if (!buildBlueprint(targetBlueprint)) {
 						System.out.println("SUM TING WONG :(");
 					}
 				} else {
+					//move towards it
 					if (canMove()) {
 						if (!move(blueprintLoc)) {
 							System.out.println("CANT MOVE");
@@ -125,9 +129,9 @@ public class Worker {
 				direct = directions[i];
 			}
 		}
+		//if i can move directly
 		if (gc.canMove(curUnit.id(), direct)) {
 			prevLocation.remove(curUnit.id());
-			//follow path directly to target
 			gc.move(curUnit.id(), direct);
 			return;
 		} else {
@@ -138,7 +142,7 @@ public class Worker {
 		if (!prevLocation.containsKey(curUnit.id())) {
 			//choose a direction of obstacle to go in
 			prevLocation.put(curUnit.id(), hash(curUnit.location().mapLocation()));
-			//find closest obstacle border
+			//find obstacle border closest to target
 			smallest = 99999999;
 			MapLocation wall = null;
 			for (int i = 0; i < directions.length; i++) {
@@ -172,7 +176,7 @@ public class Worker {
 				if (gc.canMove(curUnit.id(), wall)) {
 					gc.move(curUnit.id(), wall);
 				} else {
-					System.out.println("Blocked by ally 2 :(");
+					System.out.println("Blocked by ally 3 :(");
 				}
 			}
 		}
