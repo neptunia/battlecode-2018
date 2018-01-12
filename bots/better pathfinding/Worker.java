@@ -199,7 +199,7 @@ public class Worker {
 	public static boolean checkAdjacentToObstacle(MapLocation test) {
 		Direction[] temp = {Direction.North, Direction.South, Direction.East, Direction.South};
 		for (int i = 0; i < temp.length; i++) {
-			if (checkPassable(test.add(temp[i]))) {
+			if (!checkPassable(test.add(temp[i]))) {
 				return true;
 			}
 		}
