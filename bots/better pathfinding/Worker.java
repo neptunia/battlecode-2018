@@ -35,7 +35,9 @@ public class Worker {
 		}
 		//remove target if factory already died
 		try {
-			gc.unit(target.get(curUnit.id()));
+			if (target.containsKey(curUnit.id())) {
+				gc.unit(target.get(curUnit.id()));
+			}
 		} catch (Exception e) {
 			target.remove(curUnit.id());
 		}
@@ -197,7 +199,7 @@ public class Worker {
 	public static boolean checkAdjacentToObstacle(MapLocation test) {
 		Direction[] temp = {Direction.North, Direction.South, Direction.East, Direction.South};
 		for (int i = 0; i < temp.length; i++) {
-			if (Player.planetMap.isPassableTerrainAt(test.add(temp[i])) == 0) {
+			if (Player.planetMap.isPassableTerrainAt(test.add(temp[i])) == 0 || gc.senseUnitAtLocation(test.add(temp[i])) != null) {
 				return true;
 			}
 		}
