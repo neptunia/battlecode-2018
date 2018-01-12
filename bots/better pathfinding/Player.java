@@ -8,6 +8,7 @@ public class Player {
     static MapLocation enemyLocation = null;
     static MapLocation startingLocation = null;
     static GameController gc;
+    static PlanetMap planetMap;
 	
 	public static void main(String args[]) {
         try {
@@ -21,6 +22,7 @@ public class Player {
             Knight.gc = gc;
             Worker.gc = gc;
             Player.gc = gc;
+            Player.planetMap = gc.startingMap(Planet.Earth);
 
             initialize();
 
@@ -117,9 +119,8 @@ public class Player {
     }
 
     public static void initialize() {
-        PlanetMap planetmap = gc.startingMap(Planet.Earth);
-        int width = (int) planetmap.getWidth();
-        int height = (int) planetmap.getHeight();
+        int width = (int) planetMap.getWidth();
+        int height = (int) planetMap.getHeight();
         gridX = width;
         gridY = height;
         map = new Unit[width][height];
@@ -127,7 +128,7 @@ public class Player {
         for (int i = 0; i < width; i++) {
             for (int a = 0; a < height; a++) {
                 MapLocation temp = new MapLocation(Planet.Earth, i, a);
-                if (planetmap.isPassableTerrainAt(temp) == 1) {
+                if (planetMap.isPassableTerrainAt(temp) == 1) {
                     passable[i][a] = true;
                 } else {
                     passable[i][a] = false;

@@ -27,7 +27,7 @@ public class Knight {
 		} else {
 			//remove unit if it is already killed
 			try {
-				gc.unit(targets.get(curUnit.id()))
+				gc.unit(targets.get(curUnit.id()));
 			} catch (Exception e) {
 				//already killed this unit, or it ran away, remove
 				targets.remove(curUnit.id());

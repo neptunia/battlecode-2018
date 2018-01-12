@@ -93,9 +93,9 @@ public class Worker {
 				//tell all nearby workers to go work on it
 				//TODO maybe bfs within n range for workers to work on the factory
 				VecUnit nearby = gc.senseNearbyUnits(curUnit.location().mapLocation(), 4);
-				for (int a = 0; a < nearby.size(), a++) {
+				for (int a = 0; a < nearby.size(); a++) {
 					Unit temp = nearby.get(a);
-					if (temp.team() == gc.team() && temp.UnitType() == UnitType.Worker) {
+					if (temp.team() == gc.team() && temp.unitType() == UnitType.Worker) {
 						//if changing target of a unit
 						if (prevLocation.get(temp.id()) != targetBlueprint) {
 							target.put(temp.id(), targetBlueprint);
@@ -124,19 +124,21 @@ public class Worker {
 		for (int i = 0; i < directions.length; i++) {
 			MapLocation newSquare = curUnit.location().mapLocation().add(directions[i]);
 			int temp = distance(target, newSquare);
-			if (temp < smallest)) {
+			if (temp < smallest) {
 				smallest = temp;
 				direct = directions[i];
 			}
 		}
 		//if i can move directly
-		if (gc.canMove(curUnit.id(), direct)) {
-			prevLocation.remove(curUnit.id());
-			gc.move(curUnit.id(), direct);
-			return;
-		} else {
-			System.out.println("Blocked by ally :(");
-			return;
+		if (direct != null) {
+			if (gc.canMove(curUnit.id(), direct)) {
+				prevLocation.remove(curUnit.id());
+				gc.moveRobot(curUnit.id(), direct);
+				return;
+			} else {
+				System.out.println("Blocked by ally :(");
+				return;
+			}
 		}
 		//follow obstacle
 		if (!prevLocation.containsKey(curUnit.id())) {
@@ -145,16 +147,18 @@ public class Worker {
 			//find obstacle border closest to target
 			smallest = 99999999;
 			MapLocation wall = null;
+			Direction toMove = null;
 			for (int i = 0; i < directions.length; i++) {
 				MapLocation test = curUnit.location().mapLocation().add(directions[i]);
 				if (checkAdjacentToObstacle(test) && distance(test, target) < smallest) {
 					smallest = distance(test, target);
+					toMove = directions[i];
 					wall = test;
 				}
 			}
 			//try to move there
-			if (gc.canMove(curUnit.id(), wall)) {
-				gc.move(curUnit.id(), wall);
+			if (gc.canMove(curUnit.id(), toMove)) {
+				gc.moveRobot(curUnit.id(), toMove);
 			} else {
 				System.out.println("Blocked by ally 2 :(");
 			}
@@ -163,18 +167,20 @@ public class Worker {
 			//find wall that's not equal to prevLocation
 			MapLocation wall = null;
 			int previousHash = prevLocation.get(curUnit.id());
+			Direction toMove = null;
 			for (int i = 0; i < directions.length; i++) {
 				MapLocation test = curUnit.location().mapLocation().add(directions[i]);
 				if (checkAdjacentToObstacle(test) && hash(test) != previousHash) {
 					wall = test;
+					toMove = directions[i];
 				}
 			}
 			if (wall == null) {
 				System.out.println("Bug move is borked");
 			} else {
 				//try moving there
-				if (gc.canMove(curUnit.id(), wall)) {
-					gc.move(curUnit.id(), wall);
+				if (gc.canMove(curUnit.id(), toMove)) {
+					gc.moveRobot(curUnit.id(), toMove);
 				} else {
 					System.out.println("Blocked by ally 3 :(");
 				}
@@ -186,7 +192,7 @@ public class Worker {
 	public static boolean checkAdjacentToObstacle(MapLocation test) {
 		Direction[] temp = {Direction.North, Direction.South, Direction.East, Direction.South};
 		for (int i = 0; i < temp.length; i++) {
-			if (Player.planetMap.isPassableTerrainAt(temp) == 0) {
+			if (Player.planetMap.isPassableTerrainAt(test) == 0) {
 				return true;
 			}
 		}
