@@ -56,6 +56,8 @@ repeat until all squares are covered
 
 bug pathing implementation
 
+//maybe compute all target squares first, then do the moving scheme
+
 def blocked by ally:
 	if both unit's next move squares are not crossing
 		wait a turn

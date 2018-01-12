@@ -9,8 +9,12 @@ public class Worker {
 	static HashMap<Integer, HashSet<Integer>> visited = new HashMap<Integer, HashSet<Integer>>();
 	//target blueprint to work on for each worker
 	static HashMap<Integer, Integer> target = new HashMap<Integer, Integer>();
+	//bugpathing storing previous square (unit id, hash of location)
+	static HashMap<Integer, Integer> prevLocation = new HashMap<Integer, Integer>();
 
 	public static void run(GameController gc, Unit curUnit) {
+
+		//Note: with bugmove, whenever a unit changes target, then prevLocation should remove their unit id from its keys
 
 		Worker.curUnit = curUnit;
 
@@ -88,7 +92,11 @@ public class Worker {
 				for (int a = 0; a < nearby.size(), a++) {
 					Unit temp = nearby.get(a);
 					if (temp.team() == gc.team() && temp.UnitType() == UnitType.Worker) {
-						target.put(temp.id(), targetBlueprint);
+						//if changing target of a unit
+						if (prevLocation.get(temp.id()) != targetBlueprint) {
+							target.put(temp.id(), targetBlueprint);
+							prevLocation.remove(temp.id());
+						}
 					}
 				}
 				break;
@@ -98,6 +106,86 @@ public class Worker {
 
 	public static int hash(int x, int y) {
 		return 69 * x + y;
+	}
+
+	public static int hash(MapLocation loc) {
+		return 69 * loc.getX() + loc.getY();
+	}
+
+	public static void bugMove(MapLocation target) {
+		//finding square directly going towards path
+		//TODO (there's probably some math thing that's better)
+		int smallest = 9999999;
+		Direction direct = null;
+		for (int i = 0; i < directions.length; i++) {
+			MapLocation newSquare = curUnit.location().mapLocation().add(directions[i]);
+			int temp = distance(target, newSquare);
+			if (temp < smallest)) {
+				smallest = temp;
+				direct = directions[i];
+			}
+		}
+		if (gc.canMove(curUnit.id(), direct)) {
+			prevLocation.remove(curUnit.id());
+			//follow path directly to target
+			gc.move(curUnit.id(), direct);
+			return;
+		} else {
+			System.out.println("Blocked by ally :(");
+			return;
+		}
+		//follow obstacle
+		if (!prevLocation.containsKey(curUnit.id())) {
+			//choose a direction of obstacle to go in
+			prevLocation.put(curUnit.id(), hash(curUnit.location().mapLocation()));
+			//find closest obstacle border
+			smallest = 99999999;
+			MapLocation wall = null;
+			for (int i = 0; i < directions.length; i++) {
+				MapLocation test = curUnit.location().mapLocation().add(directions[i]);
+				if (checkAdjacentToObstacle(test) && distance(test, target) < smallest) {
+					smallest = distance(test, target);
+					wall = test;
+				}
+			}
+			//try to move there
+			if (gc.canMove(curUnit.id(), wall)) {
+				gc.move(curUnit.id(), wall);
+			} else {
+				System.out.println("Blocked by ally 2 :(");
+			}
+		} else {
+			//already following obstacle
+			//find wall that's not equal to prevLocation
+			MapLocation wall = null;
+			int previousHash = prevLocation.get(curUnit.id());
+			for (int i = 0; i < directions.length; i++) {
+				MapLocation test = curUnit.location().mapLocation().add(directions[i]);
+				if (checkAdjacentToObstacle(test) && hash(test) != previousHash) {
+					wall = test;
+				}
+			}
+			if (wall == null) {
+				System.out.println("Bug move is borked");
+			} else {
+				//try moving there
+				if (gc.canMove(curUnit.id(), wall)) {
+					gc.move(curUnit.id(), wall);
+				} else {
+					System.out.println("Blocked by ally 2 :(");
+				}
+			}
+		}
+	}
+
+	public static boolean checkAdjacentToObstacle(MapLocation test) {
+		Direction[] temp = {Direction.North, Direction.South, Direction.East, Direction.South};
+		for (int i = 0; i < temp.length; i++) {
+			if (Player.planetMap.isPassableTerrainAt(temp) == 0) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	//move towards target location
