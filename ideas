@@ -57,7 +57,7 @@ repeat until all squares are covered
 bug pathing implementation
 
 def blocked by ally:
-	if both unit's next move squares are not where they currently are
+	if both unit's next move squares are not crossing
 		wait a turn
 	else
 		move to a different square

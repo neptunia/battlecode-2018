@@ -25,7 +25,7 @@ public class Knight {
 			nearbyInfo = findTarget();
 		} else {
 			try {
-				gc.unit(targets.get(curUnit.id()));
+				gc.unit(targets.get(curUnit.id()))
 			} catch (Exception e) {
 				//already killed this unit, or it ran away, remove
 				targets.remove(curUnit.id());
@@ -40,24 +40,20 @@ public class Knight {
 		}
 
 		//if this knight has a target
-		if (targets.containsKey(curUnit.id())) {
-			//move towards them
-			if (nearbyInfo.friendly >= nearbyInfo.enemy) {
-				if (canMove()) {
+		if (canMove()) {
+			if (targets.containsKey(curUnit.id())) {
+				//move towards them
+				if (nearbyInfo.friendly >= nearbyInfo.enemy) {
 					move(gc.unit(targets.get(curUnit.id())).location().mapLocation());
-				}
-				if (canAttack()) {
-					tryAttack(targets.get(curUnit.id()));
-				}
-			} else {
-				//enemy too strank
-				if (canMove()) {
+					if (canAttack()) {
+						tryAttack(targets.get(curUnit.id()));
+					}
+				} else {
+					//enemy too strank
 					move(Player.startingLocation);
 				}
-			}
-		} else {
-			//explore
-			if (canMove()) {
+			} else {
+				//explore
 				move(Player.enemyLocation);
 			}
 		}
