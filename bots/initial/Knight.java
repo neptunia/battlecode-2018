@@ -17,102 +17,105 @@ public class Knight {
 		if (curUnit.location().isInGarrison()) {
 			return;
 		}
-		MapLocation tgt = getTarget();
-		if (tgt != null) {
-			if (CheckWithinRange()) {
-				// if i win, go in
-				if (canMove())
-					move(tgt);
-			} else {
-				// retreat
-				setTarget(curUnit, Player.startingLocation);
 
-			}
-		} else {
-			if (CheckWithinRange()) {
-				// target???
-				//setTarget(curunit, Player.enemyLocation());
-				targetEnemy();
-				if (canMove())
-					move(tgt);
-			} else {
-				// explore
-				setTarget(curUnit, Player.enemyLocation);
+		Pair nearbyInfo = null;
 
-			}
+		if (!targets.containsKey(curUnit.id())) {
+			//try to find an enemy target in range
+			nearbyInfo = findTarget();
+		} else if (gc.unit(targets.get(curUnit.id())).health() == 0) {
+			//already killed this unit, remove
+			targets.remove(curUnit.id());
+			nearbyInfo = findTarget();
 		}
 
+		//didnt sense number of allies and enemies yet
+		if (nearbyInfo == null) {
+			nearbyInfo = countNearby();
+		}
 
-		//attack enemies that are near you
+		//if this knight has a target
+		if (targets.containsKey(curUnit.id())) {
+			//move towards them
+			if (nearbyInfo.friendly > nearbyInfo.enemy) {
+				move(targets.get(curUnit.id()));
+			} else {
+				//enemy too strank
+				move(Player.startingLocation);
+			}
+		} else {
+			//explore
+			move(Player.enemyLocation);
+		}
+
+		//attack first enemy
+		//TODO should change later
 		if (canAttack()) {
 			attackNearbyEnemies();
 		}
 
-		if (getTarget() == curUnit.location().mapLocation()) {
-			setTarget(curUnit, null);
-		}
 	}
 
-	public static void setTarget(Unit unit, MapLocation x) {
-		targets.put(unit.id(), x);
-	}
-
-	public static MapLocation getTarget() {
-		if (!targets.containsKey(curUnit.id())) {
-			targets.put(curUnit.id(), null);
-			return null;
-		} else {
-			return targets.get(curUnit.id());
-		}
-	}
-
-	public static void targetEnemy() {
-		VecUnit nearbyUnits = getNearby(curUnit.location().mapLocation(), (int) curUnit.visionRange());
-		MapLocation tl = Player.startingLocation;
-		for (int i = 0; i < nearbyUnits.size(); i++) {
-			Unit unit = nearbyUnits.get(i);
-			if (unit.team() != gc.team()) {
-				// enemy
-				tl = unit.location().mapLocation();
-				break;
-				
-			}
-		}
-		setTarget(curUnit, tl);
-		for (int i = 0; i < nearbyUnits.size(); i++) {
-			Unit unit = nearbyUnits.get(i);
-			if (unit.team() == gc.team()) {
-				// enemy
-				setTarget(unit, tl);
-			}
-		}
-	}
-
-
-	public static boolean CheckWithinRange() {
-		VecUnit nearbyUnits = getNearby(curUnit.location().mapLocation(), (int) curUnit.visionRange());
-		
-		int friendlyArmyCount = 1;
-		int enemyArmyCount = 0;
-		int enemyCount = 0;
-
-
-		for (int i = 0; i < nearbyUnits.size(); i++) {
-			Unit unit = nearbyUnits.get(i);
-			if (unit.team() != gc.team()) {
-				// enemy
-				if (unit.unitType() == UnitType.Knight || unit.unitType() == UnitType.Mage || unit.unitType() == UnitType.Healer || unit.unitType() == UnitType.Ranger) {
-					enemyArmyCount += 1;
-				}
-				enemyCount += 1;
-			} else {
-				if (unit.unitType() == UnitType.Knight || unit.unitType() == UnitType.Mage || unit.unitType() == UnitType.Healer || unit.unitType() == UnitType.Ranger) {
-					friendlyArmyCount += 1;
+	public static Pair findTarget() {
+		Pair ret = new Pair();
+		VecUnit nearby = senseNearbyUnits(curUnit.location().mapLocation(), curUnit.visionRange());
+		MapLocation tempTarget = null;
+		int smallest = 9999999;
+		for (int i = 0; i < nearby.size(); i++) {
+			Unit temp3 = nearby.get(i);
+			if (temp3.team() != gc.team()) {
+				ret.enemy++;
+				MapLocation temp2 = temp3.location().mapLocation();
+				int temp = distance(curUnit.location().mapLocation(), temp2);
+				if (temp < smallest) {
+					smallest = temp;
+					tempTarget = temp2;
 				}
 			}
 		}
-		return (friendlyArmyCount >= enemyArmyCount && enemyCount > 0);
+		if (tempTarget != null) {
+			for (int i = 0; i < nearby.size(); i++) {
+				Unit temp3 = nearby.get(i);
+				if (temp3.team() == gc.team()) {
+					ret.friendly++;
+					targets.put(temp3.id(), tempTarget);
+				}
+			}
+		}
+		return ret;
 	}
+
+	public static Pair countNearby() {
+		Pair ret = new Pair();
+		VecUnit nearby = senseNearbyUnits(curUnit.location().mapLocation(), curUnit.visionRange());
+		for (int i = 0; i < nearby.size(); i++) {
+			Unit temp3 = nearby.get(i);
+			if (temp3.team() != gc.team()) {
+				ret.enemy++;
+			}
+		}
+		if (tempTarget != null) {
+			for (int i = 0; i < nearby.size(); i++) {
+				Unit temp3 = nearby.get(i);
+				if (temp3.team() == gc.team()) {
+					ret.friendly++;
+				}
+			}
+		}
+		return ret;
+	}
+
+	public static class Pair {
+		int friendly;
+		int enemy;
+		Pair() {
+			friendly = 0;
+			enemy = 0;
+		}
+	}
+
+	//TODO optimization if i want to do it
+	//public static class mutableTarget
 
 	/*
 	public static void run(GameController gc, Unit curUnit) {
@@ -143,7 +146,7 @@ public class Knight {
 		for (int i = 0; i < nearbyUnits.size(); i++) {
 			Unit unit = nearbyUnits.get(i);
 			//if can attack this enemy unit
-			if (unit.team() != gc.team() && gc.isAttackReady(curUnit.id()) && gc.canAttack(curUnit.id(), unit.id())) {
+			if (unit.team() != gc.team() && gc.canAttack(curUnit.id(), unit.id())) {
 				gc.attack(curUnit.id(), unit.id());
 				return;
 			}
