@@ -53,9 +53,7 @@ public class Worker {
 				} else {
 					//move towards it
 					if (canMove()) {
-						if (!move(blueprintLoc)) {
-							System.out.println("CANT MOVE");
-						}
+						move(blueprintLoc);
 					}
 				}
 			}
@@ -114,7 +112,7 @@ public class Worker {
 		return 69 * loc.getX() + loc.getY();
 	}
 
-	public static void bugMove(MapLocation target) {
+	public static void move(MapLocation target) {
 		//finding square directly going towards path
 		//TODO (there's probably some math thing that's better)
 		int smallest = 9999999;
@@ -198,7 +196,7 @@ public class Worker {
 	}
 
 	//move towards target location
-	public static boolean move(MapLocation target) {
+	/*public static boolean move(MapLocation target) {
 		//TODO implement pathfinding
 		int smallest = 999999;
 		Direction d = null;
@@ -226,7 +224,7 @@ public class Worker {
 		}
 		gc.moveRobot(curUnit.id(), d);
 		return true;
-	}
+	}*/
 
 	public static boolean canMove() {
 		return curUnit.movementHeat() < 10;
