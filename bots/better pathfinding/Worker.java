@@ -207,13 +207,16 @@ public class Worker {
 	}
 
 	public static boolean checkPassable(MapLocation test) {
+		if (test.getX() >= Player.gridX || test.getY() >= Player.gridY || test.getX() < 0 || test.getY() < 0) {
+			return false;
+		}
 		boolean allyThere = true;
 		try {
 			gc.senseUnitAtLocation(test);
 		} catch (Exception e) {
 			allyThere = false;
 		}
-		return Player.planetMap.isPassableTerrainAt(test) == 0 || allyThere;
+		return Player.planetMap.isPassableTerrainAt(test) == 1 && !allyThere;
 	}
 
 	//move towards target location
