@@ -36,10 +36,11 @@ public class Worker {
 
 		//if i do have a target blueprint
 		if (target.containsKey(curUnit.id())) {
-			Unit toWorkOn = gc.unit(target.get(curUnit.id()));
+			int targetBlueprint = target.get(curUnit.id());
+			Unit toWorkOn = gc.unit(targetBlueprint);
 			//already done working on
 			if (toWorkOn.health() == toWorkOn.maxHealth()) {
-				targetBlueprint = -1;
+				target.remove(curUnit.id());
 				buildFactory();
 			} else {
 				//goto it and build it
