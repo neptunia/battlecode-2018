@@ -34,11 +34,9 @@ public class Worker {
 			}
 		}
 
-		int targetBlueprint = target.get(curUnit.id());
-
-		//if i dont have a target blueprint
-		if (targetBlueprint != -1) {
-			Unit toWorkOn = gc.unit(targetBlueprint);
+		//if i do have a target blueprint
+		if (target.containsKey(curUnit.id())) {
+			Unit toWorkOn = gc.unit(target.get(curUnit.id()));
 			//already done working on
 			if (toWorkOn.health() == toWorkOn.maxHealth()) {
 				targetBlueprint = -1;
