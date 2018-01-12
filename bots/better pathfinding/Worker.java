@@ -94,10 +94,10 @@ public class Worker {
 					Unit temp = nearby.get(a);
 					if (temp.team() == gc.team() && temp.unitType() == UnitType.Worker) {
 						//if changing target of a unit
-						if (prevLocation.get(temp.id()) != targetBlueprint) {
-							target.put(temp.id(), targetBlueprint);
+						if (prevLocation.containsKey(temp.id()) && prevLocation.get(temp.id()) != targetBlueprint) {
 							prevLocation.remove(temp.id());
 						}
+						target.put(temp.id(), targetBlueprint);
 					}
 				}
 				break;
