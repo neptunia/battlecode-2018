@@ -33,6 +33,12 @@ public class Worker {
 				Player.enemyLocation = new MapLocation(Planet.Earth, Player.gridX - temp.getX(), Player.gridY - temp.getY());
 			}
 		}
+		//remove target if factory already died
+		try {
+			gc.unit(target.get(curUnit.id()));
+		} catch (Exception e) {
+			target.remove(curUnit.id());
+		}
 
 		//if i do have a target blueprint
 		if (target.containsKey(curUnit.id())) {
@@ -134,9 +140,9 @@ public class Worker {
 				return;
 			} else {
 				System.out.println("Blocked by ally :(");
-				return;
 			}
 		}
+
 		//follow obstacle
 		if (!prevLocation.containsKey(curUnit.id())) {
 			//choose a direction of obstacle to go in
@@ -147,6 +153,7 @@ public class Worker {
 			Direction toMove = null;
 			for (int i = 0; i < directions.length; i++) {
 				MapLocation test = curUnit.location().mapLocation().add(directions[i]);
+				//TODO check if isPassable returns true or false for allies
 				if (checkAdjacentToObstacle(test) && distance(test, target) < smallest) {
 					smallest = distance(test, target);
 					toMove = directions[i];
@@ -167,6 +174,7 @@ public class Worker {
 			Direction toMove = null;
 			for (int i = 0; i < directions.length; i++) {
 				MapLocation test = curUnit.location().mapLocation().add(directions[i]);
+				//TODO check if isPassable returns true or false for allies
 				if (checkAdjacentToObstacle(test) && hash(test) != previousHash) {
 					wall = test;
 					toMove = directions[i];
