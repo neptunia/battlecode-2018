@@ -23,10 +23,15 @@ public class Knight {
 		if (!targets.containsKey(curUnit.id())) {
 			//try to find an enemy target in range
 			nearbyInfo = findTarget();
-		} else if (gc.unit(targets.get(curUnit.id())).health() == 0) {
-			//already killed this unit, remove
-			targets.remove(curUnit.id());
-			nearbyInfo = findTarget();
+		} else {
+			try {
+				gc.unit(targets.get(curUnit.id()))
+			} catch (Exception e) {
+				//already killed this unit, or it ran away, remove
+				targets.remove(curUnit.id());
+				nearbyInfo = findTarget();
+			}
+			
 		}
 
 		//didnt sense number of allies and enemies yet
@@ -38,7 +43,7 @@ public class Knight {
 		if (canMove()) {
 			if (targets.containsKey(curUnit.id())) {
 				//move towards them
-				if (nearbyInfo.friendly > nearbyInfo.enemy) {
+				if (nearbyInfo.friendly >= nearbyInfo.enemy) {
 					move(gc.unit(targets.get(curUnit.id())).location().mapLocation());
 				} else {
 					//enemy too strank
