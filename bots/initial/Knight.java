@@ -7,7 +7,7 @@ public class Knight {
 	static GameController gc;
 	static Direction[] directions = Direction.values();
 	static HashMap<Integer, HashSet<Integer>> visited = new HashMap<Integer, HashSet<Integer>>();
-	static HashMap<Integer, MapLocation> targets = new HashMap<Integer, MapLocation>();
+	static HashMap<Integer, Integer> targets = new HashMap<Integer, Integer>();
 
 	public static void run(GameController gc, Unit curUnit) {
 
@@ -23,7 +23,7 @@ public class Knight {
 		if (!targets.containsKey(curUnit.id())) {
 			//try to find an enemy target in range
 			nearbyInfo = findTarget();
-		} else if (gc.senseUnitAtLocation(targets.get(curUnit.id())).health() == 0) {
+		} else if (gc.unit(targets.get(curUnit.id())).health() == 0) {
 			//already killed this unit, remove
 			targets.remove(curUnit.id());
 			nearbyInfo = findTarget();
@@ -39,7 +39,7 @@ public class Knight {
 			if (targets.containsKey(curUnit.id())) {
 				//move towards them
 				if (nearbyInfo.friendly > nearbyInfo.enemy) {
-					move(targets.get(curUnit.id()));
+					move(gc.unit(targets.get(curUnit.id())).location().mapLocation());
 				} else {
 					//enemy too strank
 					move(Player.startingLocation);
@@ -61,7 +61,7 @@ public class Knight {
 	public static Pair findTarget() {
 		Pair ret = new Pair();
 		VecUnit nearby = gc.senseNearbyUnits(curUnit.location().mapLocation(), curUnit.visionRange());
-		MapLocation tempTarget = null;
+		int tempTarget = null;
 		int smallest = 9999999;
 		for (int i = 0; i < nearby.size(); i++) {
 			Unit temp3 = nearby.get(i);
@@ -71,7 +71,7 @@ public class Knight {
 				int temp = distance(curUnit.location().mapLocation(), temp2);
 				if (temp < smallest) {
 					smallest = temp;
-					tempTarget = temp2;
+					tempTarget = temp3.id();
 				}
 			}
 		}
