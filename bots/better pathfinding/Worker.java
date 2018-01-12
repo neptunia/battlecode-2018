@@ -197,7 +197,7 @@ public class Worker {
 	public static boolean checkAdjacentToObstacle(MapLocation test) {
 		Direction[] temp = {Direction.North, Direction.South, Direction.East, Direction.South};
 		for (int i = 0; i < temp.length; i++) {
-			if (Player.planetMap.isPassableTerrainAt(test) == 0) {
+			if (Player.planetMap.isPassableTerrainAt(test) == 0 || gc.unit(test).team() == gc.team()) {
 				return true;
 			}
 		}
