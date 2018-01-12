@@ -45,6 +45,9 @@ public class Knight {
 				//move towards them
 				if (nearbyInfo.friendly >= nearbyInfo.enemy) {
 					move(gc.unit(targets.get(curUnit.id())).location().mapLocation());
+					if (canAttack()) {
+						tryAttack(targets.get(curUnit.id()));
+					}
 				} else {
 					//enemy too strank
 					move(Player.startingLocation);
@@ -61,6 +64,12 @@ public class Knight {
 			attackNearbyEnemies();
 		}
 
+	}
+
+	public static void tryAttack(int id) {
+		if (gc.canAttack(curUnit.id(), id)) {
+			gc.attack(curUnit.id(), id);
+		}
 	}
 
 	public static Pair findTarget() {

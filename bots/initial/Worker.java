@@ -30,6 +30,7 @@ public class Worker {
 		}
 
 		//go to current blueprint working on and do it
+		//TODO iff fairly close to it already
 		if (targetBlueprint != -1) {
 			Unit toWorkOn = gc.unit(targetBlueprint);
 			if (toWorkOn.health() == toWorkOn.maxHealth()) {
