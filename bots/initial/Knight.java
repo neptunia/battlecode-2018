@@ -61,7 +61,7 @@ public class Knight {
 	public static Pair findTarget() {
 		Pair ret = new Pair();
 		VecUnit nearby = gc.senseNearbyUnits(curUnit.location().mapLocation(), curUnit.visionRange());
-		int tempTarget = null;
+		int tempTarget = -1;
 		int smallest = 9999999;
 		for (int i = 0; i < nearby.size(); i++) {
 			Unit temp3 = nearby.get(i);
@@ -75,7 +75,7 @@ public class Knight {
 				}
 			}
 		}
-		if (tempTarget != null) {
+		if (smallest != 9999999) {
 			for (int i = 0; i < nearby.size(); i++) {
 				Unit temp3 = nearby.get(i);
 				if (temp3.team() == gc.team()) {
