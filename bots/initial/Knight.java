@@ -25,7 +25,7 @@ public class Knight {
 			nearbyInfo = findTarget();
 		} else {
 			try {
-				gc.unit(targets.get(curUnit.id()))
+				gc.unit(targets.get(curUnit.id()));
 			} catch (Exception e) {
 				//already killed this unit, or it ran away, remove
 				targets.remove(curUnit.id());
