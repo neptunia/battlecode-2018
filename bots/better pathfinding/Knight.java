@@ -219,7 +219,7 @@ public class Knight {
 			for (int i = 0; i < directions.length; i++) {
 				MapLocation test = curUnit.location().mapLocation().add(directions[i]);
 				//TODO check if isPassable returns true or false for allies
-				if (canMove(test) && checkAdjacentToObstacle(test) && distance(test, target) < smallest) {
+				if (checkPassable(test) && checkAdjacentToObstacle(test) && distance(test, target) < smallest) {
 					smallest = distance(test, target);
 					toMove = directions[i];
 					wall = test;
@@ -244,7 +244,7 @@ public class Knight {
 			for (int i = 0; i < directions.length; i++) {
 				MapLocation test = curUnit.location().mapLocation().add(directions[i]);
 				//TODO check if isPassable returns true or false for allies
-				if (canMove(test) && checkAdjacentToObstacle(test) && hash(test) != previousHash) {
+				if (checkPassable(test) && checkAdjacentToObstacle(test) && hash(test) != previousHash) {
 					wall = test;
 					toMove = directions[i];
 				}
