@@ -17,15 +17,96 @@ public class Ranger {
             return;
         }
 
-        //attack enemies that are near you
-        if (canAttack()) {
-            attackNearbyEnemies();
+        Pair target = findNearestEnemy();
+        if (target.enemyClosest == -1) {
+            //explore if no units detected
+            if (canMove()) {
+                move(Player.enemyLocation);
+            }
+        } else {
+            MapLocation loc = gc.unit(target.enemyClosest).location().mapLocation();
+            int distance = distance(loc, curUnit.location().mapLocation());
+            if (distance < 10) {
+                //move away, they're not even attackable! attack someone else instead.
+                if (canAttack() && gc.canAttack(curUnit.id(), target.enemyAttack)) {
+                    gc.attack(curUnit.id(), target.enemyAttack);
+                }
+                if (canMove()) {
+                    moveAway(loc);
+                }
+            } else if (distance <= 30) {
+                //move away, they're too close!
+                if (canAttack() && gc.canAttack(curUnit.id(), target.enemyClosest)) {
+                    gc.attack(curUnit.id(), target.enemyClosest);
+                }
+                if (canMove()) {
+                    moveAway(loc);
+                }
+            } else if (distance <= 50) {
+                //attack them
+                if (canAttack() && gc.canAttack(curUnit.id(), target.enemyClosest)) {
+                    gc.attack(curUnit.id(), target.enemyClosest);
+                }
+            } else {
+                //they're too far away, move towards them
+                if (canMove()) {
+                    move(loc);
+                }
+
+                if (canAttack() && gc.canAttack(curUnit.id(), target.enemyClosest)) {
+                    gc.attack(curUnit.id(), target.enemyClosest);
+                }
+            }
         }
 
-        if (canMove()) {
-            move(getTarget());
-        }
+    }
 
+    //calc which direction maximizes distance between enemy and ranger
+    public static void moveAway(MapLocation enemy) {
+        int best = distance(curUnit.location().mapLocation(), enemy);
+        Direction bestd = null;
+        for (int i = 0; i < directions.length; i++) {
+            MapLocation temp = curUnit.location().mapLocation().add(directions[i]);
+            if (gc.canMove(curUnit.id(), directions[i]) && distance(temp, enemy) > best) {
+                best = distance(temp, enemy);
+                bestd = directions[i];
+            }
+        }
+        if (bestd != null) {
+            gc.moveRobot(curUnit.id(), bestd);
+        }
+    }
+
+    public static class Pair { //DIFFERENT FROM PAIR IN KNIGHT CLASS
+        int enemyAttack; //closest enemy that is attackable
+        int enemyClosest; //closest enemy
+        Pair() {
+            enemyAttack = -1;
+            enemyClosest = -1;
+        }
+    }
+    //returns id of nearest enemy unit and nearest attackable enemy unit
+    public static Pair findNearestEnemy() {
+        Pair p = new Pair();
+        VecUnit nearby = gc.senseNearbyUnits(curUnit.location().mapLocation(), curUnit.visionRange());
+        int smallest1 = 9999999;
+        int smallest2 = 9999999;
+        for (int i = 0; i < nearby.size(); i++) {
+            Unit temp3 = nearby.get(i);
+            if (temp3.team() != gc.team()) {
+                MapLocation temp2 = temp3.location().mapLocation();
+                int temp = distance(curUnit.location().mapLocation(), temp2);
+                if (temp < smallest1) {
+                    smallest1 = temp;
+                    p.enemyClosest = temp3.id();
+                }
+                if (temp > 10 && temp < smallest2) {
+                    smallest2 = temp;
+                    p.enemyAttack = temp3.id();
+                }
+            }
+        }
+        return p;
     }
 
     public static boolean canAttack() {

@@ -77,7 +77,7 @@ public class Player {
                             	    Ranger.run(gc, curUnit);
                                 } catch (Exception e) {
                                     e.printStackTrace();
-                                    System.out.println("mage ded");
+                                    System.out.println("ranger ded");
                                 }
                                 break;
                             case Rocket:
@@ -85,7 +85,7 @@ public class Player {
                                     Rocket.run(gc, curUnit);
                                 } catch (Exception e) {
                                     e.printStackTrace();
-                                    System.out.println("mage ded");
+                                    System.out.println("rocket ded");
                                 }
                                 break;
                             case Worker:

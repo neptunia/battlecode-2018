@@ -30,7 +30,7 @@ public class Factory {
 		
 		//produce unit
 		if (gc.canProduceRobot(curUnit.id(), UnitType.Knight)) {
-			gc.produceRobot(curUnit.id(), UnitType.Knight);
+			gc.produceRobot(curUnit.id(), UnitType.Ranger);
 			c += 1;
 		}
 
