@@ -21,10 +21,11 @@ public class Knight {
 		if (tgt != null) {
 			if (CheckWithinRange()) {
 				// if i win, go in
-				move(tgt);
+				if (canMove())
+					move(tgt);
 			} else {
 				// retreat
-				setTarget(curunit, Player.startingLocation());
+				setTarget(curUnit, Player.startingLocation);
 
 			}
 		} else {
@@ -32,10 +33,11 @@ public class Knight {
 				// target???
 				//setTarget(curunit, Player.enemyLocation());
 				targetEnemy();
-				move(tgt);
+				if (canMove())
+					move(tgt);
 			} else {
 				// explore
-				setTarget(curunit, Player.enemyLocation());
+				setTarget(curUnit, Player.enemyLocation);
 
 			}
 		}
@@ -64,9 +66,9 @@ public class Knight {
 		}
 	}
 
-	public static void TargetEnemy() {
+	public static void targetEnemy() {
 		VecUnit nearbyUnits = getNearby(curUnit.location().mapLocation(), (int) curUnit.visionRange());
-		MapLocation tl = null;
+		MapLocation tl = Player.startingLocation;
 		for (int i = 0; i < nearbyUnits.size(); i++) {
 			Unit unit = nearbyUnits.get(i);
 			if (unit.team() != gc.team()) {
@@ -76,7 +78,7 @@ public class Knight {
 				
 			}
 		}
-		setTarget(curunit, tl);
+		setTarget(curUnit, tl);
 		for (int i = 0; i < nearbyUnits.size(); i++) {
 			Unit unit = nearbyUnits.get(i);
 			if (unit.team() == gc.team()) {
@@ -110,16 +112,6 @@ public class Knight {
 			}
 		}
 		return (friendlyArmyCount >= enemyArmyCount && enemyCount > 0);
-	}
-
-	public static void getTarget() {
-		if (!targets.containsKey(curUnit.id())) {
-			Integer temp = -1;
-			temp.add(hash);
-			visited.put(curUnit.id(), temp);
-		} else {
-			visited.get(curUnit.id()).add(hash);
-		}
 	}
 
 	/*
