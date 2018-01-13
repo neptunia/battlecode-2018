@@ -9,6 +9,7 @@ public class Mage {
     static GameController gc;
     static Direction[] directions = Direction.values();
     static HashMap<Integer, HashSet<Integer>> visited = new HashMap<Integer, HashSet<Integer>>();
+    static HashMap<Integer, Integer> prevLocation = new HashMap<Integer, Integer>();
 
     public static void run(GameController gc, Unit curUnit) {
 
@@ -18,15 +19,111 @@ public class Mage {
             return;
         }
 
-        //attack enemies that are near you
-        if (canAttack()) {
-            attackNearbyEnemies();
+        Pair bestunit = findBestUnit();
+        if (bestunit.unit2 == -1) {
+            //no visible units
+            if (canMove()) {
+                move(Player.enemyLocation);
+            }
+        } else if (bestunit.unit1 == -1) {
+            //no good attacks
+            //moves away if there is an adjacent unit, else do nothing
+            if (canMove()) {
+                moveIfNeeded(gc.unit(bestunit.unit2).location().mapLocation());
+            }
+        } else {
+            //good attack opportunity
+            //moves away if there is an adjacent unit, else do nothing
+            if (canAttack() && gc.canAttack(curUnit.id(), bestunit.unit1)) {
+                gc.attack(curUnit.id(), bestunit.unit1);
+            }
+            try {
+                if (canMove()) {
+                    moveIfNeeded(gc.unit(bestunit.unit2).location().mapLocation());
+                }
+            } catch (Exception e) {
+                //do nothing
+            }
         }
+    }
 
-        if (canMove()) {
-            move(getTarget());
+    public static void moveIfNeeded(MapLocation enemy) {
+        if (distance(enemy, curUnit.location().mapLocation()) <= 2) {
+            moveAway(enemy);
         }
+    }
 
+    //calc which direction maximizes distance between enemy and mage
+    public static void moveAway(MapLocation enemy) {
+        int best = distance(curUnit.location().mapLocation(), enemy);
+        Direction bestd = null;
+        for (int i = 0; i < directions.length; i++) {
+            MapLocation temp = curUnit.location().mapLocation().add(directions[i]);
+            if (gc.canMove(curUnit.id(), directions[i]) && distance(temp, enemy) > best) {
+                best = distance(temp, enemy);
+                bestd = directions[i];
+            }
+        }
+        if (bestd != null) {
+            gc.moveRobot(curUnit.id(), bestd);
+        }
+    }
+
+    //different from both knight and ranger pair
+    public static class Pair {
+        int unit1;
+        int unit2;
+        public Pair() {
+            unit1 = -1;
+            unit2 = -1;
+        }
+    }
+
+    //finds best unit to attack
+    public static Pair findBestUnit() {
+        Pair ret = new Pair();
+        VecUnit nearby = gc.senseNearbyUnits(curUnit.location().mapLocation(), curUnit.visionRange());
+        if (nearby.size() == 0) {
+            return ret;
+        }
+        int net = 0;
+        int total = 0;
+        int smallest = 9999999;
+        for (int i = 0; i < nearby.size(); i++) {
+            int tempnet = 0;
+            int temptotal = 0;
+            MapLocation point = nearby.get(i).location().mapLocation();
+            if (nearby.get(i).team() == gc.team()) {
+                tempnet -= curUnit.damage();
+            } else {
+                tempnet += curUnit.damage();
+                temptotal += curUnit.damage();
+                int tempdist = distance(point, curUnit.location().mapLocation());
+                if (tempdist < smallest) {
+                    smallest = tempdist;
+                    ret.unit2 = nearby.get(i).id();
+                }
+            }
+            for (int j = 0; j < directions.length; j++) {
+                try {
+                    Unit temp = gc.senseUnitAtLocation(point.add(directions[j]));
+                    if (temp.team() == gc.team()) {
+                        tempnet -= curUnit.damage();
+                    } else {
+                        tempnet += curUnit.damage();
+                        temptotal += curUnit.damage();
+                    }
+                } catch (Exception e) {
+                    continue;
+                }
+            }
+            if (tempnet > net || (tempnet == net && temptotal > total)) {
+                net = tempnet;
+                total = temptotal;
+                ret.unit1 = nearby.get(i).id();
+            }
+        }
+        return ret;
     }
 
     public static boolean canAttack() {
@@ -51,33 +148,117 @@ public class Mage {
 
     //pathing
     //move towards target location
-    public static boolean move(MapLocation target) {
-        //TODO implement pathfinding
-        int smallest = 999999;
-        Direction d = null;
-        MapLocation curLoc = curUnit.location().mapLocation();
-        int hash = hash(curLoc.getX(), curLoc.getY());
-        if (!visited.containsKey(curUnit.id())) {
-            HashSet<Integer> temp = new HashSet<Integer>();
-            temp.add(hash);
-            visited.put(curUnit.id(), temp);
-        } else {
-            visited.get(curUnit.id()).add(hash);
-        }
+    public static void move(MapLocation target) {
+        //finding square directly going towards path
+        //TODO (there's probably some math thing that's better)
+        int smallest = 9999999;
+        Direction direct = null;
         for (int i = 0; i < directions.length; i++) {
-            MapLocation newSquare = curLoc.add(directions[i]);
-            if (!visited.get(curUnit.id()).contains(hash(newSquare.getX(), newSquare.getY())) && gc.canMove(curUnit.id(), directions[i]) && distance(newSquare, target) < smallest) {
-                smallest = distance(newSquare, target);
-                d = directions[i];
+            MapLocation newSquare = curUnit.location().mapLocation().add(directions[i]);
+            int temp = distance(target, newSquare);
+            if (temp < smallest) {
+                smallest = temp;
+                direct = directions[i];
             }
         }
-        if (d == null) {
-            //can't move
-            visited.remove(curUnit.id());
+        //if i can move directly
+        if (direct != null) {
+            if (gc.canMove(curUnit.id(), direct)) {
+                prevLocation.remove(curUnit.id());
+                gc.moveRobot(curUnit.id(), direct);
+                return;
+            } else {
+                //System.out.println("Blocked by ally :(");
+            }
+        }
+
+        //follow obstacle
+        if (!prevLocation.containsKey(curUnit.id())) {
+            //choose a direction of obstacle to go in
+            //find obstacle border closest to target
+            smallest = 99999999;
+            MapLocation wall = null;
+            Direction toMove = null;
+            for (int i = 0; i < directions.length; i++) {
+                MapLocation test = curUnit.location().mapLocation().add(directions[i]);
+                //TODO check if isPassable returns true or false for allies
+                if (checkPassable(test) && checkAdjacentToObstacle(test) && distance(test, target) < smallest) {
+                    smallest = distance(test, target);
+                    toMove = directions[i];
+                    wall = test;
+                }
+            }
+            if (toMove == null) {
+                //can't move
+                return;
+            }
+            //try to move there
+            if (gc.canMove(curUnit.id(), toMove)) {
+                prevLocation.put(curUnit.id(), hash(curUnit.location().mapLocation()));
+                gc.moveRobot(curUnit.id(), toMove);
+            } else {
+                //System.out.println("Blocked by ally 2 :(");
+            }
+        } else {
+            //already following obstacle
+            //find wall that's not equal to prevLocation
+            MapLocation wall = null;
+            int previousHash = prevLocation.get(curUnit.id());
+            Direction toMove = null;
+            for (int i = 0; i < directions.length; i++) {
+                MapLocation test = curUnit.location().mapLocation().add(directions[i]);
+                //TODO check if isPassable returns true or false for allies
+                if (checkPassable(test) && checkAdjacentToObstacle(test) && hash(test) != previousHash) {
+                    wall = test;
+                    toMove = directions[i];
+                }
+            }
+            if (wall == null) {
+                //blocked by allied units :(
+                //System.out.println("Bug move is borked");
+            } else {
+                //try moving there
+                if (gc.canMove(curUnit.id(), toMove)) {
+                    prevLocation.put(curUnit.id(), hash(curUnit.location().mapLocation()));
+                    gc.moveRobot(curUnit.id(), toMove);
+                } else {
+                    //System.out.println("Blocked by ally 3 :(");
+                }
+            }
+        }
+    }
+
+    public static int hash(MapLocation loc) {
+        return 69 * loc.getX() + loc.getY();
+    }
+
+    //check if a square is the border of an obstacle (aka if an obstacle is on left right up or down of it)
+    public static boolean checkAdjacentToObstacle(MapLocation test) {
+        Direction[] temp = {Direction.North, Direction.South, Direction.East, Direction.South};
+        for (int i = 0; i < temp.length; i++) {
+            MapLocation testWall = test.add(temp[i]);
+            MapLocation curLoc = curUnit.location().mapLocation();
+            if (testWall.getX() == curLoc.getX() && testWall.getY() == curLoc.getY()) {
+                continue;
+            }
+            if (distance(testWall, curUnit.location().mapLocation()) <= 2 && !checkPassable(testWall)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean checkPassable(MapLocation test) {
+        if (test.getX() >= Player.gridX || test.getY() >= Player.gridY || test.getX() < 0 || test.getY() < 0) {
             return false;
         }
-        gc.moveRobot(curUnit.id(), d);
-        return true;
+        boolean allyThere = true;
+        try {
+            gc.senseUnitAtLocation(test);
+        } catch (Exception e) {
+            allyThere = false;
+        }
+        return Player.planetMap.isPassableTerrainAt(test) == 1 && !allyThere;
     }
 
     //get target unit should be pathing towards
