@@ -18,15 +18,111 @@ public class Mage {
             return;
         }
 
-        //attack enemies that are near you
-        if (canAttack()) {
-            attackNearbyEnemies();
+        Pair bestunit = findBestUnit();
+        if (bestunit.unit2 == -1) {
+            //no visible units
+            if (canMove()) {
+                move(Player.enemyLocation);
+            }
+        } else if (bestunit.unit1 == -1) {
+            //no good attacks
+            //moves away if there is an adjacent unit, else do nothing
+            if (canMove()) {
+                moveIfNeeded(gc.unit(bestunit.unit2).location().mapLocation());
+            }
+        } else {
+            //good attack opportunity
+            //moves away if there is an adjacent unit, else do nothing
+            if (canAttack() && gc.canAttack(curUnit.id(), bestunit.unit1)) {
+                gc.attack(curUnit.id(), bestunit.unit1);
+            }
+            try {
+                if (canMove()) {
+                    moveIfNeeded(gc.unit(bestunit.unit2).location().mapLocation());
+                }
+            } catch (Exception e) {
+                //do nothing
+            }
         }
+    }
 
-        if (canMove()) {
-            move(getTarget());
+    public static void moveIfNeeded(MapLocation enemy) {
+        if (distance(enemy, curUnit.location().mapLocation()) <= 2) {
+            moveAway(enemy);
         }
+    }
 
+    //calc which direction maximizes distance between enemy and mage
+    public static void moveAway(MapLocation enemy) {
+        int best = distance(curUnit.location().mapLocation(), enemy);
+        Direction bestd = null;
+        for (int i = 0; i < directions.length; i++) {
+            MapLocation temp = curUnit.location().mapLocation().add(directions[i]);
+            if (gc.canMove(curUnit.id(), directions[i]) && distance(temp, enemy) > best) {
+                best = distance(temp, enemy);
+                bestd = directions[i];
+            }
+        }
+        if (bestd != null) {
+            gc.moveRobot(curUnit.id(), bestd);
+        }
+    }
+
+    //different from both knight and ranger pair
+    public static class Pair {
+        int unit1;
+        int unit2;
+        public Pair() {
+            unit1 = -1;
+            unit2 = -1;
+        }
+    }
+
+    //finds best unit to attack
+    public static Pair findBestUnit() {
+        Pair ret = new Pair();
+        VecUnit nearby = gc.senseNearbyUnits(curUnit.location().mapLocation(), curUnit.visionRange());
+        if (nearby.size() == 0) {
+            return ret;
+        }
+        int net = 0;
+        int total = 0;
+        int smallest = 9999999;
+        for (int i = 0; i < nearby.size(); i++) {
+            int tempnet = 0;
+            int temptotal = 0;
+            MapLocation point = nearby.get(i).location().mapLocation();
+            if (nearby.get(i).team() == gc.team()) {
+                tempnet -= curUnit.damage();
+            } else {
+                tempnet += curUnit.damage();
+                temptotal += curUnit.damage();
+                int tempdist = distance(point, curUnit.location().mapLocation());
+                if (tempdist < smallest) {
+                    smallest = tempdist;
+                    ret.unit2 = nearby.get(i).id();
+                }
+            }
+            for (int j = 0; j < directions.length; j++) {
+                try {
+                    Unit temp = gc.senseUnitAtLocation(point.add(directions[j]));
+                    if (temp.team() == gc.team()) {
+                        tempnet -= curUnit.damage();
+                    } else {
+                        tempnet += curUnit.damage();
+                        temptotal += curUnit.damage();
+                    }
+                } catch (Exception e) {
+                    continue;
+                }
+            }
+            if (tempnet > net || (tempnet == net && temptotal > total)) {
+                net = tempnet;
+                total = temptotal;
+                ret.unit1 = nearby.get(i).id();
+            }
+        }
+        return ret;
     }
 
     public static boolean canAttack() {
