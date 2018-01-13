@@ -9,6 +9,7 @@ public class Player {
     static MapLocation startingLocation = null;
     static GameController gc;
     static PlanetMap planetMap;
+    static Team myTeam, enemyTeam;
 	
 	public static void main(String args[]) {
         try {
@@ -23,6 +24,14 @@ public class Player {
             Worker.gc = gc;
             Player.gc = gc;
             Player.planetMap = gc.startingMap(Planet.Earth);
+            long total = 0;
+
+            myTeam = gc.team();
+            if (myTeam == Team.Red) {
+                enemyTeam = Team.Blue;
+            } else {
+                enemyTeam = Team.Red;
+            }
 
             initialize();
 
@@ -112,8 +121,9 @@ public class Player {
                     System.out.println("fuck me");
                 }
                 long endTime = System.currentTimeMillis();
-                System.out.println("Time");
-                System.out.println(endTime - startTime);
+                total += endTime - startTime;
+                System.out.println("Time: " + Long.toString(endTime - startTime));
+                System.out.println("Average: " + Long.toString(total / gc.round()));
                 gc.nextTurn();
             }
         } catch (Exception e) {

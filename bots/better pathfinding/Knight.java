@@ -8,7 +8,7 @@ public class Knight {
 	static Direction[] directions = Direction.values();
 	static HashMap<Integer, HashSet<Integer>> visited = new HashMap<Integer, HashSet<Integer>>();
 	static HashMap<Integer, Integer> targets = new HashMap<Integer, Integer>();
-	static HashMap<Integer, Integer> prevLocation = new HashMap<Integer, Integer>();
+	static HashMap<Integer, HashMap<Integer, Integer>> paths = new HashMap<Integer, HashMap<Integer, Integer>>();
 
 	public static void run(GameController gc, Unit curUnit) {
 
@@ -103,9 +103,6 @@ public class Knight {
 				Unit temp3 = nearby.get(i);
 				if (temp3.team() == gc.team()) {
 					ret.friendly++;
-					if (prevLocation.containsKey(temp3.id()) && prevLocation.get(temp3.id()) != tempTarget) {
-						prevLocation.remove(temp3.id());
-					}
 					targets.put(temp3.id(), tempTarget);
 				}
 			}
@@ -138,29 +135,6 @@ public class Knight {
 		}
 	}
 
-	//TODO optimization if i want to do it
-	//public static class mutableTarget
-
-	/*
-	public static void run(GameController gc, Unit curUnit) {
-
-		Knight.curUnit = curUnit;
-		Knight.gc = gc;
-
-		if (curUnit.location().isInGarrison()) {
-			return;
-		}
-
-		//attack enemies that are near you
-		if (canAttack()) {
-			attackNearbyEnemies();
-		}
-
-		if (canMove()) {
-			move(getTarget());
-		}
-	}*/
-
 	public static boolean canAttack() {
 		return curUnit.attackHeat() < 10;
 	}
@@ -185,112 +159,144 @@ public class Knight {
 	//pathing
 	//move towards target location
 	public static void move(MapLocation target) {
-		//finding square directly going towards path
-		//TODO (there's probably some math thing that's better)
-		int smallest = 9999999;
-		Direction direct = null;
-		for (int i = 0; i < directions.length; i++) {
-			MapLocation newSquare = curUnit.location().mapLocation().add(directions[i]);
-			int temp = distance(target, newSquare);
-			if (temp < smallest) {
-				smallest = temp;
-				direct = directions[i];
+		//a*
+		int movingTo = doubleHash(curUnit.location().mapLocation(), target);
+		if (!paths.containsKey(movingTo)) {
+			HashSet<Integer> closedList = new HashSet<Integer>();
+			HashMap<Integer, Integer> gScore = new HashMap<Integer, Integer>();
+			HashMap<Integer, Integer> fScore = new HashMap<Integer, Integer>();
+			HashMap<Integer, Integer> fromMap = new HashMap<Integer, Integer>();
+			PriorityQueue<Integer> openList = new PriorityQueue<Integer>(11, new Comparator<Integer>() {
+			public int compare(Integer nodeA, Integer nodeB) {
+				return Integer.compare(fScore.get(nodeA), fScore.get(nodeB));
 			}
-		}
-		//if i can move directly
-		if (direct != null) {
-			if (gc.canMove(curUnit.id(), direct)) {
-				prevLocation.remove(curUnit.id());
-				gc.moveRobot(curUnit.id(), direct);
-				return;
-			} else {
-				//System.out.println("Blocked by ally :(");
-			}
-		}
+		});
 
-		//follow obstacle
-		if (!prevLocation.containsKey(curUnit.id())) {
-			//choose a direction of obstacle to go in
-			//find obstacle border closest to target
-			smallest = 99999999;
-			MapLocation wall = null;
-			Direction toMove = null;
-			for (int i = 0; i < directions.length; i++) {
-				MapLocation test = curUnit.location().mapLocation().add(directions[i]);
-				//TODO check if isPassable returns true or false for allies
-				if (checkPassable(test) && checkAdjacentToObstacle(test) && distance(test, target) < smallest) {
-					smallest = distance(test, target);
-					toMove = directions[i];
-					wall = test;
+			MapLocation curLoc = curUnit.location().mapLocation();
+
+			int startHash = hash(curLoc);
+
+			gScore.put(startHash, 0);
+			fScore.put(startHash, manDistance(curLoc, target));
+			openList.offer(startHash);
+
+			int goal = hash(target);
+
+			while (!openList.isEmpty()) {
+				int current = openList.poll();
+
+				int tempY = current % 69;
+				int tempX = (current - tempY) / 69;
+				curLoc = new MapLocation(Planet.Earth, tempX, tempY);
+				
+				//System.out.println("Node im on " + print(current));
+
+				closedList.add(current);
+
+				//iterate through neighbors
+				for (int i = 0; i < directions.length; i++) {
+					int neighbor = hash(curLoc.add(directions[i]));
+					if (neighbor == goal) {
+						fromMap.put(neighbor, current);
+						HashMap<Integer, Integer> path = new HashMap<Integer, Integer>();
+						HashMap<Integer, Integer> path2 = new HashMap<Integer, Integer>();
+						int next = goal;
+
+						int prev = -1;
+						ArrayList<Integer> before = new ArrayList<Integer>();
+						before.add(next);
+						while (fromMap.containsKey(next)) {
+							//System.out.println(print(next));
+							//path.put(next, prev);
+							prev = next;
+							next = fromMap.get(prev);
+							before.add(next);
+							//paths.put(doubleHash(prev, next), path);
+							//paths.put(doubleHash(next, prev), path);
+							//TODO put in between paths... a b c d e needs bc, bd, cd 
+							path.put(next, prev);
+							path2.put(prev, next);
+						}
+						int temp = before.size();
+						for (int j = 0; j < temp; j++) {
+							for (int a = 0; a < j; a++) {
+								paths.put(doubleHash(before.get(j), before.get(a)), path);
+								paths.put(doubleHash(before.get(a), before.get(j)), path2);
+							}
+						}
+						
+						break;
+					}
+					if (checkPassable(curLoc.add(directions[i]))) {
+						if (closedList.contains(neighbor)) {
+							continue;
+						}
+
+						int tentG = gScore.get(current) + 1;
+
+						boolean contains = openList.contains(neighbor);
+						if (!contains || tentG < gScore.get(neighbor)) {
+							gScore.put(neighbor, tentG);
+							fScore.put(neighbor, tentG + manDistance(neighbor, hash(target.getX(), target.getY())));
+
+							if (contains) {
+								openList.remove(neighbor);
+							}
+
+							openList.offer(neighbor);
+							//System.out.println("Add: " + print(neighbor));
+							fromMap.put(neighbor, current);
+						}
+					}
 				}
 			}
-			if (toMove == null) {
-				//can't move
-				return;
-			}
-			//try to move there
-			if (gc.canMove(curUnit.id(), toMove)) {
-				prevLocation.put(curUnit.id(), hash(curUnit.location().mapLocation()));
-				gc.moveRobot(curUnit.id(), toMove);
-			} else {
-				//System.out.println("Blocked by ally 2 :(");
-			}
+		}
+		//System.out.println(hash(curUnit.location().mapLocation()));
+		//System.out.println(Arrays.asList(paths.get(movingTo)));
+		//System.out.println(paths.get(movingTo).containsKey(hash(curUnit.location().mapLocation())));
+
+		int toMove = paths.get(movingTo).get(hash(curUnit.location().mapLocation()));
+
+		int y = toMove % 69;
+		int x = (toMove - y) / 69;
+		
+		MapLocation next = new MapLocation(Planet.Earth, x, y);
+		Direction temp = curUnit.location().mapLocation().directionTo(next);
+		if (gc.canMove(curUnit.id(), temp) && canMove()) {
+			gc.moveRobot(curUnit.id(), temp);
 		} else {
-			//already following obstacle
-			//find wall that's not equal to prevLocation
-			MapLocation wall = null;
-			int previousHash = prevLocation.get(curUnit.id());
-			Direction toMove = null;
-			for (int i = 0; i < directions.length; i++) {
-				MapLocation test = curUnit.location().mapLocation().add(directions[i]);
-				//TODO check if isPassable returns true or false for allies
-				if (checkPassable(test) && checkAdjacentToObstacle(test) && hash(test) != previousHash) {
-					wall = test;
-					toMove = directions[i];
-				}
-			}
-			if (wall == null) {
-				//blocked by allied units :(
-				//System.out.println("Bug move is borked");
-			} else {
-				//try moving there
-				if (gc.canMove(curUnit.id(), toMove)) {
-					prevLocation.put(curUnit.id(), hash(curUnit.location().mapLocation()));
-					gc.moveRobot(curUnit.id(), toMove);
-				} else {
-					//System.out.println("Blocked by ally 3 :(");
-				}
-			}
+			System.out.println("Darn");
 		}
 	}
 
-	//check if a square is the border of an obstacle (aka if an obstacle is on left right up or down of it)
-	public static boolean checkAdjacentToObstacle(MapLocation test) {
-		Direction[] temp = {Direction.North, Direction.South, Direction.East, Direction.South};
-		for (int i = 0; i < temp.length; i++) {
-			MapLocation testWall = test.add(temp[i]);
-			MapLocation curLoc = curUnit.location().mapLocation();
-			if (testWall.getX() == curLoc.getX() && testWall.getY() == curLoc.getY()) {
-				continue;
-			}
-			if (distance(testWall, curUnit.location().mapLocation()) <= 2 && !checkPassable(testWall)) {
-				return true;
-			}
-		}
-		return false;
+	public static String print(int hash) {
+		int asdf = hash % 69;
+		int asdfg = (hash - asdf) / 69;
+		return Integer.toString(asdf) + " " + Integer.toString(asdfg);
+	}
+
+	public static int doubleHash(int x1, int y1, int x2, int y2) {
+		return (69 * x1) + y1 + ((69 * x2) + y2) * 10000;
+	}
+
+	public static int doubleHash(int hash1, int hash2) {
+		int y1 = hash1 % 69;
+		int x1 = (hash1 - y1) / 69;
+		int y2 = hash2 % 69;
+		int x2 = (hash2 - y2) / 69;
+		return (69 * x1) + y1 + ((69 * x2) + y2) * 10000;
+	}
+
+	public static int doubleHash(MapLocation first, MapLocation second) {
+		int x1 = first.getX(), y1 = first.getY(), x2 = second.getX(), y2 = second.getY();
+		return (69 * x1) + y1 + ((69 * x2) + y2) * 10000;
 	}
 
 	public static boolean checkPassable(MapLocation test) {
 		if (test.getX() >= Player.gridX || test.getY() >= Player.gridY || test.getX() < 0 || test.getY() < 0) {
 			return false;
 		}
-		boolean allyThere = true;
-		try {
-			gc.senseUnitAtLocation(test);
-		} catch (Exception e) {
-			allyThere = false;
-		}
-		return Player.planetMap.isPassableTerrainAt(test) == 1 && !allyThere;
+		return Player.planetMap.isPassableTerrainAt(test) == 1;
 	}
 
 	public static int hash(int x, int y) {
@@ -303,6 +309,27 @@ public class Knight {
 
 	public static int distance(MapLocation first, MapLocation second) {
 		int x1 = first.getX(), y1 = first.getY(), x2 = second.getX(), y2 = second.getY();
+		return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
+	}
+
+	public static int manDistance(MapLocation first, MapLocation second) {
+		int x1 = first.getX(), y1 = first.getY(), x2 = second.getX(), y2 = second.getY();
+		return (x2 - x1) + (y2 - y1);
+	}
+
+	public static int manDistance(int hash1, int hash2) {
+		int y1 = hash1 % 69;
+		int x1 = (hash1 - y1) / 69;
+		int y2 = hash2 % 69;
+		int x2 = (hash2 - y2) / 69;
+		return (x2 - x1) + (y2 - y1);
+	}
+
+	public static int distance(int hash1, int hash2) {
+		int y1 = hash1 % 69;
+		int x1 = (hash1 - y1) / 69;
+		int y2 = hash2 % 69;
+		int x2 = (hash2 - y2) / 69;
 		return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
 	}
 
