@@ -12,12 +12,28 @@ public class Worker {
 	//bugpathing storing previous square (unit id, hash of location)
 	static HashMap<Integer, Integer> prevLocation = new HashMap<Integer, Integer>();
 	static HashMap<Integer, HashMap<Integer, Integer>> paths = new HashMap<Integer, HashMap<Integer, Integer>>();
+	static int rocketsBuilt = 0;
+	static int rocketBlueprintId = -1;
 
 	public static void run(GameController gc, Unit curUnit) {
 
 		//Note: with bugmove, whenever a unit changes target, then prevLocation should remove their unit id from its keys
 
 		Worker.curUnit = curUnit;
+
+		if (curUnit.location().isInGarrison()) {
+			return;
+		}
+
+		if (Player.firstTime) {
+			Player.firstTime = false;
+			//guesstimate enemy location
+			if (Player.enemyLocation == null) {
+				MapLocation temp = curUnit.location().mapLocation();
+				Player.startingLocation = temp;
+				Player.enemyLocation = new MapLocation(gc.planet(), Player.gridX - temp.getX(), Player.gridY - temp.getY());
+			}
+		}
 
 		if (gc.round() == 1) {
 			//Initial replication
@@ -26,12 +42,6 @@ public class Worker {
 					gc.replicate(curUnit.id(), directions[i]);
 					break;
 				}
-			}
-			//guesstimate enemy location
-			if (Player.enemyLocation == null) {
-				MapLocation temp = curUnit.location().mapLocation();
-				Player.startingLocation = temp;
-				Player.enemyLocation = new MapLocation(Planet.Earth, Player.gridX - temp.getX(), Player.gridY - temp.getY());
 			}
 		}
 		//remove target if factory already died
@@ -50,7 +60,11 @@ public class Worker {
 			//already done working on
 			if (toWorkOn.health() == toWorkOn.maxHealth()) {
 				target.remove(curUnit.id());
-				buildFactory();
+				if (rocketsBuilt == 0 && gc.researchInfo().getLevel(UnitType.Rocket) > 0) {
+					buildRocket();
+				} else {
+					buildFactory();
+				}
 			} else {
 				//goto it and build it
 				MapLocation blueprintLoc = toWorkOn.location().mapLocation();
@@ -68,11 +82,40 @@ public class Worker {
 				}
 			}
 		} else {
-			buildFactory();
+			if (rocketsBuilt == 0 && gc.researchInfo().getLevel(UnitType.Rocket) > 0) {
+				buildRocket();
+			} else {
+				buildFactory();
+			}
 		}
 		
 
 		return;
+	}
+
+	public static void buildRocket() {
+		for (int i = 0; i < directions.length - 2; i++) {
+			if (gc.canBlueprint(curUnit.id(), UnitType.Rocket, directions[i])) {
+				gc.blueprint(curUnit.id(), UnitType.Rocket, directions[i]);
+				int targetBlueprint = gc.senseUnitAtLocation(curUnit.location().mapLocation().add(directions[i])).id();
+				rocketBlueprintId = targetBlueprint;
+				rocketsBuilt++;
+				//tell all nearby workers to go work on it
+				//TODO maybe bfs within n range for workers to work on the factory
+				VecUnit nearby = gc.senseNearbyUnits(curUnit.location().mapLocation(), 4);
+				for (int a = 0; a < nearby.size(); a++) {
+					Unit temp = nearby.get(a);
+					if (temp.team() == gc.team() && temp.unitType() == UnitType.Worker) {
+						//if changing target of a unit
+						if (prevLocation.containsKey(temp.id()) && prevLocation.get(temp.id()) != targetBlueprint) {
+							prevLocation.remove(temp.id());
+						}
+						target.put(temp.id(), targetBlueprint);
+					}
+				}
+				break;
+			}
+		}
 	}
 
 	//build blueprint given structure unit id
@@ -139,7 +182,7 @@ public class Worker {
 
 				int tempY = current % 69;
 				int tempX = (current - tempY) / 69;
-				curLoc = new MapLocation(Planet.Earth, tempX, tempY);
+				curLoc = new MapLocation(gc.planet(), tempX, tempY);
 				
 				//System.out.println("Node im on " + print(current));
 
@@ -212,7 +255,7 @@ public class Worker {
 		int y = toMove % 69;
 		int x = (toMove - y) / 69;
 		
-		MapLocation next = new MapLocation(Planet.Earth, x, y);
+		MapLocation next = new MapLocation(gc.planet(), x, y);
 		Direction temp = curUnit.location().mapLocation().directionTo(next);
 		if (gc.canMove(curUnit.id(), temp) && canMove()) {
 			gc.moveRobot(curUnit.id(), temp);

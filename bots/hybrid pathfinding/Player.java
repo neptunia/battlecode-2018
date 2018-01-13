@@ -10,6 +10,7 @@ public class Player {
     static GameController gc;
     static PlanetMap planetMap;
     static Team myTeam, enemyTeam;
+    static boolean firstTime = true;
 	
 	public static void main(String args[]) {
         try {
@@ -23,7 +24,7 @@ public class Player {
             Knight.gc = gc;
             Worker.gc = gc;
             Player.gc = gc;
-            Player.planetMap = gc.startingMap(Planet.Earth);
+            Player.planetMap = gc.startingMap(gc.planet());
 
             myTeam = gc.team();
             if (myTeam == Team.Red) {
@@ -86,7 +87,7 @@ public class Player {
                             	    Ranger.run(gc, curUnit);
                                 } catch (Exception e) {
                                     e.printStackTrace();
-                                    System.out.println("mage ded");
+                                    System.out.println("ranger ded");
                                 }
                                 break;
                             case Rocket:
@@ -94,7 +95,7 @@ public class Player {
                                     Rocket.run(gc, curUnit);
                                 } catch (Exception e) {
                                     e.printStackTrace();
-                                    System.out.println("mage ded");
+                                    System.out.println("rocket ded");
                                 }
                                 break;
                             case Worker:
@@ -142,7 +143,7 @@ public class Player {
         passable = new boolean[width][height];
         for (int i = 0; i < width; i++) {
             for (int a = 0; a < height; a++) {
-                MapLocation temp = new MapLocation(Planet.Earth, i, a);
+                MapLocation temp = new MapLocation(gc.planet(), i, a);
                 if (planetMap.isPassableTerrainAt(temp) == 1) {
                     passable[i][a] = true;
                 } else {

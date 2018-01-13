@@ -18,6 +18,16 @@ public class Healer {
             return;
         }
 
+        if (Player.firstTime) {
+            Player.firstTime = false;
+            //guesstimate enemy location
+            if (Player.enemyLocation == null) {
+                MapLocation temp = curUnit.location().mapLocation();
+                Player.startingLocation = temp;
+                Player.enemyLocation = new MapLocation(gc.planet(), Player.gridX - temp.getX(), Player.gridY - temp.getY());
+            }
+        }
+
         //attack enemies that are near you
         if (canHeal()) {
             healNearbyAllies();

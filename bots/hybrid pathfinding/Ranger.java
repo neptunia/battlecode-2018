@@ -19,6 +19,16 @@ public class Ranger {
             return;
         }
 
+        if (Player.firstTime) {
+            Player.firstTime = false;
+            //guesstimate enemy location
+            if (Player.enemyLocation == null) {
+                MapLocation temp = curUnit.location().mapLocation();
+                Player.startingLocation = temp;
+                Player.enemyLocation = new MapLocation(gc.planet(), Player.gridX - temp.getX(), Player.gridY - temp.getY());
+            }
+        }
+
         Pair target = findNearestEnemy();
         if (target.enemyClosest == -1) {
             //explore if no units detected
@@ -210,7 +220,7 @@ public class Ranger {
 
                 int tempY = current % 69;
                 int tempX = (current - tempY) / 69;
-                curLoc = new MapLocation(Planet.Earth, tempX, tempY);
+                curLoc = new MapLocation(gc.planet(), tempX, tempY);
                 
                 //System.out.println("Node im on " + print(current));
 
@@ -283,7 +293,7 @@ public class Ranger {
         int y = toMove % 69;
         int x = (toMove - y) / 69;
         
-        MapLocation next = new MapLocation(Planet.Earth, x, y);
+        MapLocation next = new MapLocation(gc.planet(), x, y);
         Direction temp = curUnit.location().mapLocation().directionTo(next);
         if (gc.canMove(curUnit.id(), temp) && canMove()) {
             gc.moveRobot(curUnit.id(), temp);
