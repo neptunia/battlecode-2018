@@ -1,7 +1,4 @@
 import bc.*;
-import java.util.*;
-
-import java.text.NumberFormat;
 
 public class Player {
 
@@ -12,18 +9,11 @@ public class Player {
     static MapLocation startingLocation = null;
     static GameController gc;
     static PlanetMap planetMap;
-    static Team myTeam, enemyTeam;
-    static boolean firstTime = true;
-    static long prevIncome;
-    static long currentIncome;
-    static HashMap<Integer, HashMap<Integer, Integer>> paths = new HashMap<Integer, HashMap<Integer, Integer>>();
-
 	
 	public static void main(String args[]) {
         try {
             GameController gc = new GameController();
 
-            prevIncome = 10 - Math.max(gc.karbonite() / 40, 0);
             Mage.gc = gc;
             Rocket.gc = gc;
             Healer.gc = gc;
@@ -32,14 +22,7 @@ public class Player {
             Knight.gc = gc;
             Worker.gc = gc;
             Player.gc = gc;
-            Player.planetMap = gc.startingMap(gc.planet());
-
-            myTeam = gc.team();
-            if (myTeam == Team.Red) {
-                enemyTeam = Team.Blue;
-            } else {
-                enemyTeam = Team.Red;
-            }
+            Player.planetMap = gc.startingMap(Planet.Earth);
 
             long total = 0;
 
@@ -48,7 +31,6 @@ public class Player {
             while (true) {
                 long startTime = System.currentTimeMillis();
                 try {
-                    currentIncome = 10 - Math.max(gc.karbonite() / 40, 0);
                     long currentRound = gc.round();
                     VecUnit myUnits = gc.myUnits();
                     long numberOfUnits = myUnits.size();
@@ -96,7 +78,7 @@ public class Player {
                             	    Ranger.run(gc, curUnit);
                                 } catch (Exception e) {
                                     e.printStackTrace();
-                                    System.out.println("ranger ded");
+                                    System.out.println("mage ded");
                                 }
                                 break;
                             case Rocket:
@@ -104,7 +86,7 @@ public class Player {
                                     Rocket.run(gc, curUnit);
                                 } catch (Exception e) {
                                     e.printStackTrace();
-                                    System.out.println("rocket ded");
+                                    System.out.println("mage ded");
                                 }
                                 break;
                             case Worker:
@@ -135,21 +117,6 @@ public class Player {
                 total += endTime - startTime;
                 System.out.println("Time: " + Long.toString(endTime - startTime));
                 System.out.println("Average: " + Long.toString(total / gc.round()));
-                prevIncome = currentIncome;
-                Runtime runtime = Runtime.getRuntime();
-
-                NumberFormat format = NumberFormat.getInstance();
-
-                StringBuilder sb = new StringBuilder();
-                long maxMemory = runtime.maxMemory();
-                long allocatedMemory = runtime.totalMemory();
-                long freeMemory = runtime.freeMemory();
-
-                sb.append("free memory: " + format.format(freeMemory / 1024) + "<br/>");
-                sb.append("allocated memory: " + format.format(allocatedMemory / 1024) + "<br/>");
-                sb.append("max memory: " + format.format(maxMemory / 1024) + "<br/>");
-                sb.append("total free memory: " + format.format((freeMemory + (maxMemory - allocatedMemory)) / 1024) + "<br/>");
-                System.out.println(sb);
                 gc.nextTurn();
             }
         } catch (Exception e) {
@@ -165,20 +132,13 @@ public class Player {
         gridY = height;
         map = new Unit[width][height];
         passable = new boolean[width][height];
-        Worker.karbonites = new MapLocation[2500];
-        //TODO make karbonite more efficient
-        int counter = 0;
         for (int i = 0; i < width; i++) {
             for (int a = 0; a < height; a++) {
-                MapLocation temp = new MapLocation(gc.planet(), i, a);
+                MapLocation temp = new MapLocation(Planet.Earth, i, a);
                 if (planetMap.isPassableTerrainAt(temp) == 1) {
                     passable[i][a] = true;
                 } else {
                     passable[i][a] = false;
-                }
-                if (planetMap.initialKarboniteAt(temp) > 0) {
-                    Worker.karbonites[Worker.numKarbsCounter] = temp;
-                    Worker.numKarbsCounter++;
                 }
             }
         }

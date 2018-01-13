@@ -9,7 +9,6 @@ public class Mage {
     static Direction[] directions = Direction.values();
     static HashMap<Integer, HashSet<Integer>> visited = new HashMap<Integer, HashSet<Integer>>();
     static HashMap<Integer, Integer> prevLocation = new HashMap<Integer, Integer>();
-    static HashMap<Integer, HashMap<Integer, Integer>> paths = new HashMap<Integer, HashMap<Integer, Integer>>();
 
     public static void run(GameController gc, Unit curUnit) {
 
@@ -186,7 +185,7 @@ public class Mage {
     public static void move(MapLocation target) {
         //a*
         int movingTo = doubleHash(curUnit.location().mapLocation(), target);
-        if (!paths.containsKey(movingTo)) {
+        if (!Player.paths.containsKey(movingTo)) {
             HashSet<Integer> closedList = new HashSet<Integer>();
             HashMap<Integer, Integer> gScore = new HashMap<Integer, Integer>();
             HashMap<Integer, Integer> fScore = new HashMap<Integer, Integer>();
@@ -236,17 +235,17 @@ public class Mage {
                             prev = next;
                             next = fromMap.get(prev);
                             before.add(next);
-                            //paths.put(doubleHash(prev, next), path);
-                            //paths.put(doubleHash(next, prev), path);
-                            //TODO put in between paths... a b c d e needs bc, bd, cd 
+                            //Player.paths.put(doubleHash(prev, next), path);
+                            //Player.paths.put(doubleHash(next, prev), path);
+                            //TODO put in between Player.paths... a b c d e needs bc, bd, cd 
                             path.put(next, prev);
                             path2.put(prev, next);
                         }
                         int temp = before.size();
                         for (int j = 0; j < temp; j++) {
                             for (int a = 0; a < j; a++) {
-                                paths.put(doubleHash(before.get(j), before.get(a)), path);
-                                paths.put(doubleHash(before.get(a), before.get(j)), path2);
+                                Player.paths.put(doubleHash(before.get(j), before.get(a)), path);
+                                Player.paths.put(doubleHash(before.get(a), before.get(j)), path2);
                             }
                         }
                         
@@ -277,10 +276,10 @@ public class Mage {
             }
         }
         //System.out.println(hash(curUnit.location().mapLocation()));
-        //System.out.println(Arrays.asList(paths.get(movingTo)));
-        //System.out.println(paths.get(movingTo).containsKey(hash(curUnit.location().mapLocation())));
+        //System.out.println(Arrays.asList(Player.paths.get(movingTo)));
+        //System.out.println(Player.paths.get(movingTo).containsKey(hash(curUnit.location().mapLocation())));
 
-        int toMove = paths.get(movingTo).get(hash(curUnit.location().mapLocation()));
+        int toMove = Player.paths.get(movingTo).get(hash(curUnit.location().mapLocation()));
 
         int y = toMove % 69;
         int x = (toMove - y) / 69;

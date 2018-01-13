@@ -11,7 +11,6 @@ public class Worker {
 	static HashMap<Integer, Integer> target = new HashMap<Integer, Integer>();
 	//bugpathing storing previous square (unit id, hash of location)
 	static HashMap<Integer, Integer> prevLocation = new HashMap<Integer, Integer>();
-	static HashMap<Integer, HashMap<Integer, Integer>> paths = new HashMap<Integer, HashMap<Integer, Integer>>();
 	static int rocketsBuilt = 0;
 	static int rocketBlueprintId = -1;
 	static int numFacts = -1;
@@ -264,7 +263,7 @@ public class Worker {
 	public static void move(MapLocation target) {
 		//a*
 		int movingTo = doubleHash(curUnit.location().mapLocation(), target);
-		if (!paths.containsKey(movingTo)) {
+		if (!Player.paths.containsKey(movingTo)) {
 			HashSet<Integer> closedList = new HashSet<Integer>();
 			HashMap<Integer, Integer> gScore = new HashMap<Integer, Integer>();
 			HashMap<Integer, Integer> fScore = new HashMap<Integer, Integer>();
@@ -314,17 +313,17 @@ public class Worker {
 							prev = next;
 							next = fromMap.get(prev);
 							before.add(next);
-							//paths.put(doubleHash(prev, next), path);
-							//paths.put(doubleHash(next, prev), path);
-							//TODO put in between paths... a b c d e needs bc, bd, cd 
+							//Player.paths.put(doubleHash(prev, next), path);
+							//Player.paths.put(doubleHash(next, prev), path);
+							//TODO put in between Player.paths... a b c d e needs bc, bd, cd 
 							path.put(next, prev);
 							path2.put(prev, next);
 						}
 						int temp = before.size();
 						for (int j = 0; j < temp; j++) {
 							for (int a = 0; a < j; a++) {
-								paths.put(doubleHash(before.get(j), before.get(a)), path);
-								paths.put(doubleHash(before.get(a), before.get(j)), path2);
+								Player.paths.put(doubleHash(before.get(j), before.get(a)), path);
+								Player.paths.put(doubleHash(before.get(a), before.get(j)), path2);
 							}
 						}
 						
@@ -355,10 +354,10 @@ public class Worker {
 			}
 		}
 		//System.out.println(hash(curUnit.location().mapLocation()));
-		//System.out.println(Arrays.asList(paths.get(movingTo)));
-		//System.out.println(paths.get(movingTo).containsKey(hash(curUnit.location().mapLocation())));
+		//System.out.println(Arrays.asList(Player.paths.get(movingTo)));
+		//System.out.println(Player.paths.get(movingTo).containsKey(hash(curUnit.location().mapLocation())));
 
-		int toMove = paths.get(movingTo).get(hash(curUnit.location().mapLocation()));
+		int toMove = Player.paths.get(movingTo).get(hash(curUnit.location().mapLocation()));
 
 		int y = toMove % 69;
 		int x = (toMove - y) / 69;
