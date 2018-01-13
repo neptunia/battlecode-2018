@@ -16,7 +16,8 @@ public class Worker {
 	static int rocketBlueprintId = -1;
 	static int numFacts = -1;
 	static int numWorkers = -1;
-	static MapLocation[] karbonites = null;
+	static MapLocation[] karbonites;
+	static int numKarbsCounter = 0;
 	static HashMap<Integer, MapLocation> karboniteTargets = new HashMap<Integer, MapLocation>();
 
 	public static void run(GameController gc, Unit curUnit) {
@@ -185,7 +186,7 @@ public class Worker {
 		int smallest = 9999999;
 		MapLocation karb = null;
 		MapLocation curLoc = curUnit.location().mapLocation();
-		for (int i = 0; i < karbonites.length; i++) {
+		for (int i = 0; i < numKarbsCounter; i++) {
 			if (karbonites[i] != null) {
 				int dist = distance(curLoc, karbonites[i]);
 				if (dist < smallest) {

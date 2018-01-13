@@ -146,6 +146,9 @@ public class Player {
         gridY = height;
         map = new Unit[width][height];
         passable = new boolean[width][height];
+        Worker.karbonites = new MapLocation[2500];
+        //TODO make karbonite more efficient
+        int counter = 0;
         for (int i = 0; i < width; i++) {
             for (int a = 0; a < height; a++) {
                 MapLocation temp = new MapLocation(gc.planet(), i, a);
@@ -153,6 +156,10 @@ public class Player {
                     passable[i][a] = true;
                 } else {
                     passable[i][a] = false;
+                }
+                if (gc.karboniteAt(temp) > 0) {
+                    Worker.karbonites[Worker.numKarbsCounter] = temp;
+                    Worker.numKarbsCounter++;
                 }
             }
         }
