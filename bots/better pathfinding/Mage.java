@@ -281,15 +281,4 @@ public class Mage {
         int x1 = first.getX(), y1 = first.getY(), x2 = second.getX(), y2 = second.getY();
         return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
     }
-
-    //senses nearby units and updates RobotPlayer.map with detected units
-    public static VecUnit getNearby(MapLocation maploc, int radius) {
-        VecUnit nearby = gc.senseNearbyUnits(maploc, radius);
-        for (int i = 0; i < nearby.size(); i++) {
-            Unit unit = nearby.get(i);
-            MapLocation temp = unit.location().mapLocation();
-            Player.map[temp.getX()][temp.getY()] = unit;
-        }
-        return nearby;
-    }
 }
