@@ -1,5 +1,7 @@
 import bc.*;
 
+import java.text.NumberFormat;
+
 public class Player {
 
     static boolean[][] passable;
@@ -131,6 +133,20 @@ public class Player {
                 System.out.println("Time: " + Long.toString(endTime - startTime));
                 System.out.println("Average: " + Long.toString(total / gc.round()));
                 prevIncome = currentIncome;
+                Runtime runtime = Runtime.getRuntime();
+
+                NumberFormat format = NumberFormat.getInstance();
+
+                StringBuilder sb = new StringBuilder();
+                long maxMemory = runtime.maxMemory();
+                long allocatedMemory = runtime.totalMemory();
+                long freeMemory = runtime.freeMemory();
+
+                sb.append("free memory: " + format.format(freeMemory / 1024) + "<br/>");
+                sb.append("allocated memory: " + format.format(allocatedMemory / 1024) + "<br/>");
+                sb.append("max memory: " + format.format(maxMemory / 1024) + "<br/>");
+                sb.append("total free memory: " + format.format((freeMemory + (maxMemory - allocatedMemory)) / 1024) + "<br/>");
+                System.out.println(sb);
                 gc.nextTurn();
             }
         } catch (Exception e) {
@@ -157,7 +173,7 @@ public class Player {
                 } else {
                     passable[i][a] = false;
                 }
-                if (gc.karboniteAt(temp) > 0) {
+                if (planetMap.initialKarboniteAt(temp) > 0) {
                     Worker.karbonites[Worker.numKarbsCounter] = temp;
                     Worker.numKarbsCounter++;
                 }

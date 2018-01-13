@@ -365,7 +365,7 @@ public class Worker {
 		
 		MapLocation next = new MapLocation(gc.planet(), x, y);
 		Direction temp = curUnit.location().mapLocation().directionTo(next);
-		if (gc.canMove(curUnit.id(), temp) && canMove()) {
+		if (gc.canMove(curUnit.id(), temp) && gc.isMoveReady(curUnit.id())) {
 			gc.moveRobot(curUnit.id(), temp);
 		} else {
 			//System.out.println("Darn");
