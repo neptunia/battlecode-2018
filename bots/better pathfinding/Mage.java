@@ -10,8 +10,15 @@ public class Mage {
     static Direction[] directions = Direction.values();
     static HashMap<Integer, HashSet<Integer>> visited = new HashMap<Integer, HashSet<Integer>>();
     static HashMap<Integer, Integer> prevLocation = new HashMap<Integer, Integer>();
+    static Team enemyTeam;
 
     public static void run(GameController gc, Unit curUnit) {
+
+        if (gc.team() == Team.Blue) {
+            enemyTeam = Team.Red;
+        } else {
+            enemyTeam = Team.Blue;
+        }
 
         Mage.curUnit = curUnit;
 
@@ -82,7 +89,7 @@ public class Mage {
     //finds best unit to attack
     public static Pair findBestUnit() {
         Pair ret = new Pair();
-        VecUnit nearby = gc.senseNearbyUnits(curUnit.location().mapLocation(), curUnit.visionRange());
+        VecUnit nearby = gc.senseNearbyUnitsByTeam(curUnit.location().mapLocation(), curUnit.visionRange(), enemyTeam);
         if (nearby.size() == 0) {
             return ret;
         }
