@@ -211,7 +211,6 @@ public class Knight {
 		//follow obstacle
 		if (!prevLocation.containsKey(curUnit.id())) {
 			//choose a direction of obstacle to go in
-			prevLocation.put(curUnit.id(), hash(curUnit.location().mapLocation()));
 			//find obstacle border closest to target
 			smallest = 99999999;
 			MapLocation wall = null;
@@ -231,6 +230,7 @@ public class Knight {
 			}
 			//try to move there
 			if (gc.canMove(curUnit.id(), toMove)) {
+				prevLocation.put(curUnit.id(), hash(curUnit.location().mapLocation()));
 				gc.moveRobot(curUnit.id(), toMove);
 			} else {
 				//System.out.println("Blocked by ally 2 :(");
@@ -255,6 +255,7 @@ public class Knight {
 			} else {
 				//try moving there
 				if (gc.canMove(curUnit.id(), toMove)) {
+					prevLocation.put(curUnit.id(), hash(curUnit.location().mapLocation()));
 					gc.moveRobot(curUnit.id(), toMove);
 				} else {
 					//System.out.println("Blocked by ally 3 :(");
@@ -267,7 +268,12 @@ public class Knight {
 	public static boolean checkAdjacentToObstacle(MapLocation test) {
 		Direction[] temp = {Direction.North, Direction.South, Direction.East, Direction.South};
 		for (int i = 0; i < temp.length; i++) {
-			if (!checkPassable(test.add(temp[i]))) {
+			MapLocation testWall = test.add(temp[i]);
+			MapLocation curLoc = curUnit.location().mapLocation();
+			if (testWall.getX() == curLoc.getX() && testWall.getY() == curLoc.getY()) {
+				continue;
+			}
+			if (distance(testWall, curUnit.location().mapLocation()) <= 2 && !checkPassable(testWall)) {
 				return true;
 			}
 		}
