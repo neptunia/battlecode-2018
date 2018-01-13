@@ -16,6 +16,8 @@ public class Worker {
 	static int rocketBlueprintId = -1;
 	static int numFacts = -1;
 	static int numWorkers = -1;
+	static boolean[][] checkedKarbonite, karbonites;
+	static HashMap<Integer, MapLocation> karboniteTargets = new HashMap<Integer, MapLocation>();
 
 	public static void run(GameController gc, Unit curUnit) {
 
@@ -97,16 +99,40 @@ public class Worker {
 		if (curUnit.workerHasActed() == 0) {
 			if (Player.prevIncome < 0) {
 				//go mine
-				for (int i = 0; i < directions.length; i++) {
-					if (gc.canHarvest(curUnit.id(), directions[i])) {
-						gc.harvest(curUnit.id(), directions[i]);
-						Player.currentIncome += curUnit.workerHarvestAmount();
-						return;
+				MapLocation curLoc = curUnit.location().mapLocation();
+				//if already have a karbonite target
+				if (karboniteTargets.containsKey(curUnit.id())) {
+					MapLocation theKarb = karboniteTargets.get(curUnit.id());
+					if (distance(curLoc, karboniteTargets.get(curUnit.id())) <= 2) {
+						//im next to it
+						
+						Direction directionToKarb = curLoc.directionTo(theKarb);
+						try {
+							if (gc.canHarvest(curUnit.id(), directionToKarb)) {
+								gc.harvest(curUnit.id(), directionToKarb);
+								Player.currentIncome += curUnit.workerHarvestAmount();
+								return;
+							}
+						} catch (Exception e) {
+							//karbonite already mined, select new target and go to it
+							karbonites[theKarb.getX()][theKarb.getY()] = false;
+							selectKarbonite();
+							move(karboniteTargets.get(curUnit.id()));
+						}
+					} else {
+						//if karb doesn't exists, select it, then move to it
+						if (!karbonites[theKarb.getX()][theKarb.getY()]) {
+							selectKarbonite();
+						}
+						move(karboniteTargets.get(curUnit.id()));
 					}
+					
+					
+				} else {
+					selectKarbonite();
+					move(karboniteTargets.get(curUnit.id()));
 				}
 
-				//cant mine, move to mining place
-				//implement bfs here
 
 			} else {
 				//replicate if possible
@@ -135,6 +161,37 @@ public class Worker {
 		}
 
 		return;
+	}
+
+	public static void selectKarbonite() {
+		MapLocation curLoc = curUnit.location().mapLocation();
+		int startHash = hash(curLoc);
+		//find closest karbonite
+		LinkedList<Integer> q = new LinkedList<Integer>();
+		q.add(startHash);
+		while (!q.isEmpty()) {
+			int current = q.poll();
+			for (int i = 0; i < directions.length; i++) {
+				int tempY = current % 69;
+				int tempX = (current - tempY) / 69;
+				MapLocation test = new MapLocation(Planet.Earth, tempX, tempY).add(directions[i]);
+				q.add(hash(test));
+				//TODO implement symmetric crap
+				if (!checkedKarbonite[test.getX()][test.getY()]) {
+					checkedKarbonite[test.getX()][test.getY()] = true;
+					if (gc.karboniteAt(test) > 0) {
+						karbonites[test.getX()][test.getY()] = true;
+					}
+				}
+				if (karbonites[test.getX()][test.getY()]) {
+					//found closest target
+					karboniteTargets.put(curUnit.id(), test);
+					q.clear();
+					break;
+				}
+			}
+		}
+		System.out.println("No karbonite found");
 	}
 
 	public static void buildRocket() {
