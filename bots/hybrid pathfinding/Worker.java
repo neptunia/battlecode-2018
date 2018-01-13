@@ -16,7 +16,7 @@ public class Worker {
 	static int rocketBlueprintId = -1;
 	static int numFacts = -1;
 	static int numWorkers = -1;
-	static boolean[][] checkedKarbonite, karbonites;
+	static MapLocation[] karbonites = null;
 	static HashMap<Integer, MapLocation> karboniteTargets = new HashMap<Integer, MapLocation>();
 
 	public static void run(GameController gc, Unit curUnit) {
@@ -105,7 +105,6 @@ public class Worker {
 					MapLocation theKarb = karboniteTargets.get(curUnit.id());
 					if (distance(curLoc, karboniteTargets.get(curUnit.id())) <= 2) {
 						//im next to it
-						
 						Direction directionToKarb = curLoc.directionTo(theKarb);
 						try {
 							if (gc.canHarvest(curUnit.id(), directionToKarb)) {
@@ -115,21 +114,40 @@ public class Worker {
 							}
 						} catch (Exception e) {
 							//karbonite already mined, select new target and go to it
-							karbonites[theKarb.getX()][theKarb.getY()] = false;
-							selectKarbonite();
-							move(karboniteTargets.get(curUnit.id()));
+							//TODO: make more efficient with a struct later
+							for (int i = 0; i < karbonites.length; i++) {
+								if (karbonites[i] == theKarb) {
+									karbonites[i] = null;
+									break;
+								}
+							}
+							MapLocation newTarget = selectKarbonite();
+							directionToKarb = curLoc.directionTo(newTarget);
+							karboniteTargets.put(curUnit.id(), newTarget);
+							if (gc.canHarvest(curUnit.id(), directionToKarb)) {
+								gc.harvest(curUnit.id(), directionToKarb);
+								Player.currentIncome += curUnit.workerHarvestAmount();
+							} else {
+								move(karboniteTargets.get(curUnit.id()));
+							}
 						}
 					} else {
-						//if karb doesn't exists, select it, then move to it
-						if (!karbonites[theKarb.getX()][theKarb.getY()]) {
-							selectKarbonite();
+						//dont have a target :(
+						//select it, then move to it
+						MapLocation newTarget = selectKarbonite();
+						Direction directionToKarb = curLoc.directionTo(newTarget);
+						karboniteTargets.put(curUnit.id(), newTarget);
+						if (gc.canHarvest(curUnit.id(), directionToKarb)) {
+							gc.harvest(curUnit.id(), directionToKarb);
+							Player.currentIncome += curUnit.workerHarvestAmount();
+						} else {
+							move(karboniteTargets.get(curUnit.id()));
 						}
-						move(karboniteTargets.get(curUnit.id()));
 					}
 					
 					
 				} else {
-					selectKarbonite();
+					karboniteTargets.put(curUnit.id(), selectKarbonite());
 					move(karboniteTargets.get(curUnit.id()));
 				}
 
@@ -163,35 +181,23 @@ public class Worker {
 		return;
 	}
 
-	public static void selectKarbonite() {
+	public static MapLocation selectKarbonite() {
+		int smallest = 9999999;
+		MapLocation karb = null;
 		MapLocation curLoc = curUnit.location().mapLocation();
-		int startHash = hash(curLoc);
-		//find closest karbonite
-		LinkedList<Integer> q = new LinkedList<Integer>();
-		q.add(startHash);
-		while (!q.isEmpty()) {
-			int current = q.poll();
-			for (int i = 0; i < directions.length; i++) {
-				int tempY = current % 69;
-				int tempX = (current - tempY) / 69;
-				MapLocation test = new MapLocation(Planet.Earth, tempX, tempY).add(directions[i]);
-				q.add(hash(test));
-				//TODO implement symmetric crap
-				if (!checkedKarbonite[test.getX()][test.getY()]) {
-					checkedKarbonite[test.getX()][test.getY()] = true;
-					if (gc.karboniteAt(test) > 0) {
-						karbonites[test.getX()][test.getY()] = true;
-					}
-				}
-				if (karbonites[test.getX()][test.getY()]) {
-					//found closest target
-					karboniteTargets.put(curUnit.id(), test);
-					q.clear();
-					break;
+		for (int i = 0; i < karbonites.length; i++) {
+			if (karbonites[i] != null) {
+				int dist = distance(curLoc, karbonites[i]);
+				if (dist < smallest) {
+					smallest = dist;
+					karb = karbonites[i];
 				}
 			}
 		}
-		System.out.println("No karbonite found");
+		if (karb == null) {
+			System.out.println("rip no karbonites");
+		}
+		return karb;
 	}
 
 	public static void buildRocket() {
