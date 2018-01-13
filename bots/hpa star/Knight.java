@@ -8,6 +8,7 @@ public class Knight {
 	static Direction[] directions = Direction.values();
 	static HashMap<Integer, HashSet<Integer>> visited = new HashMap<Integer, HashSet<Integer>>();
 	static HashMap<Integer, Integer> targets = new HashMap<Integer, Integer>();
+	static HashMap<Integer, HashMap<Integer, Integer>> paths = new HashMap<Integer, HashMap<Integer, Integer>>();
 
 	public static void run(GameController gc, Unit curUnit) {
 
@@ -16,16 +17,6 @@ public class Knight {
 
 		if (curUnit.location().isInGarrison()) {
 			return;
-		}
-
-		if (Player.firstTime) {
-			Player.firstTime = false;
-			//guesstimate enemy location
-			if (Player.enemyLocation == null) {
-				MapLocation temp = curUnit.location().mapLocation();
-				Player.startingLocation = temp;
-				Player.enemyLocation = new MapLocation(gc.planet(), Player.gridX - temp.getX(), Player.gridY - temp.getY());
-			}
 		}
 
 		Pair nearbyInfo = null;
@@ -56,7 +47,7 @@ public class Knight {
 			//move towards them if my army is stronger
 			if (nearbyInfo.friendly >= nearbyInfo.enemy) {
 				if (canMove()) {
-					moveAttack(gc.unit(targets.get(curUnit.id())).location().mapLocation());
+					move(gc.unit(targets.get(curUnit.id())).location().mapLocation());
 				}
 				if (canAttack()) {
 					tryAttack(targets.get(curUnit.id()));
@@ -125,12 +116,10 @@ public class Knight {
 		VecUnit nearby = gc.senseNearbyUnits(curUnit.location().mapLocation(), curUnit.visionRange());
 		for (int i = 0; i < nearby.size(); i++) {
 			Unit temp3 = nearby.get(i);
-			if (temp3.unitType() != UnitType.Worker && temp3.unitType() != UnitType.Rocket && temp3.unitType() != UnitType.Factory) {
-				if (temp3.team() != gc.team()) {
-					ret.enemy++;
-				} else {
-					ret.friendly++;
-				}
+			if (temp3.team() != gc.team()) {
+				ret.enemy++;
+			} else {
+				ret.friendly++;
 			}
 		}
 		return ret;
@@ -167,44 +156,12 @@ public class Knight {
 		return curUnit.movementHeat() < 10;
 	}
 
-	public static boolean moveAttack(MapLocation target) {
-		//greedy pathfinding
-		int smallest = 999999;
-		Direction d = null;
-		int curDist = distance(curUnit.location().mapLocation(), target);
-		MapLocation curLoc = curUnit.location().mapLocation();
-		int hash = hash(curLoc.getX(), curLoc.getY());
-		if (!visited.containsKey(curUnit.id())) {
-			HashSet<Integer> temp = new HashSet<Integer>();
-			temp.add(hash);
-			visited.put(curUnit.id(), temp);
-		} else {
-			visited.get(curUnit.id()).add(hash);
-		}
-		for (int i = 0; i < directions.length; i++) {
-			MapLocation newSquare = curLoc.add(directions[i]);
-			int dist = distance(newSquare, target);
-			if (!visited.get(curUnit.id()).contains(hash(newSquare.getX(), newSquare.getY())) && gc.canMove(curUnit.id(), directions[i]) && dist < smallest && dist < curDist) {
-				smallest = distance(newSquare, target);
-				d = directions[i];
-			}
-		}
-		if (d == null) {
-			//can't move
-			//TODO change
-			visited.remove(curUnit.id());
-			return false;
-		}
-		gc.moveRobot(curUnit.id(), d);
-		return true;
-	}
-
 	//pathing
 	//move towards target location
 	public static void move(MapLocation target) {
 		//a*
 		int movingTo = doubleHash(curUnit.location().mapLocation(), target);
-		if (!Player.paths.containsKey(movingTo)) {
+		if (!paths.containsKey(movingTo)) {
 			HashSet<Integer> closedList = new HashSet<Integer>();
 			HashMap<Integer, Integer> gScore = new HashMap<Integer, Integer>();
 			HashMap<Integer, Integer> fScore = new HashMap<Integer, Integer>();
@@ -230,7 +187,7 @@ public class Knight {
 
 				int tempY = current % 69;
 				int tempX = (current - tempY) / 69;
-				curLoc = new MapLocation(gc.planet(), tempX, tempY);
+				curLoc = new MapLocation(Planet.Earth, tempX, tempY);
 				
 				//System.out.println("Node im on " + print(current));
 
@@ -254,17 +211,17 @@ public class Knight {
 							prev = next;
 							next = fromMap.get(prev);
 							before.add(next);
-							//Player.paths.put(doubleHash(prev, next), path);
-							//Player.paths.put(doubleHash(next, prev), path);
-							//TODO put in between Player.paths... a b c d e needs bc, bd, cd 
+							//paths.put(doubleHash(prev, next), path);
+							//paths.put(doubleHash(next, prev), path);
+							//TODO put in between paths... a b c d e needs bc, bd, cd 
 							path.put(next, prev);
 							path2.put(prev, next);
 						}
 						int temp = before.size();
 						for (int j = 0; j < temp; j++) {
 							for (int a = 0; a < j; a++) {
-								Player.paths.put(doubleHash(before.get(j), before.get(a)), path);
-								Player.paths.put(doubleHash(before.get(a), before.get(j)), path2);
+								paths.put(doubleHash(before.get(j), before.get(a)), path);
+								paths.put(doubleHash(before.get(a), before.get(j)), path2);
 							}
 						}
 						
@@ -295,20 +252,20 @@ public class Knight {
 			}
 		}
 		//System.out.println(hash(curUnit.location().mapLocation()));
-		//System.out.println(Arrays.asList(Player.paths.get(movingTo)));
-		//System.out.println(Player.paths.get(movingTo).containsKey(hash(curUnit.location().mapLocation())));
+		//System.out.println(Arrays.asList(paths.get(movingTo)));
+		//System.out.println(paths.get(movingTo).containsKey(hash(curUnit.location().mapLocation())));
 
-		int toMove = Player.paths.get(movingTo).get(hash(curUnit.location().mapLocation()));
+		int toMove = paths.get(movingTo).get(hash(curUnit.location().mapLocation()));
 
 		int y = toMove % 69;
 		int x = (toMove - y) / 69;
 		
-		MapLocation next = new MapLocation(gc.planet(), x, y);
+		MapLocation next = new MapLocation(Planet.Earth, x, y);
 		Direction temp = curUnit.location().mapLocation().directionTo(next);
 		if (gc.canMove(curUnit.id(), temp) && canMove()) {
 			gc.moveRobot(curUnit.id(), temp);
 		} else {
-			//System.out.println("Darn");
+			System.out.println("Darn");
 		}
 	}
 
