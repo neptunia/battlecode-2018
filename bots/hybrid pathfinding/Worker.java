@@ -14,6 +14,8 @@ public class Worker {
 	static HashMap<Integer, HashMap<Integer, Integer>> paths = new HashMap<Integer, HashMap<Integer, Integer>>();
 	static int rocketsBuilt = 0;
 	static int rocketBlueprintId = -1;
+	static int numFacts = -1;
+	static int numWorkers = -1;
 
 	public static void run(GameController gc, Unit curUnit) {
 
@@ -44,6 +46,8 @@ public class Worker {
 				}
 			}
 		}
+
+		//TODO worker AI: implement bfs, run away if enemies are too strong, and maybe improve when to replicate
 		//remove target if factory already died
 		try {
 			if (target.containsKey(curUnit.id())) {
@@ -88,7 +92,47 @@ public class Worker {
 				buildFactory();
 			}
 		}
-		
+
+		//if worker is idle
+		if (curUnit.workerHasActed() == 0) {
+			if (Player.prevIncome < 0) {
+				//go mine
+				for (int i = 0; i < directions.length; i++) {
+					if (gc.canHarvest(curUnit.id(), directions[i])) {
+						gc.harvest(curUnit.id(), directions[i]);
+						Player.currentIncome += curUnit.workerHarvestAmount();
+						return;
+					}
+				}
+
+				//cant mine, move to mining place
+				//implement bfs here
+
+			} else {
+				//replicate if possible
+				VecUnit units = gc.myUnits();
+				if (numFacts == -1) {
+					numFacts = 0;
+					numWorkers = 0;
+					for (int i = 0; i < units.size(); i++) {
+						if (units.get(i).unitType() == UnitType.Factory) {
+							numFacts++;
+						} else if (units.get(i).unitType() == UnitType.Worker) {
+							numWorkers++;
+						}
+					}
+					if (numWorkers < 2 * numFacts && curUnit.abilityHeat() < 10) {
+						for (int i = 0; i < directions.length; i++) {
+							if (gc.canReplicate(curUnit.id(), directions[i])) {
+								gc.replicate(curUnit.id(), directions[i]);
+								return;
+							}
+						}
+					}
+				}
+			}
+
+		}
 
 		return;
 	}

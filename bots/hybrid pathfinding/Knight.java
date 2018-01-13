@@ -126,10 +126,12 @@ public class Knight {
 		VecUnit nearby = gc.senseNearbyUnits(curUnit.location().mapLocation(), curUnit.visionRange());
 		for (int i = 0; i < nearby.size(); i++) {
 			Unit temp3 = nearby.get(i);
-			if (temp3.team() != gc.team()) {
-				ret.enemy++;
-			} else {
-				ret.friendly++;
+			if (temp3.unitType() != UnitType.Worker && temp3.unitType() != UnitType.Rocket && temp3.unitType() != UnitType.Factory) {
+				if (temp3.team() != gc.team()) {
+					ret.enemy++;
+				} else {
+					ret.friendly++;
+				}
 			}
 		}
 		return ret;

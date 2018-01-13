@@ -11,11 +11,14 @@ public class Player {
     static PlanetMap planetMap;
     static Team myTeam, enemyTeam;
     static boolean firstTime = true;
+    static long prevIncome;
+    static long currentIncome;
 	
 	public static void main(String args[]) {
         try {
             GameController gc = new GameController();
 
+            prevIncome = 10 - Math.max(gc.karbonite() / 40, 0);
             Mage.gc = gc;
             Rocket.gc = gc;
             Healer.gc = gc;
@@ -40,6 +43,7 @@ public class Player {
             while (true) {
                 long startTime = System.currentTimeMillis();
                 try {
+                    currentIncome = 10 - Math.max(gc.karbonite() / 40, 0);
                     long currentRound = gc.round();
                     VecUnit myUnits = gc.myUnits();
                     long numberOfUnits = myUnits.size();
@@ -126,6 +130,7 @@ public class Player {
                 total += endTime - startTime;
                 System.out.println("Time: " + Long.toString(endTime - startTime));
                 System.out.println("Average: " + Long.toString(total / gc.round()));
+                prevIncome = currentIncome;
                 gc.nextTurn();
             }
         } catch (Exception e) {
