@@ -9,6 +9,7 @@ public class Player {
     static MapLocation startingLocation = null;
     static GameController gc;
     static PlanetMap planetMap;
+    static Team myTeam, enemyTeam;
 	
 	public static void main(String args[]) {
         try {
@@ -23,6 +24,13 @@ public class Player {
             Worker.gc = gc;
             Player.gc = gc;
             Player.planetMap = gc.startingMap(Planet.Earth);
+
+            myTeam = gc.team();
+            if (myTeam == Team.Red) {
+                enemyTeam = Team.Blue;
+            } else {
+                enemyTeam = Team.Red;
+            }
 
             long total = 0;
 

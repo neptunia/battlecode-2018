@@ -157,9 +157,10 @@ public class Knight {
 	}
 
 	public static boolean moveAttack(MapLocation target) {
-		//TODO implement pathfinding
+		//greedy pathfinding
 		int smallest = 999999;
 		Direction d = null;
+		int curDist = distance(curUnit.location().mapLocation(), target);
 		MapLocation curLoc = curUnit.location().mapLocation();
 		int hash = hash(curLoc.getX(), curLoc.getY());
 		if (!visited.containsKey(curUnit.id())) {
@@ -171,13 +172,15 @@ public class Knight {
 		}
 		for (int i = 0; i < directions.length; i++) {
 			MapLocation newSquare = curLoc.add(directions[i]);
-			if (!visited.get(curUnit.id()).contains(hash(newSquare.getX(), newSquare.getY())) && gc.canMove(curUnit.id(), directions[i]) && distance(newSquare, target) < smallest) {
+			int dist = distance(newSquare, target);
+			if (!visited.get(curUnit.id()).contains(hash(newSquare.getX(), newSquare.getY())) && gc.canMove(curUnit.id(), directions[i]) && dist < smallest && dist < curDist) {
 				smallest = distance(newSquare, target);
 				d = directions[i];
 			}
 		}
 		if (d == null) {
 			//can't move
+			//TODO change
 			visited.remove(curUnit.id());
 			return false;
 		}
@@ -294,7 +297,7 @@ public class Knight {
 		if (gc.canMove(curUnit.id(), temp) && canMove()) {
 			gc.moveRobot(curUnit.id(), temp);
 		} else {
-			System.out.println("Darn");
+			//System.out.println("Darn");
 		}
 	}
 
