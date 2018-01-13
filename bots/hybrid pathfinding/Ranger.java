@@ -252,8 +252,8 @@ public class Ranger {
                         int temp = before.size();
                         for (int j = 0; j < temp; j++) {
                             for (int a = 0; a < j; a++) {
-                                Player.paths.put(doubleHash(before.get(j), before.get(a)), path);
-                                Player.paths.put(doubleHash(before.get(a), before.get(j)), path2);
+                                Player.paths.put(doubleHash(before.get(j), before.get(a)), path.get(before.get(j)));
+                                Player.paths.put(doubleHash(before.get(a), before.get(j)), path2.get(before.get(a)));
                             }
                         }
                         
@@ -287,7 +287,7 @@ public class Ranger {
         //System.out.println(Arrays.asList(Player.paths.get(movingTo)));
         //System.out.println(Player.paths.get(movingTo).containsKey(hash(curUnit.location().mapLocation())));
 
-        int toMove = Player.paths.get(movingTo).get(hash(curUnit.location().mapLocation()));
+        int toMove = Player.paths.get(movingTo);
 
         int y = toMove % 69;
         int x = (toMove - y) / 69;

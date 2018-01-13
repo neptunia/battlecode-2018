@@ -16,7 +16,7 @@ public class Player {
     static boolean firstTime = true;
     static long prevIncome;
     static long currentIncome;
-    static HashMap<Integer, HashMap<Integer, Integer>> paths = new HashMap<Integer, HashMap<Integer, Integer>>();
+    static HashMap<Integer, Integer> paths = new HashMap<Integer, Integer>();
 
 	
 	public static void main(String args[]) {

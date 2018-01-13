@@ -142,6 +142,31 @@ public class Player {
                 }
             }
         }
+
+        //initialize hpa stuff
+        //create a graph of chunk crossing points
+    }
+
+    public static class Node {
+
+        int x = 0, y = 0;
+
+        public Node(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+
+    }
+
+    public static class Edge {
+
+        Node forward, backward;
+
+        public Edge(Node forward, Node backward) {
+            this.forward = forward;
+            this.backward = backward;
+        }
+
     }
 
 }
