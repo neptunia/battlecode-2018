@@ -8,6 +8,7 @@ public class Ranger {
     static GameController gc;
     static Direction[] directions = Direction.values();
     static HashMap<Integer, HashSet<Integer>> visited = new HashMap<Integer, HashSet<Integer>>();
+    static HashMap<Integer, Integer> prevLocation = new HashMap<Integer, Integer>();
     static HashMap<Integer, HashMap<Integer, Integer>> paths = new HashMap<Integer, HashMap<Integer, Integer>>();
 
     public static void run(GameController gc, Unit curUnit) {
@@ -18,15 +19,96 @@ public class Ranger {
             return;
         }
 
-        //attack enemies that are near you
-        if (canAttack()) {
-            attackNearbyEnemies();
+        Pair target = findNearestEnemy();
+        if (target.enemyClosest == -1) {
+            //explore if no units detected
+            if (canMove()) {
+                move(Player.enemyLocation);
+            }
+        } else {
+            MapLocation loc = gc.unit(target.enemyClosest).location().mapLocation();
+            int distance = distance(loc, curUnit.location().mapLocation());
+            if (distance < 10) {
+                //move away, they're not even attackable! attack someone else instead.
+                if (canAttack() && gc.canAttack(curUnit.id(), target.enemyAttack)) {
+                    gc.attack(curUnit.id(), target.enemyAttack);
+                }
+                if (canMove()) {
+                    moveAway(loc);
+                }
+            } else if (distance <= 30) {
+                //move away, they're too close!
+                if (canAttack() && gc.canAttack(curUnit.id(), target.enemyClosest)) {
+                    gc.attack(curUnit.id(), target.enemyClosest);
+                }
+                if (canMove()) {
+                    moveAway(loc);
+                }
+            } else if (distance <= 50) {
+                //attack them
+                if (canAttack() && gc.canAttack(curUnit.id(), target.enemyClosest)) {
+                    gc.attack(curUnit.id(), target.enemyClosest);
+                }
+            } else {
+                //they're too far away, move towards them
+                if (canMove()) {
+                    moveAttack(loc);
+                }
+
+                if (canAttack() && gc.canAttack(curUnit.id(), target.enemyClosest)) {
+                    gc.attack(curUnit.id(), target.enemyClosest);
+                }
+            }
         }
 
-        if (canMove()) {
-            move(getTarget());
-        }
+    }
 
+    //calc which direction maximizes distance between enemy and ranger
+    public static void moveAway(MapLocation enemy) {
+        int best = distance(curUnit.location().mapLocation(), enemy);
+        Direction bestd = null;
+        for (int i = 0; i < directions.length; i++) {
+            MapLocation temp = curUnit.location().mapLocation().add(directions[i]);
+            if (gc.canMove(curUnit.id(), directions[i]) && distance(temp, enemy) > best) {
+                best = distance(temp, enemy);
+                bestd = directions[i];
+            }
+        }
+        if (bestd != null) {
+            gc.moveRobot(curUnit.id(), bestd);
+        }
+    }
+
+    public static class Pair { //DIFFERENT FROM PAIR IN KNIGHT CLASS
+        int enemyAttack; //closest enemy that is attackable
+        int enemyClosest; //closest enemy
+        Pair() {
+            enemyAttack = -1;
+            enemyClosest = -1;
+        }
+    }
+    //returns id of nearest enemy unit and nearest attackable enemy unit
+    public static Pair findNearestEnemy() {
+        Pair p = new Pair();
+        VecUnit nearby = gc.senseNearbyUnits(curUnit.location().mapLocation(), curUnit.visionRange());
+        int smallest1 = 9999999;
+        int smallest2 = 9999999;
+        for (int i = 0; i < nearby.size(); i++) {
+            Unit temp3 = nearby.get(i);
+            if (temp3.team() != gc.team()) {
+                MapLocation temp2 = temp3.location().mapLocation();
+                int temp = distance(curUnit.location().mapLocation(), temp2);
+                if (temp < smallest1) {
+                    smallest1 = temp;
+                    p.enemyClosest = temp3.id();
+                }
+                if (temp > 10 && temp < smallest2) {
+                    smallest2 = temp;
+                    p.enemyAttack = temp3.id();
+                }
+            }
+        }
+        return p;
     }
 
     public static boolean canAttack() {
@@ -34,7 +116,7 @@ public class Ranger {
     }
 
     public static void attackNearbyEnemies() {
-        VecUnit nearbyUnits = gc.senseNearbyUnitsByTeam(curUnit.location().mapLocation(), curUnit.attackRange(), Player.enemyTeam);
+        VecUnit nearbyUnits = getNearby(curUnit.location().mapLocation(), (int) curUnit.attackRange());
         for (int i = 0; i < nearbyUnits.size(); i++) {
             Unit unit = nearbyUnits.get(i);
             //if can attack this enemy unit
@@ -45,11 +127,59 @@ public class Ranger {
         }
     }
 
+    public static boolean canMove() {
+        return curUnit.movementHeat() < 10;
+    }
+
     //get target unit should be pathing towards
     public static MapLocation getTarget() {
         return Player.enemyLocation;
     }
 
+    //senses nearby units and updates RobotPlayer.map with detected units
+    public static VecUnit getNearby(MapLocation maploc, int radius) {
+        VecUnit nearby = gc.senseNearbyUnits(maploc, radius);
+        for (int i = 0; i < nearby.size(); i++) {
+            Unit unit = nearby.get(i);
+            MapLocation temp = unit.location().mapLocation();
+            Player.map[temp.getX()][temp.getY()] = unit;
+        }
+        return nearby;
+    }
+
+    public static boolean moveAttack(MapLocation target) {
+        //greedy pathfinding
+        int smallest = 999999;
+        Direction d = null;
+        int curDist = distance(curUnit.location().mapLocation(), target);
+        MapLocation curLoc = curUnit.location().mapLocation();
+        int hash = hash(curLoc.getX(), curLoc.getY());
+        if (!visited.containsKey(curUnit.id())) {
+            HashSet<Integer> temp = new HashSet<Integer>();
+            temp.add(hash);
+            visited.put(curUnit.id(), temp);
+        } else {
+            visited.get(curUnit.id()).add(hash);
+        }
+        for (int i = 0; i < directions.length; i++) {
+            MapLocation newSquare = curLoc.add(directions[i]);
+            int dist = distance(newSquare, target);
+            if (!visited.get(curUnit.id()).contains(hash(newSquare.getX(), newSquare.getY())) && gc.canMove(curUnit.id(), directions[i]) && dist < smallest && dist < curDist) {
+                smallest = distance(newSquare, target);
+                d = directions[i];
+            }
+        }
+        if (d == null) {
+            //can't move
+            //TODO change
+            visited.remove(curUnit.id());
+            return false;
+        }
+        gc.moveRobot(curUnit.id(), d);
+        return true;
+    }
+
+    //pathing
     //move towards target location
     public static void move(MapLocation target) {
         //a*
@@ -160,10 +290,6 @@ public class Ranger {
         } else {
             //System.out.println("Darn");
         }
-    }
-
-    public static boolean canMove() {
-        return curUnit.movementHeat() < 10;
     }
 
     public static int doubleHash(int x1, int y1, int x2, int y2) {
