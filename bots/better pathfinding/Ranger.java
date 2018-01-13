@@ -8,6 +8,7 @@ public class Ranger {
     static GameController gc;
     static Direction[] directions = Direction.values();
     static HashMap<Integer, HashSet<Integer>> visited = new HashMap<Integer, HashSet<Integer>>();
+    static HashMap<Integer, Integer> prevLocation = new HashMap<Integer, Integer>();
 
     public static void run(GameController gc, Unit curUnit) {
 
@@ -127,6 +128,11 @@ public class Ranger {
 
     public static boolean canMove() {
         return curUnit.movementHeat() < 10;
+    }
+
+
+    public static int hash(MapLocation loc) {
+        return 69 * loc.getX() + loc.getY();
     }
 
     //pathing
