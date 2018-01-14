@@ -175,7 +175,7 @@ public class Worker {
 		for (int i = 0; i < numKarbsCounter; i++) {
 			if (karbonites[i] != null) {
 				int dist = distance(curLoc, karbonites[i]);
-				if (dist < smallest && gc.karboniteAt(karbonites[i]) > 0 && !allyOn(karbonites[i])) {
+				if (dist < smallest && gc.karboniteAt(karbonites[i]) > 0) {
 					smallest = dist;
 					karb = karbonites[i];
 				}
@@ -185,16 +185,6 @@ public class Worker {
 			System.out.println("rip no karbonites");
 		}
 		return karb;
-	}
-
-	public static boolean allyOn(MapLocation test) {
-		boolean allyThere = true;
-		try {
-			gc.senseUnitAtLocation(test);
-		} catch (Exception e) {
-			allyThere = false;
-		}
-		return allyThere;
 	}
 
 	public static void buildRocket() {
@@ -296,8 +286,8 @@ public class Worker {
 				for (int i = 0; i < directions.length; i++) {
 					int neighbor = hash(curLoc.add(directions[i]));
 					//if a path is already computed for this node to the goal then dont needa compute more
-					int neighborPath = doubleHash(neighbor, target);
-					if (paths.containsKey(neighborPath)) {
+					int neighborPath = doubleHash(neighbor, hash(target));
+					if (Player.paths.containsKey(neighborPath)) {
 						//TODO: optimization once the killed has been fixed
 						//curloc to neighbor matched within themselves
 						//curloc to neighbor matched with paths[neighborPath] to goal
