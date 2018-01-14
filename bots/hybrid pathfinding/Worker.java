@@ -106,49 +106,21 @@ public class Worker {
 					if (distance(curLoc, karboniteTargets.get(curUnit.id())) <= 2) {
 						//im next to it
 						Direction directionToKarb = curLoc.directionTo(theKarb);
-						try {
-							if (gc.canHarvest(curUnit.id(), directionToKarb)) {
-								gc.harvest(curUnit.id(), directionToKarb);
-								Player.currentIncome += curUnit.workerHarvestAmount();
-								return;
-							}
-						} catch (Exception e) {
-							//karbonite already mined, select new target and go to it
-							//TODO: make more efficient with a struct later
-							for (int i = 0; i < karbonites.length; i++) {
-								if (karbonites[i] == theKarb) {
-									karbonites[i] = null;
-									break;
-								}
-							}
-							MapLocation newTarget = selectKarbonite();
-							directionToKarb = curLoc.directionTo(newTarget);
-							karboniteTargets.put(curUnit.id(), newTarget);
-							if (gc.canHarvest(curUnit.id(), directionToKarb)) {
-								gc.harvest(curUnit.id(), directionToKarb);
-								Player.currentIncome += curUnit.workerHarvestAmount();
-							} else {
-								move(karboniteTargets.get(curUnit.id()));
-							}
+						if (gc.canHarvest(curUnit.id(), directionToKarb)) {
+							System.out.println("harvest");
+							gc.harvest(curUnit.id(), directionToKarb);
+							Player.currentIncome += curUnit.workerHarvestAmount();
+							return;
 						}
 					} else {
 						//dont have a target :(
 						//select it, then move to it
-						MapLocation newTarget = selectKarbonite();
-						Direction directionToKarb = curLoc.directionTo(newTarget);
-						karboniteTargets.put(curUnit.id(), newTarget);
-						if (gc.canHarvest(curUnit.id(), directionToKarb)) {
-							gc.harvest(curUnit.id(), directionToKarb);
-							Player.currentIncome += curUnit.workerHarvestAmount();
-						} else {
-							move(karboniteTargets.get(curUnit.id()));
-						}
+						takeCareOfKarbonite();
 					}
 					
 					
 				} else {
-					karboniteTargets.put(curUnit.id(), selectKarbonite());
-					move(karboniteTargets.get(curUnit.id()));
+					takeCareOfKarbonite();
 				}
 
 
@@ -177,8 +149,23 @@ public class Worker {
 			}
 
 		}
-
 		return;
+	}
+
+	public static void takeCareOfKarbonite() {
+		MapLocation curLoc = curUnit.location().mapLocation();
+		MapLocation newTarget = selectKarbonite();
+		karboniteTargets.put(curUnit.id(), newTarget);
+		if (distance(curLoc, karboniteTargets.get(curUnit.id())) <= 2) {
+			Direction directionToKarb = curLoc.directionTo(newTarget);
+			if (gc.canHarvest(curUnit.id(), directionToKarb)) {
+				System.out.println("harvest!!");
+				gc.harvest(curUnit.id(), directionToKarb);
+				Player.currentIncome += curUnit.workerHarvestAmount();
+			}
+		} else {
+			move(karboniteTargets.get(curUnit.id()));
+		}
 	}
 
 	public static MapLocation selectKarbonite() {
@@ -188,7 +175,7 @@ public class Worker {
 		for (int i = 0; i < numKarbsCounter; i++) {
 			if (karbonites[i] != null) {
 				int dist = distance(curLoc, karbonites[i]);
-				if (dist < smallest) {
+				if (dist < smallest && gc.karboniteAt(karbonites[i]) > 0 && !allyOn(karbonites[i])) {
 					smallest = dist;
 					karb = karbonites[i];
 				}
@@ -198,6 +185,16 @@ public class Worker {
 			System.out.println("rip no karbonites");
 		}
 		return karb;
+	}
+
+	public static boolean allyOn(MapLocation test) {
+		boolean allyThere = true;
+		try {
+			gc.senseUnitAtLocation(test);
+		} catch (Exception e) {
+			allyThere = false;
+		}
+		return allyThere;
 	}
 
 	public static void buildRocket() {
@@ -294,11 +291,18 @@ public class Worker {
 				//System.out.println("Node im on " + print(current));
 
 				closedList.add(current);
-				openList.remove(current);
 
 				//iterate through neighbors
 				for (int i = 0; i < directions.length; i++) {
 					int neighbor = hash(curLoc.add(directions[i]));
+					//if a path is already computed for this node to the goal then dont needa compute more
+					int neighborPath = doubleHash(neighbor, target);
+					if (paths.containsKey(neighborPath)) {
+						//TODO: optimization once the killed has been fixed
+						//curloc to neighbor matched within themselves
+						//curloc to neighbor matched with paths[neighborPath] to goal
+
+					}
 					if (neighbor == goal) {
 						fromMap.put(neighbor, current);
 						HashMap<Integer, Integer> path = new HashMap<Integer, Integer>();
@@ -335,22 +339,23 @@ public class Worker {
 							continue;
 						}
 
-						if (!openList.contains(neighbor)) {
-							openList.add(neighbor);
-						}
-
 						int tentG = gScore.get(current) + 1;
 
-						if (tentG >= gScore.get(neighbor)) {
-							continue;
-						}
+						boolean contains = openList.contains(neighbor);
+						if (!contains || tentG < gScore.get(neighbor)) {
+							gScore.put(neighbor, tentG);
+							fScore.put(neighbor, tentG + manDistance(neighbor, hash(target.getX(), target.getY())));
 
-						gScore.put(neighbor, tentG);
-						fScore.put(neighbor, tentG + manDistance(neighbor, hash(target.getX(), target.getY())));
-						fromMap.put(neighbor, current);
+							if (contains) {
+								openList.remove(neighbor);
+							}
+
+							openList.offer(neighbor);
+							//System.out.println("Add: " + print(neighbor));
+							fromMap.put(neighbor, current);
+						}
 					}
 				}
-				System.out.println("Queue size: " + Integer.toString(openList.size()));
 			}
 		}
 		//System.out.println(hash(curUnit.location().mapLocation()));

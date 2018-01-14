@@ -8,6 +8,8 @@ public class Factory {
 
 	public static void run(GameController gc, Unit curUnit) {
 
+		System.out.println("factory");
+
 		Factory.curUnit = curUnit;
 
 		/*if (curUnit.isFactoryProducing()) {
@@ -27,12 +29,17 @@ public class Factory {
 				}
 			}
 		}
+
+		System.out.println("factory produce");
 		
 		//produce unit
 		if (gc.canProduceRobot(curUnit.id(), UnitType.Knight)) {
+			System.out.println("wew a knight");
 			gc.produceRobot(curUnit.id(), UnitType.Knight);
 			c += 1;
 		}
+
+		System.out.println("factory done");
 
 		return;
 	}
