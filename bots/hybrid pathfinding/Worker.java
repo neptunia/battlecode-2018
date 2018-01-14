@@ -66,11 +66,6 @@ public class Worker {
 			//already done working on
 			if (toWorkOn.health() == toWorkOn.maxHealth()) {
 				target.remove(curUnit.id());
-				if (rocketsBuilt == 0 && gc.researchInfo().getLevel(UnitType.Rocket) > 0) {
-					buildRocket();
-				} else {
-					buildFactory();
-				}
 			} else {
 				//goto it and build it
 				MapLocation blueprintLoc = toWorkOn.location().mapLocation();
@@ -87,77 +82,89 @@ public class Worker {
 					}
 				}
 			}
-		} else {
-			if (rocketsBuilt == 0 && gc.researchInfo().getLevel(UnitType.Rocket) > 0) {
-				buildRocket();
-			} else {
-				buildFactory();
-			}
 		}
 
 		//if worker is idle
 		if (curUnit.workerHasActed() == 0) {
-			if (Player.prevIncome < 0) {
-				//go mine
-				MapLocation curLoc = curUnit.location().mapLocation();
-				//if already have a karbonite target
-				if (karboniteTargets.containsKey(curUnit.id()) && karboniteTargets.get(curUnit.id()) != null) {
-					MapLocation theKarb = karboniteTargets.get(curUnit.id());
-					if (distance(curLoc, karboniteTargets.get(curUnit.id())) <= 2) {
-						//im next to it
-						Direction directionToKarb = curLoc.directionTo(theKarb);
-						System.out.println("first canharvest: " + Boolean.toString(gc.canHarvest(curUnit.id(), directionToKarb)));
-						if (gc.canHarvest(curUnit.id(), directionToKarb)) {
-							System.out.println("harvest");
-							gc.harvest(curUnit.id(), directionToKarb);
-							Player.currentIncome += curUnit.workerHarvestAmount();
-							return;
-						} else {
-							//already finished mining it
-							MapLocation rem = karboniteTargets.get(curUnit.id());
-							karboniteTargets.remove(curUnit.id());
-							for (int i = 0; i < karbonites.length; i++) {
-								if (karbonites[i] != null && hash(rem) == hash(karbonites[i])) {
-									karbonites[i] = null;
-									break;
-								}
-							}
-						}
-					} else {
-						//dont have a target :(
-						//select it, then move to it
-						takeCareOfKarbonite();
-					}
-				} else {
-					takeCareOfKarbonite();
-				}
 
-
-			} else {
-				//replicate if possible
-				VecUnit units = gc.myUnits();
-				if (numFacts == -1) {
-					numFacts = 0;
-					numWorkers = 0;
-					for (int i = 0; i < units.size(); i++) {
-						if (units.get(i).unitType() == UnitType.Factory) {
-							numFacts++;
-						} else if (units.get(i).unitType() == UnitType.Worker) {
-							numWorkers++;
-						}
-					}
-					if (numWorkers < 2 * numFacts && curUnit.abilityHeat() < 10) {
-						for (int i = 0; i < directions.length; i++) {
-							if (gc.canReplicate(curUnit.id(), directions[i])) {
-								gc.replicate(curUnit.id(), directions[i]);
-								return;
-							}
-						}
+			// count number of factories and number of workers
+			VecUnit units = gc.myUnits();
+			if (numFacts == -1) {
+				numFacts = 0;
+				numWorkers = 0;
+				for (int i = 0; i < units.size(); i++) {
+					if (units.get(i).unitType() == UnitType.Factory) {
+						numFacts++;
+					} else if (units.get(i).unitType() == UnitType.Worker) {
+						numWorkers++;
 					}
 				}
 			}
+
+			// if we need more factories:
+			if (numWorkers >= 2 * numFacts && gc.karbonite() >= 100 && curUnit.abilityHeat() < 10) {
+				buildFactory();
+			}
+			// if we need more workers:
+			else if (numWorkers < 2 * numFacts && gc.karbonite() >= 15 && gc.karbonite() <75 && curUnit.abilityHeat() < 10) {
+				for (int i = 0; i < directions.length; i++) {
+					if (gc.canReplicate(curUnit.id(), directions[i])) {
+						gc.replicate(curUnit.id(), directions[i]);
+						// since i replicated, increase number of workers
+						numWorkers++;
+						return;
+					}
+				}
+			}
+
+			else if (Player.prevIncome < 15) {
+				// go mine
+				goMine();
+			}
+
+			else if (numWorkers < 2 * numFacts && gc.karbonite() >= 75) {
+				// build a rocket (but only if we don't need another factory)
+				buildRocket();
+			} else {
+				goMine();
+			}
+			
 		}
 		return;
+	}
+
+	public static void goMine() {
+		MapLocation curLoc = curUnit.location().mapLocation();
+		//if already have a karbonite target
+		if (karboniteTargets.containsKey(curUnit.id()) && karboniteTargets.get(curUnit.id()) != null) {
+			MapLocation theKarb = karboniteTargets.get(curUnit.id());
+			if (distance(curLoc, karboniteTargets.get(curUnit.id())) <= 2) {
+				//im next to it
+				Direction directionToKarb = curLoc.directionTo(theKarb);
+				System.out.println("first canharvest: " + Boolean.toString(gc.canHarvest(curUnit.id(), directionToKarb)));
+				if (gc.canHarvest(curUnit.id(), directionToKarb)) {
+					System.out.println("harvest");
+					gc.harvest(curUnit.id(), directionToKarb);
+					Player.currentIncome += curUnit.workerHarvestAmount();
+					return;
+				} else {
+					MapLocation rem = karboniteTargets.get(curUnit.id());
+					karboniteTargets.remove(curUnit.id());
+					for (int i = 0; i < karbonites.length; i++) {
+						if (karbonites[i] != null && hash(rem) == hash(karbonites[i])) {
+							karbonites[i] = null;
+							break;
+						}
+					}
+				}
+			} else {
+				//dont have a target :(
+				//select it, then move to it
+				takeCareOfKarbonite();
+			}
+		} else {
+			takeCareOfKarbonite();
+		}
 	}
 
 	public static void takeCareOfKarbonite() {
