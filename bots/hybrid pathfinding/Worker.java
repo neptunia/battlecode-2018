@@ -106,7 +106,7 @@ public class Worker {
 
 			// if we need more factories:
 			if (numWorkers >= 2 * numFacts && gc.karbonite() >= 100) {
-				buildFactory();
+				buildStructure(UnitType.Factory);
 			}
 			// if we need more workers:
 			else if (numWorkers < 2 * numFacts && gc.karbonite() >= 15 && gc.karbonite() <75 && curUnit.abilityHeat() < 10) {
@@ -127,7 +127,7 @@ public class Worker {
 
 			else if (numWorkers < 2 * numFacts && gc.karbonite() >= 75) {
 				// build a rocket (but only if we don't need another factory)
-				buildRocket();
+				buildStructure(UnitType.Rocket);
 			} else {
 				goMine();
 			}
@@ -214,31 +214,6 @@ public class Worker {
 		return karb;
 	}
 
-	public static void buildRocket() {
-		for (int i = 0; i < directions.length - 2; i++) {
-			if (gc.canBlueprint(curUnit.id(), UnitType.Rocket, directions[i])) {
-				gc.blueprint(curUnit.id(), UnitType.Rocket, directions[i]);
-				int targetBlueprint = gc.senseUnitAtLocation(curUnit.location().mapLocation().add(directions[i])).id();
-				rocketBlueprintId = targetBlueprint;
-				rocketsBuilt++;
-				//tell all nearby workers to go work on it
-				//TODO maybe bfs within n range for workers to work on the factory
-				VecUnit nearby = gc.senseNearbyUnits(curUnit.location().mapLocation(), 4);
-				for (int a = 0; a < nearby.size(); a++) {
-					Unit temp = nearby.get(a);
-					if (temp.team() == gc.team() && temp.unitType() == UnitType.Worker) {
-						//if changing target of a unit
-						if (prevLocation.containsKey(temp.id()) && prevLocation.get(temp.id()) != targetBlueprint) {
-							prevLocation.remove(temp.id());
-						}
-						target.put(temp.id(), targetBlueprint);
-					}
-				}
-				break;
-			}
-		}
-	}
-
 	//build blueprint given structure unit id
 	public static boolean buildBlueprint(int id) {
 		if (gc.canBuild(curUnit.id(), id)) {
@@ -250,11 +225,21 @@ public class Worker {
 
 	//builds a factory in an open space around worker
 	//TODO improve factory building scheme
-	public static void buildFactory() {
-		for (int i = 0; i < directions.length - 2; i++) {
-			if (gc.canBlueprint(curUnit.id(), UnitType.Factory, directions[i])) {
-				gc.blueprint(curUnit.id(), UnitType.Factory, directions[i]);
+	public static void buildStructure(UnitType type) {
+		int numDirections = 0;
+		for (int i = 0; i < directions.length - 1; i++) {
+			if (gc.canMove(curUnit.id(), directions[i])) {
+				numDirections++;
+			}
+		}
+		for (int i = 0; numDirections >= 2 && i < directions.length - 2; i++) {
+			if (gc.canBlueprint(curUnit.id(), type, directions[i])) {
+				gc.blueprint(curUnit.id(), type, directions[i]);
 				int targetBlueprint = gc.senseUnitAtLocation(curUnit.location().mapLocation().add(directions[i])).id();
+				if (type == UnitType.Rocket) {
+					rocketBlueprintId = targetBlueprint;
+					rocketsBuilt++;
+				}
 				//tell all nearby workers to go work on it
 				//TODO maybe bfs within n range for workers to work on the factory
 				VecUnit nearby = gc.senseNearbyUnits(curUnit.location().mapLocation(), 4);
