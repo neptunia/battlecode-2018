@@ -101,24 +101,32 @@ public class Worker {
 				//go mine
 				MapLocation curLoc = curUnit.location().mapLocation();
 				//if already have a karbonite target
-				if (karboniteTargets.containsKey(curUnit.id())) {
+				if (karboniteTargets.containsKey(curUnit.id()) && karboniteTargets.get(curUnit.id()) != null) {
 					MapLocation theKarb = karboniteTargets.get(curUnit.id());
 					if (distance(curLoc, karboniteTargets.get(curUnit.id())) <= 2) {
 						//im next to it
 						Direction directionToKarb = curLoc.directionTo(theKarb);
+						System.out.println("first canharvest: " + Boolean.toString(gc.canHarvest(curUnit.id(), directionToKarb)));
 						if (gc.canHarvest(curUnit.id(), directionToKarb)) {
 							System.out.println("harvest");
 							gc.harvest(curUnit.id(), directionToKarb);
 							Player.currentIncome += curUnit.workerHarvestAmount();
 							return;
+						} else {
+							MapLocation rem = karboniteTargets.get(curUnit.id());
+							karboniteTargets.remove(curUnit.id());
+							for (int i = 0; i < karbonites.length; i++) {
+								if (karbonites[i] != null && hash(rem) == hash(karbonites[i])) {
+									karbonites[i] = null;
+									break;
+								}
+							}
 						}
 					} else {
 						//dont have a target :(
 						//select it, then move to it
 						takeCareOfKarbonite();
 					}
-					
-					
 				} else {
 					takeCareOfKarbonite();
 				}
@@ -147,7 +155,6 @@ public class Worker {
 					}
 				}
 			}
-
 		}
 		return;
 	}
@@ -158,10 +165,19 @@ public class Worker {
 		karboniteTargets.put(curUnit.id(), newTarget);
 		if (distance(curLoc, karboniteTargets.get(curUnit.id())) <= 2) {
 			Direction directionToKarb = curLoc.directionTo(newTarget);
+			System.out.println(gc.canHarvest(curUnit.id(), directionToKarb));
 			if (gc.canHarvest(curUnit.id(), directionToKarb)) {
 				System.out.println("harvest!!");
 				gc.harvest(curUnit.id(), directionToKarb);
 				Player.currentIncome += curUnit.workerHarvestAmount();
+			} else {
+				MapLocation rem = karboniteTargets.get(curUnit.id());
+				for (int i = 0; i < karbonites.length; i++) {
+					if (karbonites[i] != null && hash(rem) == hash(karbonites[i])) {
+						karbonites[i] = null;
+						break;
+					}
+				}
 			}
 		} else {
 			move(karboniteTargets.get(curUnit.id()));
@@ -175,7 +191,7 @@ public class Worker {
 		for (int i = 0; i < numKarbsCounter; i++) {
 			if (karbonites[i] != null) {
 				int dist = distance(curLoc, karbonites[i]);
-				if (dist < smallest && gc.karboniteAt(karbonites[i]) > 0) {
+				if (karbonites[i] != null && dist < smallest && Player.planetMap.initialKarboniteAt(karbonites[i]) > 0) {
 					smallest = dist;
 					karb = karbonites[i];
 				}
@@ -359,7 +375,7 @@ public class Worker {
 		
 		MapLocation next = new MapLocation(gc.planet(), x, y);
 		Direction temp = curUnit.location().mapLocation().directionTo(next);
-		if (gc.canMove(curUnit.id(), temp) && canMove()) {
+		if (gc.canMove(curUnit.id(), temp) && gc.isMoveReady(curUnit.id())) {
 			gc.moveRobot(curUnit.id(), temp);
 		} else {
 			//System.out.println("Darn");
