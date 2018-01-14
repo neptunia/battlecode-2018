@@ -294,6 +294,7 @@ public class Worker {
 				//System.out.println("Node im on " + print(current));
 
 				closedList.add(current);
+				openList.remove(current);
 
 				//iterate through neighbors
 				for (int i = 0; i < directions.length; i++) {
@@ -334,23 +335,23 @@ public class Worker {
 							continue;
 						}
 
+						if (!openList.contains(neighbor)) {
+							openList.add(neighbor);
+						}
+
 						int tentG = gScore.get(current) + 1;
 
-						boolean contains = openList.contains(neighbor);
-						if (!contains || tentG < gScore.get(neighbor)) {
-							gScore.put(neighbor, tentG);
-							fScore.put(neighbor, tentG + manDistance(neighbor, hash(target.getX(), target.getY())));
+						if (tentG >= gScore.get(neighbor)) {
+							continue;
+						}
 
-							if (contains) {
-								openList.remove(neighbor);
-							}
-
-							openList.offer(neighbor);
-							//System.out.println("Add: " + print(neighbor));
-							fromMap.put(neighbor, current);
+						gScore.put(neighbor, tentG);
+						fScore.put(neighbor, tentG + manDistance(neighbor, hash(target.getX(), target.getY())));
+						fromMap.put(neighbor, current);
 						}
 					}
 				}
+				System.out.println("Queue size: " + Integer.toString(openList.size()));
 			}
 		}
 		//System.out.println(hash(curUnit.location().mapLocation()));
