@@ -113,6 +113,7 @@ public class Worker {
 							Player.currentIncome += curUnit.workerHarvestAmount();
 							return;
 						} else {
+							//already finished mining it
 							MapLocation rem = karboniteTargets.get(curUnit.id());
 							karboniteTargets.remove(curUnit.id());
 							for (int i = 0; i < karbonites.length; i++) {

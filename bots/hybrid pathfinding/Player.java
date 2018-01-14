@@ -10,12 +10,16 @@ public class Player {
     static int gridX, gridY;
     static MapLocation enemyLocation = null;
     static MapLocation startingLocation = null;
+    static Direction[] directions = Direction.values();
     static GameController gc;
     static PlanetMap planetMap;
     static Team myTeam, enemyTeam;
     static boolean firstTime = true;
     static long prevIncome;
     static long currentIncome;
+    static boolean[][] gotoable;
+    static MapLocation[] unitLocations;
+    static int numUnitsThisRound;
     static HashMap<Integer, Integer> paths = new HashMap<Integer, Integer>();
 
 	
@@ -46,6 +50,7 @@ public class Player {
             initialize();
 
             while (true) {
+
                 long startTime = System.currentTimeMillis();
                 try {
                     currentIncome = 10 - Math.max(gc.karbonite() / 40, 0);
@@ -53,10 +58,20 @@ public class Player {
                     VecUnit myUnits = gc.myUnits();
                     long numberOfUnits = myUnits.size();
 
+                    for (int i = 0; i < numberOfUnits; i++) {
+                        Unit curUnit = myUnits.get(i);
+                        //maps the vision of all my units
+                    }
+                    //record locations of all my units
+                    unitLocations = new MapLocation[5000];
+                    numUnitsThisRound = 0;
                     //iterate through units
                     // might need to fix this later; what happens if I create a new unit in the middle of this loop?
                     for (int i = 0; i < numberOfUnits; i++) {
                         Unit curUnit = myUnits.get(i);
+                        MapLocation curLoc = curUnit.location().mapLocation();
+                        unitLocations[numUnitsThisRound] = curLoc;
+                        numUnitsThisRound++;
                         //perform unit task based on unit type
                         switch (curUnit.unitType()) {
                             case Factory:
@@ -117,6 +132,8 @@ public class Player {
                         }
                     }
 
+                    chooseTarget();
+
 
                     //do research
                     try {
@@ -166,7 +183,39 @@ public class Player {
         gridY = height;
         map = new Unit[width][height];
         passable = new boolean[width][height];
+        
         Worker.karbonites = new MapLocation[2500];
+
+        gotoable = new boolean[width][height];
+        VecUnit myUnits = gc.myUnits();
+
+        //bfs to find which spaces can be traveled to
+        LinkedList<MapLocation> queue = new LinkedList<MapLocation>();
+        HashSet<Integer> visited = new HashSet<Integer>();
+
+        for (int i = 0; i < myUnits.size(); i++) {
+            Unit tempUnit = myUnits.get(i);
+            if (tempUnit.unitType() == UnitType.Worker) {
+                MapLocation curLoc = tempUnit.location().mapLocation();
+                queue.add(curLoc);
+                gotoable[curLoc.getX()][curLoc.getY()] = true;
+                visited.add(hash(curLoc));
+            }
+        }
+
+        while (!queue.isEmpty()) {
+            MapLocation current = queue.poll();
+            for (int i = 0; i < directions.length; i++) {
+                MapLocation toCheck = current.add(directions[i]);
+                int tempHash = hash(toCheck);
+                if (!visited.contains(tempHash) && checkPassable(toCheck)) {
+                    visited.add(tempHash);
+                    gotoable[toCheck.getX()][toCheck.getY()] = true;
+                    queue.add(toCheck);
+                }
+            }
+        }
+
         //TODO make karbonite more efficient
         int counter = 0;
         for (int i = 0; i < width; i++) {
@@ -184,6 +233,62 @@ public class Player {
                 }
             }
         }
+    }
+
+    public static void chooseTarget() {
+        if (enemyLocation == null) {
+            enemyLocation = chooseFarthestPoint();
+        } else {
+            try {
+                gc.senseNearbyUnits(enemyLocation, 70);
+                enemyLocation = chooseFarthestPoint();
+            } catch (Exception e) {
+                //dont have vision
+                System.out.println("Not there yet");
+            }
+        }
+    }
+
+    public static MapLocation chooseFarthestPoint() {
+        int smallest = Integer.MAX_VALUE;
+        MapLocation furthest = null;
+        int smallX = 0;
+        int smallY = 0;
+        for (int i = 0; i < gridX; i++) {
+            for (int a = 0; a < gridY; a++) {
+                if (!gotoable[i][a]) {
+                    continue;
+                }
+                int tempDist = 0;
+                for (int j = 0; j < numUnitsThisRound; j++) {
+                    tempDist += distanceSq(i, a, unitLocations[j].getX(), unitLocations[j].getY());
+                    if (tempDist >= smallest) {
+                        break;
+                    }
+                }
+                if (tempDist < smallest) {
+                    smallest = tempDist;
+                    smallX = i;
+                    smallY = a;
+                }
+            }
+        }
+        return new MapLocation(gc.planet(), smallX, smallY);
+    }
+
+    public static int distanceSq(int x1, int y1, int x2, int y2) {
+        return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
+    }
+
+    public static int hash(MapLocation loc) {
+        return 69 * loc.getX() + loc.getY();
+    }
+
+    public static boolean checkPassable(MapLocation test) {
+        if (test.getX() >= gridX || test.getY() >= gridY || test.getX() < 0 || test.getY() < 0) {
+            return false;
+        }
+        return planetMap.isPassableTerrainAt(test) == 1;
     }
 
 }
