@@ -240,7 +240,7 @@ public class Player {
             enemyLocation = chooseFarthestPoint();
         } else {
             try {
-                gc.senseNearbyUnits(enemyLocation, 70);
+                gc.senseNearbyUnits(enemyLocation, 50);
                 enemyLocation = chooseFarthestPoint();
             } catch (Exception e) {
                 //dont have vision
@@ -250,7 +250,7 @@ public class Player {
     }
 
     public static MapLocation chooseFarthestPoint() {
-        int smallest = Integer.MAX_VALUE;
+        int greatest = -1;
         MapLocation furthest = null;
         int smallX = 0;
         int smallY = 0;
@@ -262,12 +262,9 @@ public class Player {
                 int tempDist = 0;
                 for (int j = 0; j < numUnitsThisRound; j++) {
                     tempDist += distanceSq(i, a, unitLocations[j].getX(), unitLocations[j].getY());
-                    if (tempDist >= smallest) {
-                        break;
-                    }
                 }
-                if (tempDist < smallest) {
-                    smallest = tempDist;
+                if (tempDist > greatest) {
+                    greatest = tempDist;
                     smallX = i;
                     smallY = a;
                 }
