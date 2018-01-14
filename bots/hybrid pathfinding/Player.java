@@ -69,9 +69,11 @@ public class Player {
                     // might need to fix this later; what happens if I create a new unit in the middle of this loop?
                     for (int i = 0; i < numberOfUnits; i++) {
                         Unit curUnit = myUnits.get(i);
-                        MapLocation curLoc = curUnit.location().mapLocation();
-                        unitLocations[numUnitsThisRound] = curLoc;
-                        numUnitsThisRound++;
+                        try {
+                            MapLocation curLoc = curUnit.location().mapLocation();
+                            unitLocations[numUnitsThisRound] = curLoc;
+                            numUnitsThisRound++;
+                        } catch (Exception e) {};
                         //perform unit task based on unit type
                         switch (curUnit.unitType()) {
                             case Factory:
@@ -168,6 +170,7 @@ public class Player {
                 sb.append("max memory: " + format.format(maxMemory / 1024) + "<br/>");
                 sb.append("total free memory: " + format.format((freeMemory + (maxMemory - allocatedMemory)) / 1024) + "<br/>");
                 System.out.println(sb);
+                System.out.println("Enemy location: " + Integer.toString(enemyLocation.getX()) + ", " + Integer.toString(enemyLocation.getY()));
                 gc.nextTurn();
             }
         } catch (Exception e) {

@@ -59,6 +59,7 @@ public class Worker {
 			target.remove(curUnit.id());
 		}
 
+		boolean doingAThing = false;
 		//if i do have a target blueprint
 		if (target.containsKey(curUnit.id())) {
 			int targetBlueprint = target.get(curUnit.id());
@@ -74,19 +75,21 @@ public class Worker {
 					//next to it, i can work on it
 					if (!buildBlueprint(targetBlueprint)) {
 						System.out.println("SUM TING WONG :(");
+					} else {
+						doingAThing = true;
 					}
 				} else {
 					//move towards it
 					if (canMove()) {
 						move(blueprintLoc);
+						doingAThing = true;
 					}
 				}
 			}
 		}
 
 		//if worker is idle
-		if (curUnit.workerHasActed() == 0) {
-
+		if (!doingAThing) {
 			// count number of factories and number of workers
 			VecUnit units = gc.myUnits();
 			if (numFacts == -1) {
@@ -102,7 +105,7 @@ public class Worker {
 			}
 
 			// if we need more factories:
-			if (numWorkers >= 2 * numFacts && gc.karbonite() >= 100 && curUnit.abilityHeat() < 10) {
+			if (numWorkers >= 2 * numFacts && gc.karbonite() >= 100) {
 				buildFactory();
 			}
 			// if we need more workers:
@@ -117,7 +120,7 @@ public class Worker {
 				}
 			}
 
-			else if (Player.prevIncome < 15) {
+			else if (Player.prevIncome < 0) {
 				// go mine
 				goMine();
 			}
