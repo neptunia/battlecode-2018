@@ -348,7 +348,6 @@ public class Worker {
 						gScore.put(neighbor, tentG);
 						fScore.put(neighbor, tentG + manDistance(neighbor, hash(target.getX(), target.getY())));
 						fromMap.put(neighbor, current);
-						}
 					}
 				}
 				System.out.println("Queue size: " + Integer.toString(openList.size()));
