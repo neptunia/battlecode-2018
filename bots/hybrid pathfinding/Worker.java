@@ -412,6 +412,8 @@ public class Worker {
 		return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
 	}
 
+	//TODO: max(abs(x1 - x2), abs(y1 - y2))
+
 	public static int manDistance(MapLocation first, MapLocation second) {
 		int x1 = first.getX(), y1 = first.getY(), x2 = second.getX(), y2 = second.getY();
 		return (x2 - x1) + (y2 - y1);
