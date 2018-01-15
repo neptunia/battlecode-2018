@@ -17,6 +17,7 @@ public class Worker {
 	static int numWorkers = -1;
 	static MapLocation[] karbonites;
 	static int numKarbsCounter = 0;
+	static MapLocation lastStructure = null;
 	static HashMap<Integer, MapLocation> karboniteTargets = new HashMap<Integer, MapLocation>();
 
 	public static void run(GameController gc, Unit curUnit) {
@@ -126,6 +127,9 @@ public class Worker {
 				buildStructure(UnitType.Rocket);
 			} else if (karbonitesLeft) {
 				goMine();
+			} else {
+				//go back near base
+				move(Player.startingLocation);
 			}
 			
 		}
@@ -223,12 +227,19 @@ public class Worker {
 	}
 
 	//bfs to find square such that there are no other factories or rockets around range n of it
-	public static void findBlueprintLocation() {
+	public static void findBlueprintLocation(UnitType type) {
 		LinkedList<MapLocation> queue = new LinkedList<MapLocation>();
 		MapLocation curLoc = curUnit.location().mapLocation();
 		HashSet<Integer> visited = new HashSet<Integer>();
 		int curHash = hash(curLoc);
-		queue.add(curLoc);
+		if (type == UnitType.Factory) {
+			queue.add(curLoc);
+		} else if (lastStructure != null) {
+			queue.add(lastStructure);
+		} else {
+			queue.add(curLoc);
+		}
+		
 		visited.add(curHash);
 		
 		while (!queue.isEmpty()) {
@@ -263,7 +274,7 @@ public class Worker {
 	public static void buildStructure(UnitType type) {
 		System.out.println("build structure");
 		if (!buildBlueprintLocation.containsKey(curUnit.id())) {
-			findBlueprintLocation();
+			findBlueprintLocation(type);
 		}
 		MapLocation blueprintLocation = buildBlueprintLocation.get(curUnit.id());
 		System.out.println("Blueprint coords: " + Integer.toString(blueprintLocation.getX()) + ", " + Integer.toString(blueprintLocation.getY()));
@@ -272,6 +283,7 @@ public class Worker {
 		//if i can build it
 		if (distance(curLoc, blueprintLocation) <= 2 && gc.canBlueprint(curUnit.id(), type, dirToBlueprint)) {
 			gc.blueprint(curUnit.id(), type, dirToBlueprint);
+			lastStructure = blueprintLocation;
 			buildBlueprintLocation.remove(curUnit.id());
 			int targetBlueprint = gc.senseUnitAtLocation(curUnit.location().mapLocation().add(dirToBlueprint)).id();
 			if (type == UnitType.Rocket) {

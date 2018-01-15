@@ -14,6 +14,10 @@ public class Factory {
 			return;
 		}*/
 
+		if (Player.timesReachedTarget >= 3) {
+            return;
+        }
+
 		Direction[] directions = Direction.values();
 
 		VecUnitID garrison = curUnit.structureGarrison();

@@ -357,6 +357,15 @@ public class Ranger {
         //System.out.println(hash(curUnit.location().mapLocation()));
         //System.out.println(Arrays.asList(Player.paths.get(movingTo)));
         //System.out.println(Player.paths.get(movingTo).containsKey(hash(curUnit.location().mapLocation())));
+        
+
+        if (!Player.paths.containsKey(movingTo)) {
+            System.out.println("wot borked");
+            System.out.println("Enemy Location: " + Integer.toString(Player.enemyLocation.getX()) + " " + Integer.toString(Player.enemyLocation.getY()));
+            System.out.println("Cur location: " + Integer.toString(curLoc.getX()) + " " + Integer.toString(curLoc.getY()));
+            System.out.println("Target Location: " + Integer.toString(target.getX()) + " " + Integer.toString(target.getY()));
+            return;
+        }
 
         int toMove = Player.paths.get(movingTo);
 
