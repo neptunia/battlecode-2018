@@ -38,6 +38,10 @@ public class Worker {
 			move(Player.enemyLocation);
 		}
 
+		if (!lastStructure.containsKey(curUnit.id())) {
+			lastStructure.put(curUnit.id(), curLoc);
+		}
+
 		if (gc.round() == 1) {
 			//Initial replication
 			for (int i = 0; i < directions.length; i++) {
@@ -236,11 +240,7 @@ public class Worker {
 		LinkedList<MapLocation> queue = new LinkedList<MapLocation>();
 		HashSet<Integer> visited = new HashSet<Integer>();
 		int curHash = hash(curLoc);
-		if (lastStructure.containsKey(curUnit.id())) {
-			queue.add(lastStructure.get(curUnit.id()));
-		} else {
-			queue.add(curLoc);
-		}
+		queue.add(lastStructure.get(curUnit.id()));
 		
 		visited.add(curHash);
 		
@@ -256,11 +256,19 @@ public class Worker {
 				}
 				
 			}
-			long around = gc.senseNearbyUnitsByTeam(current, 2, Player.myTeam).size() - 1;
+			int around = 0;
+			VecUnit nearby = gc.senseNearbyUnitsByTeam(current, 2, Player.myTeam);
+			for (int i = 0; i < nearby.size(); i++) {
+				UnitType temp = nearby.get(i).unitType();
+				//TODO maybe add unittype.rocket too
+				if (temp == UnitType.Factory) {
+					around++;
+				}
+			}
 			int tempX = current.getX();
 			int tempY = current.getY();
 			//on the map and gotoable
-			if (around <= 0 && curHash != hash(current) && (goAble(tempX - 1, tempY) || goAble(tempX + 1, tempY)) && (goAble(tempX, tempY - 1) || goAble(tempX, tempY + 1))) {
+			if (around == 0 && curHash != hash(current) && (goAble(tempX - 1, tempY) || goAble(tempX + 1, tempY)) && (goAble(tempX, tempY - 1) || goAble(tempX, tempY + 1))) {
 				buildBlueprintLocation.put(curUnit.id(), current);
 				return;
 			}
@@ -295,7 +303,6 @@ public class Worker {
 		//if i can build it
 		if (distance(curLoc, blueprintLocation) <= 2 && gc.canBlueprint(curUnit.id(), type, dirToBlueprint)) {
 			gc.blueprint(curUnit.id(), type, dirToBlueprint);
-			lastStructure.put(curUnit.id(), blueprintLocation);
 			buildBlueprintLocation.remove(curUnit.id());
 			int targetBlueprint = gc.senseUnitAtLocation(curUnit.location().mapLocation().add(dirToBlueprint)).id();
 			if (type == UnitType.Rocket) {
@@ -311,6 +318,7 @@ public class Worker {
 				Unit temp = nearby.get(a);
 				if (temp.unitType() == UnitType.Worker) {
 					target.put(temp.id(), targetBlueprint);
+					lastStructure.put(temp.id(), blueprintLocation);
 				}
 			}
 		} else {
