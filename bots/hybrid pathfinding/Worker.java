@@ -137,7 +137,7 @@ public class Worker {
 	public static void goMine() {
 		MapLocation curLoc = curUnit.location().mapLocation();
 		//if already have a karbonite target
-		if (karboniteTargets.containsKey(curUnit.id()) && karboniteTargets.get(curUnit.id()) != null) {
+		if (karboniteTargets.get(curUnit.id()) != null && karboniteTargets.containsKey(curUnit.id())) {
 			MapLocation theKarb = karboniteTargets.get(curUnit.id());
 			if (distance(curLoc, karboniteTargets.get(curUnit.id())) <= 2) {
 				//im next to it
@@ -171,6 +171,9 @@ public class Worker {
 	public static void takeCareOfKarbonite() {
 		MapLocation curLoc = curUnit.location().mapLocation();
 		MapLocation newTarget = selectKarbonite();
+		if (newTarget == null) {
+			return;
+		}
 		karboniteTargets.put(curUnit.id(), newTarget);
 		if (distance(curLoc, karboniteTargets.get(curUnit.id())) <= 2) {
 			Direction directionToKarb = curLoc.directionTo(newTarget);

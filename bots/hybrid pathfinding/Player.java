@@ -49,131 +49,82 @@ public class Player {
 
             initialize();
 
+            //do research
+            gc.queueResearch(UnitType.Ranger);
+            gc.queueResearch(UnitType.Rocket);
+
             long startTime = 10000;
             long endTime = 10000;
 
+            unitLocations = new MapLocation[5000];
+
             while (true) {
 
-                try {
-                    currentIncome = 10 - Math.max(gc.karbonite() / 40, 0);
-                    long currentRound = gc.round();
-                    VecUnit myUnits = gc.myUnits();
-                    long numberOfUnits = myUnits.size();
-
-                    for (int i = 0; i < numberOfUnits; i++) {
-                        Unit curUnit = myUnits.get(i);
-                        //maps the vision of all my units
-                    }
-                    //record locations of all my units
-                    unitLocations = new MapLocation[5000];
-                    numUnitsThisRound = 0;
-                    //iterate through units
-                    // might need to fix this later; what happens if I create a new unit in the middle of this loop?
-                    for (int i = 0; i < numberOfUnits; i++) {
-                        Unit curUnit = myUnits.get(i);
-                        try {
-                            MapLocation curLoc = curUnit.location().mapLocation();
-                            unitLocations[numUnitsThisRound] = curLoc;
-                            numUnitsThisRound++;
-                        } catch (Exception e) {};
-                        //perform unit task based on unit type
-                        switch (curUnit.unitType()) {
-                            case Factory:
-                                try {
-                                    Factory.run(gc, curUnit);
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                    System.out.println("Factory ded");
-                                }
-                                break;
-                            case Healer:
-                                try {
-                                    Healer.run(gc, curUnit);
-                                } catch (Exception e) {
-                                    e.printStackTrace();;
-                                    System.out.println("Healer ded");
-                                }
-                                break;
-                            case Knight:
-                                try {
-                                    Knight.run(gc, curUnit);
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                    System.out.println("knight ded");
-                                }
-                                break;
-                            case Mage:
-                                try {
-                                    Mage.run(gc, curUnit);
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                    System.out.println("mage ded");
-                                }
-                                break;
-                            case Ranger:
-                            	try {
-                            	    Ranger.run(gc, curUnit);
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                    System.out.println("ranger ded");
-                                }
-                                break;
-                            case Rocket:
-                                try {
-                                    Rocket.run(gc, curUnit);
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                    System.out.println("rocket ded");
-                                }
-                                break;
-                            case Worker:
-                                try {
-                                    Worker.run(gc, curUnit);
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                    System.out.println("worker ded");
-                                }
-                        }
-                    }
-
-                    chooseTarget();
-
-
-                    //do research
+                currentIncome = 10 - Math.max(gc.karbonite() / 40, 0);
+                long currentRound = gc.round();
+                VecUnit myUnits = gc.myUnits();
+                long numberOfUnits = myUnits.size();
+                //record locations of all my units
+                numUnitsThisRound = 0;
+                //iterate through units
+                // might need to fix this later; what happens if I create a new unit in the middle of this loop?
+                for (int i = 0; i < numberOfUnits; i++) {
+                    Unit curUnit = myUnits.get(i);
                     try {
-                        gc.queueResearch(UnitType.Ranger);
-                        gc.queueResearch(UnitType.Rocket);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        System.out.println("research ded");
+                        MapLocation curLoc = curUnit.location().mapLocation();
+                        unitLocations[numUnitsThisRound] = curLoc;
+                        numUnitsThisRound++;
+                    } catch (Exception e) {};
+                    //perform unit task based on unit type
+                    switch (curUnit.unitType()) {
+                        case Factory:
+                            Factory.run(gc, curUnit);
+                            break;
+                        case Healer:
+                            Healer.run(gc, curUnit);
+                            break;
+                        case Knight:
+                            Knight.run(gc, curUnit);
+                            break;
+                        case Mage:
+                            Mage.run(gc, curUnit);
+                            break;
+                        case Ranger:
+                        	Ranger.run(gc, curUnit);
+                            break;
+                        case Rocket:
+                            Rocket.run(gc, curUnit);
+                            break;
+                        case Worker:
+                            Worker.run(gc, curUnit);
                     }
-
-                    //end turn
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    System.out.println("fuck me");
                 }
+
+                chooseTarget();
+
+
+
                 endTime = gc.getTimeLeftMs();
                 total += startTime - endTime;
-                System.out.println("Time: " + Long.toString(startTime - endTime));
+                //System.out.println("Time: " + Long.toString(startTime - endTime));
                 System.out.println("Average: " + Float.toString(total / gc.round()));
                 System.out.println("Time Left: " + Long.toString(gc.getTimeLeftMs()));
                 prevIncome = currentIncome;
-                Runtime runtime = Runtime.getRuntime();
+                //Runtime runtime = Runtime.getRuntime();
 
-                NumberFormat format = NumberFormat.getInstance();
+                //NumberFormat format = NumberFormat.getInstance();
 
-                StringBuilder sb = new StringBuilder();
-                long maxMemory = runtime.maxMemory();
-                long allocatedMemory = runtime.totalMemory();
-                long freeMemory = runtime.freeMemory();
+                //StringBuilder sb = new StringBuilder();
+                //long maxMemory = runtime.maxMemory();
+                //long allocatedMemory = runtime.totalMemory();
+                //long freeMemory = runtime.freeMemory();
 
                 //sb.append("free memory: " + format.format(freeMemory / 1024) + "<br/>");
                 //sb.append("allocated memory: " + format.format(allocatedMemory / 1024) + "<br/>");
                 //sb.append("max memory: " + format.format(maxMemory / 1024) + "<br/>");
                 //sb.append("total free memory: " + format.format((freeMemory + (maxMemory - allocatedMemory)) / 1024) + "<br/>");
                 //System.out.println(sb);
-                System.out.println("Enemy location: " + Integer.toString(enemyLocation.getX()) + ", " + Integer.toString(enemyLocation.getY()));
+                //System.out.println("Enemy location: " + Integer.toString(enemyLocation.getX()) + ", " + Integer.toString(enemyLocation.getY()));
                 System.out.println("Round: " + Long.toString(gc.round()));
                 startTime = endTime;
                 gc.nextTurn();
@@ -254,12 +205,12 @@ public class Player {
     public static void chooseTarget() {
         if (enemyLocation == null) {
             enemyLocation = chooseFarthestPoint();
-        } else {
-            if (gc.senseNearbyUnitsByTeam(enemyLocation, 2, myTeam).size() > 0) {
-                enemyLocation = chooseFarthestPoint();
-                System.out.println("Unit num: " + Integer.toString(numUnitsThisRound));
-            }
-        }
+        } //else {
+            //if (gc.senseNearbyUnitsByTeam(enemyLocation, 2, myTeam).size() > 0) {
+               // enemyLocation = chooseFarthestPoint();
+                //System.out.println("Unit num: " + Integer.toString(numUnitsThisRound));
+           // }
+        //}
     }
 
     public static MapLocation chooseFarthestPoint() {

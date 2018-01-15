@@ -43,18 +43,19 @@ public class Knight {
 
 		//if this knight has a target
 		if (targets.containsKey(curUnit.id())) {
+			MapLocation targetLoc = gc.unit(targets.get(curUnit.id())).location().mapLocation();
 			//move towards them if my army is stronger
 			if (nearbyInfo.friendly >= nearbyInfo.enemy) {
 				if (canMove()) {
-					moveAttack(gc.unit(targets.get(curUnit.id())).location().mapLocation());
+					moveAttack(targetLoc);
 				}
 				if (canAttack()) {
 					tryAttack(targets.get(curUnit.id()));
 				}
 			} else {
-				//otherwise run away!!!
+				//otherwise move away from
 				if (canMove()) {
-					move(Player.startingLocation);
+					moveAway(targetLoc);
 				}
 			}
 		} else {
@@ -70,6 +71,22 @@ public class Knight {
 		}
 
 	}
+
+	//maximizes distance between enemy
+	public static void moveAway(MapLocation enemy) {
+        int best = distance(curUnit.location().mapLocation(), enemy);
+        Direction bestd = null;
+        for (int i = 0; i < directions.length; i++) {
+            MapLocation temp = curUnit.location().mapLocation().add(directions[i]);
+            if (gc.canMove(curUnit.id(), directions[i]) && distance(temp, enemy) > best) {
+                best = distance(temp, enemy);
+                bestd = directions[i];
+            }
+        }
+        if (bestd != null) {
+            gc.moveRobot(curUnit.id(), bestd);
+        }
+    }
 
 	//try to attack a target unit
 	public static void tryAttack(int id) {
@@ -191,11 +208,14 @@ public class Knight {
 	//pathing
 	//move towards target location
 	public static void move(MapLocation target) {
-        if (!gc.isMoveReady(curUnit.id())) {
+		MapLocation curLoc = curUnit.location().mapLocation();
+		int startHash = hash(curLoc);
+		int goal = hash(target);
+        if (!gc.isMoveReady(curUnit.id()) || startHash == goal) {
             return;
         }
         //a*
-        int movingTo = doubleHash(curUnit.location().mapLocation(), target);
+        int movingTo = doubleHash(curLoc, target);
         if (!Player.paths.containsKey(movingTo)) {
             HashSet<Integer> closedList = new HashSet<Integer>();
             HashMap<Integer, Integer> gScore = new HashMap<Integer, Integer>();
@@ -207,16 +227,11 @@ public class Knight {
             }
         });
 
-            MapLocation curLoc = curUnit.location().mapLocation();
-
-            int startHash = hash(curLoc);
+            
 
             gScore.put(startHash, 0);
             fScore.put(startHash, manDistance(curLoc, target));
             openList.offer(startHash);
-
-            int goal = hash(target);
-
             while (!openList.isEmpty()) {
                 int current = openList.poll();
 
@@ -354,10 +369,10 @@ public class Knight {
             return false;
         }
         boolean allyThere = true;
-        //factories and rockets count as obstacles
+        //factories and rockets and workers count as obstacles
         try {
             Unit temp = gc.senseUnitAtLocation(test);
-            if (temp.unitType() != UnitType.Factory && temp.unitType() != UnitType.Rocket) {
+            if (temp.unitType() != UnitType.Factory && temp.unitType() != UnitType.Rocket && temp.unitType() != UnitType.Worker) {
                 allyThere = false;
             }
         } catch (Exception e) {
