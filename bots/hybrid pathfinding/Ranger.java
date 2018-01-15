@@ -182,32 +182,30 @@ public class Ranger {
     //pathing
     //move towards target location
     public static void move(MapLocation target) {
-        if (!gc.isMoveReady(curUnit.id())) {
+        MapLocation curLoc = curUnit.location().mapLocation();
+        int startHash = hash(curLoc);
+        int goal = hash(target);
+        if (!gc.isMoveReady(curUnit.id()) || startHash == goal) {
             return;
         }
         //a*
-        int movingTo = doubleHash(curUnit.location().mapLocation(), target);
+        int movingTo = doubleHash(curLoc, target);
         if (!Player.paths.containsKey(movingTo)) {
             HashSet<Integer> closedList = new HashSet<Integer>();
             HashMap<Integer, Integer> gScore = new HashMap<Integer, Integer>();
             HashMap<Integer, Integer> fScore = new HashMap<Integer, Integer>();
             HashMap<Integer, Integer> fromMap = new HashMap<Integer, Integer>();
             PriorityQueue<Integer> openList = new PriorityQueue<Integer>(11, new Comparator<Integer>() {
-            public int compare(Integer nodeA, Integer nodeB) {
-                return Integer.compare(fScore.get(nodeA), fScore.get(nodeB));
-            }
-        });
+                public int compare(Integer nodeA, Integer nodeB) {
+                    return Integer.compare(fScore.get(nodeA), fScore.get(nodeB));
+                }
+            });
 
-            MapLocation curLoc = curUnit.location().mapLocation();
 
-            int startHash = hash(curLoc);
 
             gScore.put(startHash, 0);
             fScore.put(startHash, manDistance(curLoc, target));
             openList.offer(startHash);
-
-            int goal = hash(target);
-
             while (!openList.isEmpty()) {
                 int current = openList.poll();
 
@@ -252,14 +250,14 @@ public class Ranger {
                             Player.paths.put(doubleHash(before.get(a), before.get(j)), path2.get(before.get(a)));
                         }
                     }
-                    
+
                     break;
                 }
 
                 int tempY = current % 69;
                 int tempX = (current - tempY) / 69;
                 curLoc = new MapLocation(gc.planet(), tempX, tempY);
-                
+
                 //System.out.println("Node im on " + print(current));
 
                 closedList.add(current);
@@ -268,7 +266,7 @@ public class Ranger {
                 for (int i = 0; i < directions.length; i++) {
                     int neighbor = hash(curLoc.add(directions[i]));
                     //if a path is already computed for this node to the goal then dont needa compute more
-                    
+
                     if (checkPassable(curLoc.add(directions[i]))) {
                         if (closedList.contains(neighbor)) {
                             continue;
@@ -301,7 +299,7 @@ public class Ranger {
 
         int y = toMove % 69;
         int x = (toMove - y) / 69;
-        
+
         MapLocation next = new MapLocation(gc.planet(), x, y);
         Direction temp = curUnit.location().mapLocation().directionTo(next);
         if (gc.canMove(curUnit.id(), temp)) {
