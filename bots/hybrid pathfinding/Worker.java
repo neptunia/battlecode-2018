@@ -545,7 +545,7 @@ public class Worker {
         return Player.planetMap.isPassableTerrainAt(test) == 1 && !allyThere;
     }
 
-    //workers are not obstacles
+    //workers are obstacles
     public static boolean checkPassable2(MapLocation test) {
         if (test.getX() >= Player.gridX || test.getY() >= Player.gridY || test.getX() < 0 || test.getY() < 0) {
             return false;
@@ -553,9 +553,9 @@ public class Worker {
         boolean allyThere = true;
         try {
             Unit temp = gc.senseUnitAtLocation(test);
-            if (temp.unitType() == UnitType.Worker) {
-                allyThere = false;
-            }
+            //if (temp.unitType() == UnitType.Worker) {
+                //allyThere = false;
+            //}
         } catch (Exception e) {
             allyThere = false;
         }

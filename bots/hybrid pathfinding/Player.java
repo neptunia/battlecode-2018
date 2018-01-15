@@ -64,6 +64,9 @@ public class Player {
             unitLocations = new MapLocation[5000];
 
             while (true) {
+                if (gc.planet() == Planet.Earth && gc.round() >= 750) {
+                    gc.nextTurn();
+                }
                 sawEnemy = false;
 
                 currentIncome = 10 - Math.max(gc.karbonite() / 40, 0);
