@@ -71,6 +71,9 @@ public class Worker {
 			//already done working on
 			if (toWorkOn.health() == toWorkOn.maxHealth()) {
 				target.remove(curUnit.id());
+				if (toWorkOn.unitType() == UnitType.Rocket) {
+				    rocketBlueprintId = -1;
+                }
 			} else {
 				//goto it and build it
 				MapLocation blueprintLoc = toWorkOn.location().mapLocation();
@@ -94,7 +97,7 @@ public class Worker {
 		//if worker is idle
 		if (!doingAThing) {
 			//rush first rocket
-			if (gc.karbonite() >= 75 && Worker.rocketsBuilt == 0 && Worker.rocketBlueprintId == -1 && gc.researchInfo().getLevel(UnitType.Rocket) > 0) {
+			if (gc.karbonite() >= 75 && Worker.rocketsBuilt < 2 && Worker.rocketBlueprintId == -1 && gc.researchInfo().getLevel(UnitType.Rocket) > 0) {
 				buildStructure(UnitType.Rocket);
 			}
 			// count number of factories and number of workers
