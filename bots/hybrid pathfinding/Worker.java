@@ -491,10 +491,12 @@ public class Worker {
         } else {
             //blocked by something
             MapLocation tryToGoTo = curUnit.location().mapLocation().add(temp);
-            Unit blockedBy = gc.senseUnitAtLocation(tryToGoTo);
-            if (blockedBy.unitType() == UnitType.Factory || blockedBy.unitType() == UnitType.Rocket || blockedBy.unitType() == UnitType.Worker) {
-                //if im not blocked by an attacking unit, then move aside
-                moveAttack(next);
+            if (gc.hasUnitAtLocation(tryToGoTo)) {
+                Unit blockedBy = gc.senseUnitAtLocation(tryToGoTo);
+                if (blockedBy.unitType() == UnitType.Factory || blockedBy.unitType() == UnitType.Rocket || blockedBy.unitType() == UnitType.Worker) {
+                    //if im not blocked by an attacking unit, then move aside
+                    moveAttack(next);
+                }
             }
         }
     }
