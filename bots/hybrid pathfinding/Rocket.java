@@ -28,14 +28,14 @@ public class Rocket {
                 marsmap.setPlanet(Planet.Mars);
                 //garrison is full, launch
                 //first, try starting coords on mars
-                MapLocation marsStart = new MapLocation(Planet.Mars, Player.startingLocation.getX(), Player.startingLocation.getY());
+                MapLocation marsStart = new MapLocation(Planet.Mars, curUnit.location().mapLocation().getX(), curUnit.location().mapLocation().getY());
                 if (gc.canLaunchRocket(curUnit.id(), marsStart)) {
                     gc.launchRocket(curUnit.id(), marsStart);
                 } else {
                     for (int i = 0; i < marsmap.getWidth(); i++) {
                         boolean stop = false;
                         for (int j = 0; j < marsmap.getHeight(); j++) {
-                            MapLocation temp = new MapLocation(Planet.Mars, (int) ((Player.startingLocation.getX() + i) % marsmap.getWidth()), (int) ((Player.startingLocation.getY() + j) % marsmap.getWidth()));
+                            MapLocation temp = new MapLocation(Planet.Mars, (int) ((curUnit.location().mapLocation().getX() + i) % marsmap.getWidth()), (int) ((curUnit.location().mapLocation().getY() + j) % marsmap.getWidth()));
                             if (gc.canLaunchRocket(curUnit.id(), temp)) {
                                 gc.launchRocket(curUnit.id(), temp);
                                 stop = true;
