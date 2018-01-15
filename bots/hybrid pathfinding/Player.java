@@ -22,6 +22,7 @@ public class Player {
     static int numUnitsThisRound;
     static int timesReachedTarget = 0;
     static boolean sawEnemy = false;
+    static boolean splitMap = false;
     static HashMap<Integer, Integer> paths = new HashMap<Integer, Integer>();
 
 	
@@ -174,17 +175,24 @@ public class Player {
             gotoableEmpty = false;
         }
 
+        int count = 0;
+
         while (!queue.isEmpty()) {
             MapLocation current = queue.poll();
             for (int i = 0; i < directions.length; i++) {
                 MapLocation toCheck = current.add(directions[i]);
                 int tempHash = hash(toCheck);
                 if (!visited.contains(tempHash) && checkPassable(toCheck)) {
+                    count++;
                     visited.add(tempHash);
                     gotoable[toCheck.getX()][toCheck.getY()] = true;
                     queue.add(toCheck);
                 }
             }
+        }
+
+        if (!gotoableEmpty && count < width * height / 2) {
+            splitMap = true;
         }
 
         startingLocation = chooseClosestPoint();
