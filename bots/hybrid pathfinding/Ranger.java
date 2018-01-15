@@ -95,7 +95,7 @@ public class Ranger {
         }
         if (dist <= 70) {
             // within moveattack range
-            if (gc.isMoveReady(curUnit.id()) && canAttack() && moveCloser(enemyLoc)) {
+            if (gc.isMoveReady(curUnit.id()) && canAttack() && moveCloser(enemyLoc) && gc.canAttack(curUnit.id(), enemyid)) {
                 // move was successful
                 gc.attack(curUnit.id(), enemyid);
             }
