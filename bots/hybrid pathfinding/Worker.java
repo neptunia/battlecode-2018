@@ -229,13 +229,16 @@ public class Worker {
 	public static void findBlueprintLocation() {
 		LinkedList<MapLocation> queue = new LinkedList<MapLocation>();
 		MapLocation curLoc = curUnit.location().mapLocation();
+		HashSet<Integer> visited = new HashSet<Integer>();
 		int curHash = hash(curLoc);
 		queue.add(curLoc);
-		HashSet<Integer> visited = new HashSet<Integer>();
+		visited.add(curHash);
+		
 		while (!queue.isEmpty()) {
 			MapLocation current = queue.poll();
-			boolean hasStructure = false;
-			visited.add(hash(current));
+
+
+			
 			for (int i = 0; i < directions.length; i++) {
 				MapLocation test = current.add(directions[i]);
 				int testHash = hash(test);
@@ -243,14 +246,12 @@ public class Worker {
 					visited.add(testHash);
 					queue.add(test);
 				}
-				try {
-					UnitType temp = gc.senseUnitAtLocation(current).unitType();
-					if (temp == UnitType.Factory || temp == UnitType.Rocket || temp == UnitType.Worker) {
-						hasStructure = true;
-					}
-				} catch (Exception e) {};
+				
+
+				
 			}
-			if (!hasStructure && curHash != hash(current)) {
+			long around = gc.senseNearbyUnitsByTeam(current, 2, Player.myTeam).size() - 1;
+			if (around == 0 && curHash != hash(current)) {
 				buildBlueprintLocation.put(curUnit.id(), current);
 				return;
 			}

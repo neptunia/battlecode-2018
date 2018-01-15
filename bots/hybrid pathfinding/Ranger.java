@@ -22,7 +22,7 @@ public class Ranger {
         if (Player.timesReachedTarget >= 3 && target.enemyClosest == -1) {
             return;
         }
-        if (target.enemyClosest != -1 && curUnit.visionRange == 100 & gc.unit(target.enemyClosest).unitType() == UnitType.Ranger) {
+        if (target.enemyClosest != -1 && curUnit.visionRange() == 100 & gc.unit(target.enemyClosest).unitType() == UnitType.Ranger) {
             rangerMicro(target.enemyClosest);
         }
 
