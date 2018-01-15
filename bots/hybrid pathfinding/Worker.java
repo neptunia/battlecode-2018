@@ -265,7 +265,7 @@ public class Worker {
 		MapLocation curLoc = curUnit.location().mapLocation();
 		Direction dirToBlueprint = curLoc.directionTo(blueprintLocation);
 		//if i can build it
-		if (gc.canBlueprint(curUnit.id(), type, dirToBlueprint)) {
+		if (distance(curLoc, blueprintLocation) <= 2 && gc.canBlueprint(curUnit.id(), type, dirToBlueprint)) {
 			gc.blueprint(curUnit.id(), type, dirToBlueprint);
 			buildBlueprintLocation.remove(curUnit.id());
 			int targetBlueprint = gc.senseUnitAtLocation(curUnit.location().mapLocation().add(dirToBlueprint)).id();
