@@ -171,6 +171,7 @@ public class Player {
                 sb.append("total free memory: " + format.format((freeMemory + (maxMemory - allocatedMemory)) / 1024) + "<br/>");
                 System.out.println(sb);
                 System.out.println("Enemy location: " + Integer.toString(enemyLocation.getX()) + ", " + Integer.toString(enemyLocation.getY()));
+                System.out.println("Round: " + Long.toString(gc.round()));
                 gc.nextTurn();
             }
         } catch (Exception e) {
