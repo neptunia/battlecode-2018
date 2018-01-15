@@ -235,21 +235,22 @@ public class Worker {
 		while (!queue.isEmpty()) {
 			MapLocation current = queue.poll();
 			boolean hasStructure = false;
+			visited.add(hash(current));
 			for (int i = 0; i < directions.length; i++) {
 				MapLocation test = current.add(directions[i]);
 				int testHash = hash(test);
-				if (!visited.contains(testHash) && checkPassable(test)) {
+				if (!visited.contains(testHash) && checkPassable2(test)) {
 					visited.add(testHash);
 					queue.add(test);
 				}
 				try {
 					UnitType temp = gc.senseUnitAtLocation(current).unitType();
-					if (temp == UnitType.Factory || temp == UnitType.Rocket) {
+					if (temp == UnitType.Factory || temp == UnitType.Rocket || temp == UnitType.Worker) {
 						hasStructure = true;
 					}
 				} catch (Exception e) {};
 			}
-			if (!hasStructure) {
+			if (!hasStructure && curHash != hash(current)) {
 				buildBlueprintLocation.put(curUnit.id(), current);
 				return;
 			}
@@ -257,15 +258,18 @@ public class Worker {
 	}
 
 	public static void buildStructure(UnitType type) {
+		System.out.println("build structure");
 		if (!buildBlueprintLocation.containsKey(curUnit.id())) {
 			findBlueprintLocation();
 		}
 		MapLocation blueprintLocation = buildBlueprintLocation.get(curUnit.id());
+		System.out.println("Blueprint coords: " + Integer.toString(blueprintLocation.getX()) + ", " + Integer.toString(blueprintLocation.getY()));
 		MapLocation curLoc = curUnit.location().mapLocation();
 		Direction dirToBlueprint = curLoc.directionTo(blueprintLocation);
 		//if i can build it
 		if (gc.canBlueprint(curUnit.id(), type, dirToBlueprint)) {
 			gc.blueprint(curUnit.id(), type, dirToBlueprint);
+			buildBlueprintLocation.remove(curUnit.id());
 			int targetBlueprint = gc.senseUnitAtLocation(curUnit.location().mapLocation().add(dirToBlueprint)).id();
 			if (type == UnitType.Rocket) {
 				rocketBlueprintId = targetBlueprint;
@@ -491,7 +495,7 @@ public class Worker {
         return Player.planetMap.isPassableTerrainAt(test) == 1 && !allyThere;
     }
 
-    //NOTHING around it
+    //nothing there
     public static boolean checkPassable2(MapLocation test) {
         if (test.getX() >= Player.gridX || test.getY() >= Player.gridY || test.getX() < 0 || test.getY() < 0) {
             return false;
@@ -499,6 +503,9 @@ public class Worker {
         boolean allyThere = true;
         try {
             Unit temp = gc.senseUnitAtLocation(test);
+            if (temp.unitType() != UnitType.Worker) {
+                allyThere = false;
+            }
         } catch (Exception e) {
             allyThere = false;
         }

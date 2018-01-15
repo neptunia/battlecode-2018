@@ -208,7 +208,6 @@ public class Player {
                     passable[i][a] = false;
                 }
                 if (planetMap.initialKarboniteAt(temp) > 0) {
-                    System.out.println(Integer.toString(temp.getX()) + " " + Integer.toString(temp.getY()));
                     Worker.karbonites[Worker.numKarbsCounter] = temp;
                     Worker.numKarbsCounter++;
                 }
