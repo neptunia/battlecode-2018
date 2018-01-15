@@ -11,7 +11,7 @@ public class Worker {
 	static HashMap<Integer, Integer> target = new HashMap<Integer, Integer>();
 	static int rocketsBuilt = 0;
 	static int rocketBlueprintId = -1;
-	static int numFacts = -1;
+	static int numFacts = 0;
 	static boolean karbonitesLeft = true;
 	static int numWorkers = -1;
 	static MapLocation[] karbonites;
@@ -90,24 +90,21 @@ public class Worker {
 			}
 			// count number of factories and number of workers
 			VecUnit units = gc.myUnits();
-			if (numFacts == -1) {
-				numFacts = 0;
+			if (numWorkers == -1) {
 				numWorkers = 0;
 				for (int i = 0; i < units.size(); i++) {
-					if (units.get(i).unitType() == UnitType.Factory) {
-						numFacts++;
-					} else if (units.get(i).unitType() == UnitType.Worker) {
+					if (units.get(i).unitType() == UnitType.Worker) {
 						numWorkers++;
 					}
 				}
 			}
 
 			// if we need more factories:
-			if (numWorkers >= 2 * numFacts && gc.karbonite() >= 100) {
+			if (numWorkers >= numFacts && gc.karbonite() >= 100) {
 				buildStructure(UnitType.Factory);
 			}
 			// if we need more workers:
-			else if (numWorkers < 2 * numFacts && gc.karbonite() >= 15 && gc.karbonite() <75 && curUnit.abilityHeat() < 10) {
+			else if (numWorkers < numFacts && gc.karbonite() >= 15 && curUnit.abilityHeat() < 10) {
 				for (int i = 0; i < directions.length; i++) {
 					if (gc.canReplicate(curUnit.id(), directions[i])) {
 						gc.replicate(curUnit.id(), directions[i]);
@@ -123,7 +120,7 @@ public class Worker {
 				goMine();
 			}
 
-			else if (numWorkers < 2 * numFacts && gc.karbonite() >= 75) {
+			else if (numWorkers < numFacts && gc.karbonite() >= 75) {
 				// build a rocket (but only if we don't need another factory)
 				buildStructure(UnitType.Rocket);
 			} else if (karbonitesLeft) {
@@ -241,6 +238,9 @@ public class Worker {
 					rocketBlueprintId = targetBlueprint;
 					rocketsBuilt++;
 				}
+				if (type == UnitType.Factory) {
+				    numFacts++;
+                }
 				//tell all nearby workers to go work on it
 				//TODO maybe bfs within n range for workers to work on the factory
 				VecUnit nearby = gc.senseNearbyUnits(curUnit.location().mapLocation(), 4);
