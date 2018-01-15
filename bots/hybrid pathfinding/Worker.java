@@ -20,6 +20,7 @@ public class Worker {
 	static int numKarbsCounter = 0;
 	static HashMap<Integer, MapLocation> karboniteTargets = new HashMap<Integer, MapLocation>();
 	static HashMap<Integer, MapLocation> lastStructure = new HashMap<Integer, MapLocation>();
+	static HashSet<Integer> structuresToBuild = new HashSet<Integer>();
 
 	public static void run(GameController gc, Unit curUnit) {
 
@@ -134,13 +135,7 @@ public class Worker {
 			} else if (karbonitesLeft) {
 				goMine();
 			} else {
-				//go back near base
-				//blocking other people
-				//int tempX = curLoc.getX();
-				//int tempY = curLoc.getY();
-				//if ((goAble(tempX - 1, tempY) || goAble(tempX + 1, tempY)) && (goAble(tempX, tempY - 1) || goAble(tempX, tempY + 1))) {
-					//move(Player.startingLocation);
-				//}
+				//move to somewhere where worker won't block the way
 				
 			}
 			
@@ -241,6 +236,7 @@ public class Worker {
 		HashSet<Integer> visited = new HashSet<Integer>();
 		int curHash = hash(curLoc);
 		queue.add(lastStructure.get(curUnit.id()));
+		MapLocation last = lastStructure.get(curUnit.id());
 		
 		visited.add(curHash);
 		
@@ -256,6 +252,9 @@ public class Worker {
 				}
 				
 			}
+			if (distance(current, last) > 70) {
+				continue;
+			}
 			int around = 0;
 			VecUnit nearby = gc.senseNearbyUnitsByTeam(current, 2, Player.myTeam);
 			for (int i = 0; i < nearby.size(); i++) {
@@ -263,13 +262,21 @@ public class Worker {
 				//TODO maybe add unittype.rocket too
 				if (temp == UnitType.Factory) {
 					around++;
+					break;
+				}
+			}
+			for (int i = 0; i < directions.length && around == 0; i++) {
+				MapLocation toTest = current.add(directions[i]);
+				if (structuresToBuild.contains(hash(toTest))) {
+					around++;
 				}
 			}
 			int tempX = current.getX();
 			int tempY = current.getY();
-			//on the map and gotoable
-			if (around == 0 && curHash != hash(current) && (goAble(tempX - 1, tempY) || goAble(tempX + 1, tempY)) && (goAble(tempX, tempY - 1) || goAble(tempX, tempY + 1))) {
+			//on the map and gotoable and doesnt block off any spots
+			if (around == 0 && !structuresToBuild.contains(hash(current)) && curHash != hash(current) && (goAble(tempX - 1, tempY) || goAble(tempX + 1, tempY)) && (goAble(tempX, tempY - 1) || goAble(tempX, tempY + 1))) {
 				buildBlueprintLocation.put(curUnit.id(), current);
+				structuresToBuild.add(hash(current));
 				return;
 			}
 		}
@@ -294,12 +301,25 @@ public class Worker {
 
 	public static void buildStructure(UnitType type) {
 		System.out.println("build structure");
-		if (!buildBlueprintLocation.containsKey(curUnit.id())) {
+		if (!buildBlueprintLocation.containsKey(curUnit.id()) || buildBlueprintLocation.get(curUnit.id()) == null) {
 			findBlueprintLocation(type);
 		}
 		MapLocation blueprintLocation = buildBlueprintLocation.get(curUnit.id());
+		if (blueprintLocation == null) {
+			//shouldn't build a blueprint cuz no open spaces
+			return;
+		}
 		System.out.println("Blueprint coords: " + Integer.toString(blueprintLocation.getX()) + ", " + Integer.toString(blueprintLocation.getY()));
 		Direction dirToBlueprint = curLoc.directionTo(blueprintLocation);
+		//if im standing on top of it
+		/*
+		if (hash(blueprintLocation) == hash(curLoc) && gc.isMoveReady(curUnit.id())) {
+			for (int i = 0; i < directions.length; i++) {
+				if (gc.canMove(curUnit.id(), directions[i])) {
+					gc.moveRobot(curUnit.id(), directions[i]);
+				}
+			}
+		}*/
 		//if i can build it
 		if (distance(curLoc, blueprintLocation) <= 2 && gc.canBlueprint(curUnit.id(), type, dirToBlueprint)) {
 			gc.blueprint(curUnit.id(), type, dirToBlueprint);

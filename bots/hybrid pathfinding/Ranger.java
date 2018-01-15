@@ -7,6 +7,7 @@ public class Ranger {
     static Unit curUnit;
     static GameController gc;
     static Direction[] directions = Direction.values();
+    static MapLocation curLoc;
     static HashMap<Integer, HashSet<Integer>> visited = new HashMap<Integer, HashSet<Integer>>();
     static HashMap<Integer, Integer> prevLocation = new HashMap<Integer, Integer>();
     static HashMap<Integer, MapLocation> priorityTarget = new HashMap<Integer, MapLocation>();
@@ -19,10 +20,20 @@ public class Ranger {
             return;
         }
 
+        curLoc = curUnit.location().mapLocation();
+
         if (priorityTarget.containsKey(curUnit.id())) {
             //i have a priority target
-            move(priorityTarget.get(curUnit.id()));
-            return;
+            //System.out.println("Cur pos: " + Integer.toString(curLoc.getX()) + " " + Integer.toString(curLoc.getY()));
+            //System.out.println("Cur pos: " + Integer.toString(priorityTarget.get(curUnit.id()).getX()) + " " + Integer.toString(priorityTarget.get(curUnit.id()).getY()));
+            try {
+                move(priorityTarget.get(curUnit.id()));
+                return;
+            } catch (Exception e) {
+                priorityTarget.remove(curUnit.id());
+            }
+            
+            
         }
 
         Pair target = findNearestEnemy();

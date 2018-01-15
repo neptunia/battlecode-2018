@@ -1,4 +1,5 @@
 import bc.*;
+import java.util.*;
 
 public class Rocket {
 
@@ -33,12 +34,16 @@ public class Rocket {
                 if (gc.canLaunchRocket(curUnit.id(), marsStart)) {
                     gc.launchRocket(curUnit.id(), marsStart);
                     int myHash = hash(curUnit.location().mapLocation());
+                    //TODO make more efficient
                     for (Integer key : Factory.presetTargets.keySet()) {
-                        if (myHash == hash(Factory.presetTargets.get(key))) {
-                            Factory.presetTargets.remove(key);
-                            break;
-                        }
+                        try {
+                            if (myHash == hash(Factory.presetTargets.get(key))) {
+                                Factory.presetTargets.remove(key);
+                                break;
+                            }
+                        } catch (Exception e) {};
                     }
+                    //Ranger.priorityTarget.values().removeAll(Collections.singleton(myHash));
                 } else {
                     for (int i = 0; i < marsmap.getWidth(); i++) {
                         boolean stop = false;
@@ -46,6 +51,17 @@ public class Rocket {
                             MapLocation temp = new MapLocation(Planet.Mars, (int) ((curUnit.location().mapLocation().getX() + i) % marsmap.getWidth()), (int) ((curUnit.location().mapLocation().getY() + j) % marsmap.getWidth()));
                             if (gc.canLaunchRocket(curUnit.id(), temp)) {
                                 gc.launchRocket(curUnit.id(), temp);
+                                int myHash = hash(curUnit.location().mapLocation());
+                                //TODO make more efficient
+                                for (Integer key : Factory.presetTargets.keySet()) {
+                                    try {
+                                        if (myHash == hash(Factory.presetTargets.get(key))) {
+                                            Factory.presetTargets.remove(key);
+                                            break;
+                                        }
+                                    } catch (Exception e) {};
+                                }
+                                //Ranger.priorityTarget.values().removeAll(Collections.singleton(myHash));
                                 stop = true;
                                 break;
                             }

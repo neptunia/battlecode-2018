@@ -22,7 +22,7 @@ public class Player {
     static int numUnitsThisRound;
     static int timesReachedTarget = 0;
     static boolean sawEnemy = false;
-    static boolean splitMap = false;
+    //static boolean splitMap = false;
     static HashMap<Integer, Integer> paths = new HashMap<Integer, Integer>();
 
 	
@@ -50,7 +50,21 @@ public class Player {
 
             long total = 0;
 
+            VecUnit temp = gc.myUnits();
+            numUnitsThisRound = 0;
+            //iterate through units
+            // might need to fix this later; what happens if I create a new unit in the middle of this loop?
+            for (int i = 0; i < temp.size(); i++) {
+                Unit curUnit = temp.get(i);
+                try {
+                    MapLocation curLoc = curUnit.location().mapLocation();
+                    unitLocations[numUnitsThisRound] = curLoc;
+                    numUnitsThisRound++;
+                } catch (Exception e) {};
+            }
+
             initialize();
+
 
             //do research
             gc.queueResearch(UnitType.Ranger);
@@ -196,11 +210,8 @@ public class Player {
             }
         }
 
-        if (!gotoableEmpty && count < width * height / 2) {
-            splitMap = true;
-        }
-
         startingLocation = chooseClosestPoint();
+        //System.out.println("Start loc: " + Integer.toString(startingLocation.getX()) + " " + Integer.toString(startingLocation.getY()));
 
         //TODO make karbonite more efficient
         int counter = 0;
@@ -212,7 +223,7 @@ public class Player {
                 } else {
                     passable[i][a] = false;
                 }
-                if (planetMap.initialKarboniteAt(temp) > 0) {
+                if (planetMap.initialKarboniteAt(temp) > 0 && gotoable[i][a]) {
                     Worker.karbonites[Worker.numKarbsCounter] = temp;
                     Worker.numKarbsCounter++;
                 }
@@ -255,7 +266,7 @@ public class Player {
     }
 
     public static MapLocation chooseClosestPoint() {
-        double smallest = 99999999;
+        double smallest = 99999999.0;
         int smallX = 0;
         int smallY = 0;
         for (int i = 0; i < gridX; i++) {
@@ -265,6 +276,8 @@ public class Player {
                 }
                 double tempDist = 0;
                 for (int j = 0; j < numUnitsThisRound; j++) {
+                    System.out.println(unitLocations[j].getX());
+                    System.out.println(unitLocations[j].getY());
                     tempDist += distanceSq(i, a, unitLocations[j].getX(), unitLocations[j].getY());
                 }
                 if (tempDist < smallest) {
