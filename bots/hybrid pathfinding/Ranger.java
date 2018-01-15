@@ -24,9 +24,7 @@ public class Ranger {
         }
         if (target.enemyClosest != -1 && curUnit.visionRange() == 100 & gc.unit(target.enemyClosest).unitType() == UnitType.Ranger) {
             rangerMicro(target.enemyClosest);
-        }
-
-        if (target.enemyClosest == -1) {
+        } else if (target.enemyClosest == -1) {
             //explore if no units detected
             if (canMove()) {
                 move(Player.enemyLocation);
@@ -79,26 +77,32 @@ public class Ranger {
         int dist = distance(myLoc, enemyLoc);
         if (dist <= 10) {
             // too close!
-            moveAway(enemyLoc);
+            if (gc.isMoveReady(curUnit.id())) {
+                moveAway(enemyLoc);
+            }
             attackNearbyEnemies();
             return;
         }
         if (dist <= 50) {
             // within attack range
-            gc.attack(curUnit.id(), enemyid);
-            moveAway(enemyLoc);
+            if (canAttack()) {
+                gc.attack(curUnit.id(), enemyid);
+            }
+            if (gc.isMoveReady(curUnit.id())) {
+                moveAway(enemyLoc);
+            }
             return;
         }
         if (dist <= 70) {
             // within moveattack range
-            if (moveCloser(enemyLoc)) {
+            if (gc.isMoveReady(curUnit.id()) && canAttack() && moveCloser(enemyLoc)) {
                 // move was successful
                 gc.attack(curUnit.id(), enemyid);
             }
             return;
         }
         // if distance is between 70 and 100, dont do anything
-        if (dist == 100) {
+        if (dist == 100 && gc.isMoveReady(curUnit.id())) {
             moveCloser(enemyLoc);
         }
 
