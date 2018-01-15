@@ -233,8 +233,6 @@ public class Worker {
 		
 		while (!queue.isEmpty()) {
 			MapLocation current = queue.poll();
-
-
 			
 			for (int i = 0; i < directions.length; i++) {
 				MapLocation test = current.add(directions[i]);
@@ -244,15 +242,22 @@ public class Worker {
 					queue.add(test);
 				}
 				
-
-				
 			}
 			long around = gc.senseNearbyUnitsByTeam(current, 2, Player.myTeam).size() - 1;
-			if (around == 0 && curHash != hash(current)) {
+			int tempX = current.getX();
+			int tempY = current.getY();
+			//on the map and gotoable
+			if (around <= 0 && curHash != hash(current) && (goAble(tempX - 1, tempY) || goAble(tempX + 1, tempY)) && (goAble(tempX, tempY - 1) || goAble(tempX, tempY + 1))) {
 				buildBlueprintLocation.put(curUnit.id(), current);
 				return;
 			}
 		}
+		System.out.println("no good position found :(");
+	}
+
+	public static boolean goAble(int x, int y) {
+
+		return (x >= 0 && y >= 0 && x < Player.gridX && y < Player.gridY) && Player.gotoable[x][y];
 	}
 
 	public static void buildStructure(UnitType type) {
@@ -479,7 +484,7 @@ public class Worker {
 		return (69 * x1) + y1 + ((69 * x2) + y2) * 10000;
 	}
 
-	//nothing around it exept workers
+	//workers, terrain, and off map are obstacles
 	public static boolean checkPassable(MapLocation test) {
         if (test.getX() >= Player.gridX || test.getY() >= Player.gridY || test.getX() < 0 || test.getY() < 0) {
             return false;
@@ -496,7 +501,7 @@ public class Worker {
         return Player.planetMap.isPassableTerrainAt(test) == 1 && !allyThere;
     }
 
-    //nothing there
+    //workers are not obstacles
     public static boolean checkPassable2(MapLocation test) {
         if (test.getX() >= Player.gridX || test.getY() >= Player.gridY || test.getX() < 0 || test.getY() < 0) {
             return false;
@@ -504,7 +509,7 @@ public class Worker {
         boolean allyThere = true;
         try {
             Unit temp = gc.senseUnitAtLocation(test);
-            if (temp.unitType() != UnitType.Worker) {
+            if (temp.unitType() == UnitType.Worker) {
                 allyThere = false;
             }
         } catch (Exception e) {
