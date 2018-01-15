@@ -9,6 +9,7 @@ public class Worker {
 	static HashMap<Integer, HashSet<Integer>> visited = new HashMap<Integer, HashSet<Integer>>();
 	//target blueprint to work on for each worker
 	static HashMap<Integer, Integer> target = new HashMap<Integer, Integer>();
+	static HashMap<Integer, MapLocation> buildBlueprintLocation = new HashMap<Integer, MapLocation>();
 	static int rocketsBuilt = 0;
 	static int rocketBlueprintId = -1;
 	static int numFacts = -1;
@@ -224,34 +225,63 @@ public class Worker {
 		return false;
 	}
 
-	//builds a factory in an open space around worker
-	//TODO improve factory building scheme
-	public static void buildStructure(UnitType type) {
-		int numDirections = 0;
-		for (int i = 0; i < directions.length - 1; i++) {
-			if (gc.canMove(curUnit.id(), directions[i])) {
-				numDirections++;
+	//bfs to find square such that there are no other factories or rockets around range n of it
+	public static void findBlueprintLocation() {
+		LinkedList<MapLocation> queue = new LinkedList<MapLocation>();
+		MapLocation curLoc = curUnit.location().mapLocation();
+		int curHash = hash(curLoc);
+		queue.add(curLoc);
+		HashSet<Integer> visited = new HashSet<Integer>();
+		while (!queue.isEmpty()) {
+			MapLocation current = queue.poll();
+			boolean hasStructure = false;
+			for (int i = 0; i < directions.length; i++) {
+				MapLocation test = current.add(i);
+				int testHash = hash(test);
+				if (!visited.contains(testHash) && checkPassable(test)) {
+					visited.add(testHash);
+					queue.add(test);
+				}
+				try {
+					UnitType temp = gc.senseUnitAtLocation(current).unitType();
+					if (temp == UnitType.Factory || temp == UnitType.Rocket) {
+						hasStructure = true;
+					}
+				} catch (Exception e) {};
+			}
+			if (!hasStructure) {
+				buildBlueprintLocation.put(curUnit.id(), current);
+				return;
 			}
 		}
-		for (int i = 0; numDirections >= 2 && i < directions.length - 2; i++) {
-			if (gc.canBlueprint(curUnit.id(), type, directions[i])) {
-				gc.blueprint(curUnit.id(), type, directions[i]);
-				int targetBlueprint = gc.senseUnitAtLocation(curUnit.location().mapLocation().add(directions[i])).id();
-				if (type == UnitType.Rocket) {
-					rocketBlueprintId = targetBlueprint;
-					rocketsBuilt++;
-				}
-				//tell all nearby workers to go work on it
-				//TODO maybe bfs within n range for workers to work on the factory
-				VecUnit nearby = gc.senseNearbyUnits(curUnit.location().mapLocation(), 4);
-				for (int a = 0; a < nearby.size(); a++) {
-					Unit temp = nearby.get(a);
-					if (temp.team() == gc.team() && temp.unitType() == UnitType.Worker) {
-						target.put(temp.id(), targetBlueprint);
-					}
-				}
-				break;
+	}
+
+	public static void buildStructure(UnitType type) {
+		if (!buildBlueprintLocation.containsKey(curUnit.id())) {
+			findBlueprintLocation();
+		}
+		MapLocation blueprintLocation = buildBlueprintLocation.get(curUnit.id());
+		MapLocation curLoc = curUnit.location().mapLocation()
+		Direction dirToBlueprint = curLoc.directionTo(blueprintLocation);
+		//if i can build it
+		if (gc.canBlueprint(curUnit.id(), type, dirToBlueprint)) {
+			gc.blueprint(curUnit.id(), type, dirToBlueprint);
+			int targetBlueprint = gc.senseUnitAtLocation(curUnit.location().mapLocation().add(directions[i])).id();
+			if (type == UnitType.Rocket) {
+				rocketBlueprintId = targetBlueprint;
+				rocketsBuilt++;
 			}
+			//tell all nearby workers to go work on it
+			VecUnit nearby = gc.senseNearbyUnitsByTeam(curUnit.location().mapLocation(), 4, Player.myTeam);
+			for (int a = 0; a < nearby.size(); a++) {
+				Unit temp = nearby.get(a);
+				if (temp.unitType() == UnitType.Worker) {
+					target.put(temp.id(), targetBlueprint);
+				}
+			}
+		} else {
+			//move towards it
+			move(blueprintLocation);
 		}
 	}
 
@@ -443,6 +473,7 @@ public class Worker {
 		return (69 * x1) + y1 + ((69 * x2) + y2) * 10000;
 	}
 
+	//nothing around it exept workers
 	public static boolean checkPassable(MapLocation test) {
         if (test.getX() >= Player.gridX || test.getY() >= Player.gridY || test.getX() < 0 || test.getY() < 0) {
             return false;
@@ -453,6 +484,20 @@ public class Worker {
             if (temp.unitType() != UnitType.Worker) {
                 allyThere = false;
             }
+        } catch (Exception e) {
+            allyThere = false;
+        }
+        return Player.planetMap.isPassableTerrainAt(test) == 1 && !allyThere;
+    }
+
+    //NOTHING around it
+    public static boolean checkPassable2(MapLocation test) {
+        if (test.getX() >= Player.gridX || test.getY() >= Player.gridY || test.getX() < 0 || test.getY() < 0) {
+            return false;
+        }
+        boolean allyThere = true;
+        try {
+            Unit temp = gc.senseUnitAtLocation(test);
         } catch (Exception e) {
             allyThere = false;
         }
