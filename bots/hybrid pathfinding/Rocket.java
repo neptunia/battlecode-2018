@@ -10,16 +10,6 @@ public class Rocket {
 
         Rocket.curUnit = curUnit;
 
-        if (Player.firstTime) {
-            Player.firstTime = false;
-            //guesstimate enemy location
-            if (Player.enemyLocation == null) {
-                MapLocation temp = curUnit.location().mapLocation();
-                Player.startingLocation = temp;
-                Player.enemyLocation = new MapLocation(gc.planet(), Player.gridX - temp.getX(), Player.gridY - temp.getY());
-            }
-        }
-
         if (curUnit.location().isInSpace()) {
             //in space
             return;

@@ -18,16 +18,6 @@ public class Mage {
             return;
         }
 
-        if (Player.firstTime) {
-            Player.firstTime = false;
-            //guesstimate enemy location
-            if (Player.enemyLocation == null) {
-                MapLocation temp = curUnit.location().mapLocation();
-                Player.startingLocation = temp;
-                Player.enemyLocation = new MapLocation(gc.planet(), Player.gridX - temp.getX(), Player.gridY - temp.getY());
-            }
-        }
-
         Pair bestunit = findBestUnit();
         if (bestunit.unit2 == -1) {
             //no visible units
@@ -223,6 +213,20 @@ public class Mage {
                 //iterate through neighbors
                 for (int i = 0; i < directions.length; i++) {
                     int neighbor = hash(curLoc.add(directions[i]));
+
+                    int neighborPath = doubleHash(neighbor, goal);
+                    if (Player.paths.containsKey(neighborPath)) {
+                        //TODO: optimization once the killed has been fixed
+                        //completes the path
+                        int tempCur = neighbor;
+                        while (tempCur != goal) {
+                            int tempHash = doubleHash(neighbor, goal);
+                            int nextNode = Player.paths.get(tempHash);
+                            fromMap.put(nextNode, tempCur);
+                            tempCur = nextNode;
+                        }
+                        neighbor = goal;
+                    }
                     if (neighbor == goal) {
                         fromMap.put(neighbor, current);
                         HashMap<Integer, Integer> path = new HashMap<Integer, Integer>();

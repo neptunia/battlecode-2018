@@ -12,6 +12,7 @@ public class Worker {
 	static int rocketsBuilt = 0;
 	static int rocketBlueprintId = -1;
 	static int numFacts = -1;
+	static boolean karbonitesLeft = true;
 	static int numWorkers = -1;
 	static MapLocation[] karbonites;
 	static int numKarbsCounter = 0;
@@ -25,16 +26,6 @@ public class Worker {
 
 		if (curUnit.location().isInGarrison()) {
 			return;
-		}
-
-		if (Player.firstTime) {
-			Player.firstTime = false;
-			//guesstimate enemy location
-			if (Player.enemyLocation == null) {
-				MapLocation temp = curUnit.location().mapLocation();
-				Player.startingLocation = temp;
-				Player.enemyLocation = new MapLocation(gc.planet(), Player.gridX - temp.getX(), Player.gridY - temp.getY());
-			}
 		}
 
 		if (gc.round() == 1) {
@@ -90,7 +81,7 @@ public class Worker {
 		if (!doingAThing) {
 			//rush first rocket
 			if (gc.karbonite() >= 75 && Worker.rocketsBuilt == 0 && Worker.rocketBlueprintId == -1 && gc.researchInfo().getLevel(UnitType.Rocket) > 0) {
-				buildStructure(UnitType.Rocket);
+				//buildStructure(UnitType.Rocket);
 			}
 			// count number of factories and number of workers
 			VecUnit units = gc.myUnits();
@@ -122,15 +113,15 @@ public class Worker {
 				}
 			}
 
-			else if (Player.prevIncome < 0) {
+			else if (Player.prevIncome < 0 && karbonitesLeft) {
 				// go mine
 				goMine();
 			}
 
 			else if (numWorkers < 2 * numFacts && gc.karbonite() >= 75) {
 				// build a rocket (but only if we don't need another factory)
-				buildStructure(UnitType.Rocket);
-			} else {
+				//buildStructure(UnitType.Rocket);
+			} else if (karbonitesLeft) {
 				goMine();
 			}
 			
@@ -211,7 +202,7 @@ public class Worker {
 			}
 		}
 		if (karb == null) {
-			System.out.println("rip no karbonites");
+			karbonitesLeft = false;
 		}
 		return karb;
 	}
@@ -287,6 +278,51 @@ public class Worker {
 			while (!openList.isEmpty()) {
 				int current = openList.poll();
 
+				int remainingPath = doubleHash(current, goal);
+				if (Player.paths.containsKey(remainingPath)) {
+					//TODO: optimization once the killed has been fixed
+					//completes the path
+					int tempCur = current;
+					while (tempCur != goal) {
+						int tempHash = doubleHash(tempCur, goal);
+						int nextNode = Player.paths.get(tempHash);
+						fromMap.put(nextNode, tempCur);
+						tempCur = nextNode;
+					}
+					current = goal;
+				}
+
+				if (current == goal) {
+					HashMap<Integer, Integer> path = new HashMap<Integer, Integer>();
+					HashMap<Integer, Integer> path2 = new HashMap<Integer, Integer>();
+					int next = goal;
+
+					int prev = -1;
+					ArrayList<Integer> before = new ArrayList<Integer>();
+					before.add(next);
+					while (fromMap.containsKey(next)) {
+						//System.out.println(print(next));
+						//path.put(next, prev);
+						prev = next;
+						next = fromMap.get(prev);
+						before.add(next);
+						//Player.paths.put(doubleHash(prev, next), path);
+						//Player.paths.put(doubleHash(next, prev), path);
+						//TODO put in between Player.paths... a b c d e needs bc, bd, cd 
+						path.put(next, prev);
+						path2.put(prev, next);
+					}
+					int temp = before.size();
+					for (int j = 0; j < temp; j++) {
+						for (int a = 0; a < j; a++) {
+							Player.paths.put(doubleHash(before.get(j), before.get(a)), path.get(before.get(j)));
+							Player.paths.put(doubleHash(before.get(a), before.get(j)), path2.get(before.get(a)));
+						}
+					}
+					
+					break;
+				}
+
 				int tempY = current % 69;
 				int tempX = (current - tempY) / 69;
 				curLoc = new MapLocation(gc.planet(), tempX, tempY);
@@ -299,44 +335,7 @@ public class Worker {
 				for (int i = 0; i < directions.length; i++) {
 					int neighbor = hash(curLoc.add(directions[i]));
 					//if a path is already computed for this node to the goal then dont needa compute more
-					int neighborPath = doubleHash(neighbor, hash(target));
-					if (Player.paths.containsKey(neighborPath)) {
-						//TODO: optimization once the killed has been fixed
-						//curloc to neighbor matched within themselves
-						//curloc to neighbor matched with paths[neighborPath] to goal
-
-					}
-					if (neighbor == goal) {
-						fromMap.put(neighbor, current);
-						HashMap<Integer, Integer> path = new HashMap<Integer, Integer>();
-						HashMap<Integer, Integer> path2 = new HashMap<Integer, Integer>();
-						int next = goal;
-
-						int prev = -1;
-						ArrayList<Integer> before = new ArrayList<Integer>();
-						before.add(next);
-						while (fromMap.containsKey(next)) {
-							//System.out.println(print(next));
-							//path.put(next, prev);
-							prev = next;
-							next = fromMap.get(prev);
-							before.add(next);
-							//Player.paths.put(doubleHash(prev, next), path);
-							//Player.paths.put(doubleHash(next, prev), path);
-							//TODO put in between Player.paths... a b c d e needs bc, bd, cd 
-							path.put(next, prev);
-							path2.put(prev, next);
-						}
-						int temp = before.size();
-						for (int j = 0; j < temp; j++) {
-							for (int a = 0; a < j; a++) {
-								Player.paths.put(doubleHash(before.get(j), before.get(a)), path.get(before.get(j)));
-								Player.paths.put(doubleHash(before.get(a), before.get(j)), path2.get(before.get(a)));
-							}
-						}
-						
-						break;
-					}
+					
 					if (checkPassable(curLoc.add(directions[i]))) {
 						if (closedList.contains(neighbor)) {
 							continue;
@@ -378,7 +377,7 @@ public class Worker {
 			MapLocation tryToGoTo = curUnit.location().mapLocation().add(temp);
 			Unit blockedBy = gc.senseUnitAtLocation(tryToGoTo);
 			if (blockedBy.unitType() == UnitType.Factory || blockedBy.unitType() == UnitType.Rocket || blockedBy.unitType() == UnitType.Worker) {
-				moveAttack(target);
+				moveAttack(next);
 			}
 		}
 	}
@@ -437,11 +436,20 @@ public class Worker {
 	}
 
 	public static boolean checkPassable(MapLocation test) {
-		if (test.getX() >= Player.gridX || test.getY() >= Player.gridY || test.getX() < 0 || test.getY() < 0) {
-			return false;
-		}
-		return Player.planetMap.isPassableTerrainAt(test) == 1;
-	}
+        if (test.getX() >= Player.gridX || test.getY() >= Player.gridY || test.getX() < 0 || test.getY() < 0) {
+            return false;
+        }
+        boolean allyThere = true;
+        try {
+            Unit temp = gc.senseUnitAtLocation(test);
+            if (temp.unitType() != UnitType.Worker) {
+                allyThere = false;
+            }
+        } catch (Exception e) {
+            allyThere = false;
+        }
+        return Player.planetMap.isPassableTerrainAt(test) == 1 && !allyThere;
+    }
 
 	public static int hash(int x, int y) {
 		return 69 * x + y;
@@ -460,7 +468,7 @@ public class Worker {
 
 	public static int manDistance(MapLocation first, MapLocation second) {
 		int x1 = first.getX(), y1 = first.getY(), x2 = second.getX(), y2 = second.getY();
-		return (x2 - x1) + (y2 - y1);
+		return Math.max(Math.abs(x1 - x2), Math.abs(y1 - y2));
 	}
 
 	public static int manDistance(int hash1, int hash2) {
@@ -468,7 +476,7 @@ public class Worker {
 		int x1 = (hash1 - y1) / 69;
 		int y2 = hash2 % 69;
 		int x2 = (hash2 - y2) / 69;
-		return (x2 - x1) + (y2 - y1);
+		return Math.max(Math.abs(x1 - x2), Math.abs(y1 - y2));
 	}
 
 	public static int distance(int hash1, int hash2) {

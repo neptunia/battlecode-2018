@@ -14,7 +14,6 @@ public class Player {
     static GameController gc;
     static PlanetMap planetMap;
     static Team myTeam, enemyTeam;
-    static boolean firstTime = true;
     static long prevIncome;
     static long currentIncome;
     static boolean[][] gotoable;
@@ -155,9 +154,9 @@ public class Player {
                 }
                 endTime = gc.getTimeLeftMs();
                 total += startTime - endTime;
-                //System.out.println("Time: " + Long.toString(startTime - endTime));
-                //System.out.println("Average: " + Float.toString(total / gc.round()));
-                //System.out.println("Time Left: " + Long.toString(gc.getTimeLeftMs()));
+                System.out.println("Time: " + Long.toString(startTime - endTime));
+                System.out.println("Average: " + Float.toString(total / gc.round()));
+                System.out.println("Time Left: " + Long.toString(gc.getTimeLeftMs()));
                 prevIncome = currentIncome;
                 Runtime runtime = Runtime.getRuntime();
 
@@ -191,7 +190,6 @@ public class Player {
         gridY = height;
         map = new Unit[width][height];
         passable = new boolean[width][height];
-        
         Worker.karbonites = new MapLocation[2500];
 
         gotoable = new boolean[width][height];
@@ -224,6 +222,8 @@ public class Player {
             }
         }
 
+        startingLocation = chooseClosestPoint();
+
         //TODO make karbonite more efficient
         int counter = 0;
         for (int i = 0; i < width; i++) {
@@ -249,13 +249,13 @@ public class Player {
         } else {
             if (gc.senseNearbyUnitsByTeam(enemyLocation, 2, myTeam).size() > 0) {
                 enemyLocation = chooseFarthestPoint();
+                System.out.println("Unit num: " + Integer.toString(numUnitsThisRound));
             }
         }
     }
 
     public static MapLocation chooseFarthestPoint() {
-        int greatest = -1;
-        MapLocation furthest = null;
+        double greatest = -1;
         int smallX = 0;
         int smallY = 0;
         for (int i = 0; i < gridX; i++) {
@@ -263,7 +263,7 @@ public class Player {
                 if (!gotoable[i][a]) {
                     continue;
                 }
-                int tempDist = 0;
+                double tempDist = 0;
                 for (int j = 0; j < numUnitsThisRound; j++) {
                     tempDist += distanceSq(i, a, unitLocations[j].getX(), unitLocations[j].getY());
                 }
@@ -277,8 +277,31 @@ public class Player {
         return new MapLocation(gc.planet(), smallX, smallY);
     }
 
-    public static int distanceSq(int x1, int y1, int x2, int y2) {
-        return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
+    public static MapLocation chooseClosestPoint() {
+        double smallest = 99999999;
+        int smallX = 0;
+        int smallY = 0;
+        for (int i = 0; i < gridX; i++) {
+            for (int a = 0; a < gridY; a++) {
+                if (!gotoable[i][a]) {
+                    continue;
+                }
+                double tempDist = 0;
+                for (int j = 0; j < numUnitsThisRound; j++) {
+                    tempDist += distanceSq(i, a, unitLocations[j].getX(), unitLocations[j].getY());
+                }
+                if (tempDist < smallest) {
+                    smallest = tempDist;
+                    smallX = i;
+                    smallY = a;
+                }
+            }
+        }
+        return new MapLocation(gc.planet(), smallX, smallY);
+    }
+
+    public static double distanceSq(int x1, int y1, int x2, int y2) {
+        return Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
     }
 
     public static int hash(MapLocation loc) {
