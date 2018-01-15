@@ -226,13 +226,16 @@ public class Worker {
 	public static void findBlueprintLocation() {
 		LinkedList<MapLocation> queue = new LinkedList<MapLocation>();
 		MapLocation curLoc = curUnit.location().mapLocation();
+		HashSet<Integer> visited = new HashSet<Integer>();
 		int curHash = hash(curLoc);
 		queue.add(curLoc);
-		HashSet<Integer> visited = new HashSet<Integer>();
+		visited.add(curHash);
+		
 		while (!queue.isEmpty()) {
 			MapLocation current = queue.poll();
-			boolean hasStructure = false;
-			visited.add(hash(current));
+
+
+			
 			for (int i = 0; i < directions.length; i++) {
 				MapLocation test = current.add(directions[i]);
 				int testHash = hash(test);
@@ -240,14 +243,12 @@ public class Worker {
 					visited.add(testHash);
 					queue.add(test);
 				}
-				try {
-					UnitType temp = gc.senseUnitAtLocation(current).unitType();
-					if (temp == UnitType.Factory || temp == UnitType.Rocket || temp == UnitType.Worker) {
-						hasStructure = true;
-					}
-				} catch (Exception e) {};
+				
+
+				
 			}
-			if (!hasStructure && curHash != hash(current)) {
+			long around = gc.senseNearbyUnitsByTeam(current, 2, Player.myTeam).size() - 1;
+			if (around == 0 && curHash != hash(current)) {
 				buildBlueprintLocation.put(curUnit.id(), current);
 				return;
 			}
@@ -264,7 +265,7 @@ public class Worker {
 		MapLocation curLoc = curUnit.location().mapLocation();
 		Direction dirToBlueprint = curLoc.directionTo(blueprintLocation);
 		//if i can build it
-		if (gc.canBlueprint(curUnit.id(), type, dirToBlueprint)) {
+		if (distance(curLoc, blueprintLocation) <= 2 && gc.canBlueprint(curUnit.id(), type, dirToBlueprint)) {
 			gc.blueprint(curUnit.id(), type, dirToBlueprint);
 			buildBlueprintLocation.remove(curUnit.id());
 			int targetBlueprint = gc.senseUnitAtLocation(curUnit.location().mapLocation().add(dirToBlueprint)).id();
