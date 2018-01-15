@@ -81,7 +81,7 @@ public class Worker {
 		if (!doingAThing) {
 			//rush first rocket
 			if (gc.karbonite() >= 75 && Worker.rocketsBuilt == 0 && Worker.rocketBlueprintId == -1 && gc.researchInfo().getLevel(UnitType.Rocket) > 0) {
-				//buildStructure(UnitType.Rocket);
+				buildStructure(UnitType.Rocket);
 			}
 			// count number of factories and number of workers
 			VecUnit units = gc.myUnits();
@@ -120,7 +120,7 @@ public class Worker {
 
 			else if (numWorkers < 2 * numFacts && gc.karbonite() >= 75) {
 				// build a rocket (but only if we don't need another factory)
-				//buildStructure(UnitType.Rocket);
+				buildStructure(UnitType.Rocket);
 			} else if (karbonitesLeft) {
 				goMine();
 			}
