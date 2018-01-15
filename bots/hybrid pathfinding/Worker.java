@@ -28,6 +28,11 @@ public class Worker {
 			return;
 		}
 
+		//TODO: if on mars temporary code
+		if (gc.planet() == Planet.Mars) {
+			move(Player.enemyLocation);
+		}
+
 		if (gc.round() == 1) {
 			//Initial replication
 			for (int i = 0; i < directions.length; i++) {

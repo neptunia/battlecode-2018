@@ -50,6 +50,10 @@ public class Rocket {
             }
         } else {
             //on mars, unload units
+            if (Player.gotoableEmpty) {
+                Player.initialize();
+                Player.chooseTarget();
+            }
             for (int i = 0; i < directions.length; i++) {
                 if (gc.canUnload(curUnit.id(), directions[i])) {
                     gc.unload(curUnit.id(), directions[i]);

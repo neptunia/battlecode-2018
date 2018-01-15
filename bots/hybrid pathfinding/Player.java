@@ -17,6 +17,7 @@ public class Player {
     static long prevIncome;
     static long currentIncome;
     static boolean[][] gotoable;
+    static boolean gotoableEmpty;
     static MapLocation[] unitLocations;
     static int numUnitsThisRound;
     static HashMap<Integer, Integer> paths = new HashMap<Integer, Integer>();
@@ -193,6 +194,7 @@ public class Player {
         Worker.karbonites = new MapLocation[2500];
 
         gotoable = new boolean[width][height];
+
         VecUnit myUnits = gc.myUnits();
 
         //bfs to find which spaces can be traveled to
@@ -201,12 +203,18 @@ public class Player {
 
         for (int i = 0; i < myUnits.size(); i++) {
             Unit tempUnit = myUnits.get(i);
-            if (tempUnit.unitType() == UnitType.Worker) {
+            if ((tempUnit.unitType() == UnitType.Worker && !tempUnit.location().isInGarrison()) || tempUnit.unitType() == UnitType.Rocket) {
                 MapLocation curLoc = tempUnit.location().mapLocation();
                 queue.add(curLoc);
                 gotoable[curLoc.getX()][curLoc.getY()] = true;
                 visited.add(hash(curLoc));
             }
+        }
+
+        if (queue.isEmpty()) {
+            gotoableEmpty = true;
+        } else {
+            gotoableEmpty = false;
         }
 
         while (!queue.isEmpty()) {
