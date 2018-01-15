@@ -20,6 +20,8 @@ public class Player {
     static boolean gotoableEmpty;
     static MapLocation[] unitLocations;
     static int numUnitsThisRound;
+    static int timesReachedTarget = 0;
+    static boolean sawEnemy = false;
     static HashMap<Integer, Integer> paths = new HashMap<Integer, Integer>();
 
 	
@@ -59,6 +61,7 @@ public class Player {
             unitLocations = new MapLocation[5000];
 
             while (true) {
+                sawEnemy = false;
 
                 currentIncome = 10 - Math.max(gc.karbonite() / 40, 0);
                 long currentRound = gc.round();
@@ -106,7 +109,7 @@ public class Player {
 
                 endTime = gc.getTimeLeftMs();
                 total += startTime - endTime;
-                //System.out.println("Time: " + Long.toString(startTime - endTime));
+                System.out.println("Time: " + Long.toString(startTime - endTime));
                 System.out.println("Average: " + Float.toString(total / gc.round()));
                 System.out.println("Time Left: " + Long.toString(gc.getTimeLeftMs()));
                 prevIncome = currentIncome;
@@ -127,6 +130,9 @@ public class Player {
                 //System.out.println("Enemy location: " + Integer.toString(enemyLocation.getX()) + ", " + Integer.toString(enemyLocation.getY()));
                 System.out.println("Round: " + Long.toString(gc.round()));
                 startTime = endTime;
+                if (sawEnemy) {
+                    timesReachedTarget = 0;
+                }
                 gc.nextTurn();
             }
         } catch (Exception e) {
@@ -205,12 +211,12 @@ public class Player {
     public static void chooseTarget() {
         if (enemyLocation == null) {
             enemyLocation = chooseFarthestPoint();
-        } //else {
-            //if (gc.senseNearbyUnitsByTeam(enemyLocation, 2, myTeam).size() > 0) {
-               // enemyLocation = chooseFarthestPoint();
-                //System.out.println("Unit num: " + Integer.toString(numUnitsThisRound));
-           // }
-        //}
+        } else {
+            if (gc.senseNearbyUnitsByTeam(enemyLocation, 2, myTeam).size() > 0) {
+                timesReachedTarget++;
+                enemyLocation = chooseFarthestPoint();
+            }
+        }
     }
 
     public static MapLocation chooseFarthestPoint() {

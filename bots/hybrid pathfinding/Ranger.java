@@ -19,12 +19,16 @@ public class Ranger {
         }
 
         Pair target = findNearestEnemy();
+        if (Player.timesReachedTarget >= 3 && target.enemyClosest == -1) {
+            return;
+        }
         if (target.enemyClosest == -1) {
             //explore if no units detected
             if (canMove()) {
                 move(Player.enemyLocation);
             }
         } else {
+            Player.sawEnemy = true;
             MapLocation loc = gc.unit(target.enemyClosest).location().mapLocation();
             int distance = distance(loc, curUnit.location().mapLocation());
             if (distance < 10) {
@@ -89,22 +93,20 @@ public class Ranger {
     //returns id of nearest enemy unit and nearest attackable enemy unit
     public static Pair findNearestEnemy() {
         Pair p = new Pair();
-        VecUnit nearby = gc.senseNearbyUnits(curUnit.location().mapLocation(), curUnit.visionRange());
+        VecUnit nearby = gc.senseNearbyUnitsByTeam(curUnit.location().mapLocation(), curUnit.visionRange(), Player.enemyTeam);
         int smallest1 = 9999999;
         int smallest2 = 9999999;
         for (int i = 0; i < nearby.size(); i++) {
             Unit temp3 = nearby.get(i);
-            if (temp3.team() != gc.team()) {
-                MapLocation temp2 = temp3.location().mapLocation();
-                int temp = distance(curUnit.location().mapLocation(), temp2);
-                if (temp < smallest1) {
-                    smallest1 = temp;
-                    p.enemyClosest = temp3.id();
-                }
-                if (temp > 10 && temp < smallest2) {
-                    smallest2 = temp;
-                    p.enemyAttack = temp3.id();
-                }
+            MapLocation temp2 = temp3.location().mapLocation();
+            int temp = distance(curUnit.location().mapLocation(), temp2);
+            if (temp < smallest1) {
+                smallest1 = temp;
+                p.enemyClosest = temp3.id();
+            }
+            if (temp > 10 && temp < smallest2) {
+                smallest2 = temp;
+                p.enemyAttack = temp3.id();
             }
         }
         return p;

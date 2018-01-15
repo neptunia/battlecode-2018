@@ -43,6 +43,7 @@ public class Knight {
 
 		//if this knight has a target
 		if (targets.containsKey(curUnit.id())) {
+			Player.sawEnemy = true;
 			MapLocation targetLoc = gc.unit(targets.get(curUnit.id())).location().mapLocation();
 			//move towards them if my army is stronger
 			if (nearbyInfo.friendly >= nearbyInfo.enemy) {
