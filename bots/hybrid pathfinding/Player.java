@@ -49,9 +49,11 @@ public class Player {
 
             initialize();
 
+            long startTime = 10000;
+            long endTime = 10000;
+
             while (true) {
 
-                long startTime = System.currentTimeMillis();
                 try {
                     currentIncome = 10 - Math.max(gc.karbonite() / 40, 0);
                     long currentRound = gc.round();
@@ -151,10 +153,11 @@ public class Player {
                     e.printStackTrace();
                     System.out.println("fuck me");
                 }
-                long endTime = System.currentTimeMillis();
-                total += endTime - startTime;
-                System.out.println("Time: " + Long.toString(endTime - startTime));
-                System.out.println("Average: " + Long.toString(total / gc.round()));
+                endTime = gc.getTimeLeftMs();
+                total += startTime - endTime;
+                //System.out.println("Time: " + Long.toString(startTime - endTime));
+                //System.out.println("Average: " + Float.toString(total / gc.round()));
+                //System.out.println("Time Left: " + Long.toString(gc.getTimeLeftMs()));
                 prevIncome = currentIncome;
                 Runtime runtime = Runtime.getRuntime();
 
@@ -165,13 +168,14 @@ public class Player {
                 long allocatedMemory = runtime.totalMemory();
                 long freeMemory = runtime.freeMemory();
 
-                sb.append("free memory: " + format.format(freeMemory / 1024) + "<br/>");
-                sb.append("allocated memory: " + format.format(allocatedMemory / 1024) + "<br/>");
-                sb.append("max memory: " + format.format(maxMemory / 1024) + "<br/>");
-                sb.append("total free memory: " + format.format((freeMemory + (maxMemory - allocatedMemory)) / 1024) + "<br/>");
-                System.out.println(sb);
+                //sb.append("free memory: " + format.format(freeMemory / 1024) + "<br/>");
+                //sb.append("allocated memory: " + format.format(allocatedMemory / 1024) + "<br/>");
+                //sb.append("max memory: " + format.format(maxMemory / 1024) + "<br/>");
+                //sb.append("total free memory: " + format.format((freeMemory + (maxMemory - allocatedMemory)) / 1024) + "<br/>");
+                //System.out.println(sb);
                 System.out.println("Enemy location: " + Integer.toString(enemyLocation.getX()) + ", " + Integer.toString(enemyLocation.getY()));
                 System.out.println("Round: " + Long.toString(gc.round()));
+                startTime = endTime;
                 gc.nextTurn();
             }
         } catch (Exception e) {
@@ -243,12 +247,8 @@ public class Player {
         if (enemyLocation == null) {
             enemyLocation = chooseFarthestPoint();
         } else {
-            try {
-                gc.senseNearbyUnits(enemyLocation, 50);
+            if (gc.senseNearbyUnitsByTeam(enemyLocation, 2, myTeam).size() > 0) {
                 enemyLocation = chooseFarthestPoint();
-            } catch (Exception e) {
-                //dont have vision
-                System.out.println("Not there yet");
             }
         }
     }

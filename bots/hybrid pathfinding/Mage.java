@@ -183,6 +183,9 @@ public class Mage {
     //pathing
     //move towards target location
     public static void move(MapLocation target) {
+        if (!gc.isMoveReady(curUnit.id())) {
+            return;
+        }
         //a*
         int movingTo = doubleHash(curUnit.location().mapLocation(), target);
         if (!Player.paths.containsKey(movingTo)) {
@@ -289,7 +292,11 @@ public class Mage {
         if (gc.canMove(curUnit.id(), temp) && canMove()) {
             gc.moveRobot(curUnit.id(), temp);
         } else {
-            //System.out.println("Darn");
+            MapLocation tryToGoTo = curUnit.location().mapLocation().add(temp);
+            Unit blockedBy = gc.senseUnitAtLocation(tryToGoTo);
+            if (blockedBy.unitType() == UnitType.Factory || blockedBy.unitType() == UnitType.Rocket || blockedBy.unitType() == UnitType.Worker) {
+                moveAttack(target);
+            }
         }
     }
 

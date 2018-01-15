@@ -9,8 +9,6 @@ public class Worker {
 	static HashMap<Integer, HashSet<Integer>> visited = new HashMap<Integer, HashSet<Integer>>();
 	//target blueprint to work on for each worker
 	static HashMap<Integer, Integer> target = new HashMap<Integer, Integer>();
-	//bugpathing storing previous square (unit id, hash of location)
-	static HashMap<Integer, Integer> prevLocation = new HashMap<Integer, Integer>();
 	static int rocketsBuilt = 0;
 	static int rocketBlueprintId = -1;
 	static int numFacts = -1;
@@ -250,10 +248,6 @@ public class Worker {
 				for (int a = 0; a < nearby.size(); a++) {
 					Unit temp = nearby.get(a);
 					if (temp.team() == gc.team() && temp.unitType() == UnitType.Worker) {
-						//if changing target of a unit
-						if (prevLocation.containsKey(temp.id()) && prevLocation.get(temp.id()) != targetBlueprint) {
-							prevLocation.remove(temp.id());
-						}
 						target.put(temp.id(), targetBlueprint);
 					}
 				}
@@ -264,6 +258,9 @@ public class Worker {
 
 	//move towards target location
 	public static void move(MapLocation target) {
+		if (!gc.isMoveReady(curUnit.id())) {
+			return;
+		}
 		//a*
 		int movingTo = doubleHash(curUnit.location().mapLocation(), target);
 		if (!Player.paths.containsKey(movingTo)) {
@@ -375,12 +372,48 @@ public class Worker {
 		
 		MapLocation next = new MapLocation(gc.planet(), x, y);
 		Direction temp = curUnit.location().mapLocation().directionTo(next);
-		if (gc.canMove(curUnit.id(), temp) && gc.isMoveReady(curUnit.id())) {
+		if (gc.canMove(curUnit.id(), temp)) {
 			gc.moveRobot(curUnit.id(), temp);
 		} else {
-			//System.out.println("Darn");
+			MapLocation tryToGoTo = curUnit.location().mapLocation().add(temp);
+			Unit blockedBy = gc.senseUnitAtLocation(tryToGoTo);
+			if (blockedBy.unitType() == UnitType.Factory || blockedBy.unitType() == UnitType.Rocket || blockedBy.unitType() == UnitType.Worker) {
+				moveAttack(target);
+			}
 		}
 	}
+
+	public static boolean moveAttack(MapLocation target) {
+        //greedy pathfinding
+        int smallest = 999999;
+        Direction d = null;
+        int curDist = distance(curUnit.location().mapLocation(), target);
+        MapLocation curLoc = curUnit.location().mapLocation();
+        int hash = hash(curLoc.getX(), curLoc.getY());
+        if (!visited.containsKey(curUnit.id())) {
+            HashSet<Integer> temp = new HashSet<Integer>();
+            temp.add(hash);
+            visited.put(curUnit.id(), temp);
+        } else {
+            visited.get(curUnit.id()).add(hash);
+        }
+        for (int i = 0; i < directions.length; i++) {
+            MapLocation newSquare = curLoc.add(directions[i]);
+            int dist = distance(newSquare, target);
+            if (!visited.get(curUnit.id()).contains(hash(newSquare.getX(), newSquare.getY())) && gc.canMove(curUnit.id(), directions[i]) && dist < smallest && dist < curDist) {
+                smallest = distance(newSquare, target);
+                d = directions[i];
+            }
+        }
+        if (d == null) {
+            //can't move
+            //TODO change
+            visited.remove(curUnit.id());
+            return false;
+        }
+        gc.moveRobot(curUnit.id(), d);
+        return true;
+    }
 
 	public static boolean canMove() {
 		return curUnit.movementHeat() < 10;
