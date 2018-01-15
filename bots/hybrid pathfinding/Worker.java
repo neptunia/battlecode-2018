@@ -236,7 +236,7 @@ public class Worker {
 			MapLocation current = queue.poll();
 			boolean hasStructure = false;
 			for (int i = 0; i < directions.length; i++) {
-				MapLocation test = current.add(i);
+				MapLocation test = current.add(directions[i]);
 				int testHash = hash(test);
 				if (!visited.contains(testHash) && checkPassable(test)) {
 					visited.add(testHash);
@@ -261,12 +261,12 @@ public class Worker {
 			findBlueprintLocation();
 		}
 		MapLocation blueprintLocation = buildBlueprintLocation.get(curUnit.id());
-		MapLocation curLoc = curUnit.location().mapLocation()
+		MapLocation curLoc = curUnit.location().mapLocation();
 		Direction dirToBlueprint = curLoc.directionTo(blueprintLocation);
 		//if i can build it
 		if (gc.canBlueprint(curUnit.id(), type, dirToBlueprint)) {
 			gc.blueprint(curUnit.id(), type, dirToBlueprint);
-			int targetBlueprint = gc.senseUnitAtLocation(curUnit.location().mapLocation().add(directions[i])).id();
+			int targetBlueprint = gc.senseUnitAtLocation(curUnit.location().mapLocation().add(dirToBlueprint)).id();
 			if (type == UnitType.Rocket) {
 				rocketBlueprintId = targetBlueprint;
 				rocketsBuilt++;
