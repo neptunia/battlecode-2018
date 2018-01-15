@@ -55,6 +55,8 @@ public class Player {
             //do research
             gc.queueResearch(UnitType.Ranger);
             gc.queueResearch(UnitType.Rocket);
+            gc.queueResearch(UnitType.Ranger);
+            gc.queueResearch(UnitType.Ranger);
 
             long startTime = 10000;
             long endTime = 10000;
