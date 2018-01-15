@@ -16,9 +16,10 @@ public class Worker {
 	static boolean karbonitesLeft = true;
 	static int numWorkers = -1;
 	static MapLocation[] karbonites;
+	static MapLocation curLoc;
 	static int numKarbsCounter = 0;
-	static MapLocation lastStructure = null;
 	static HashMap<Integer, MapLocation> karboniteTargets = new HashMap<Integer, MapLocation>();
+	static HashMap<Integer, MapLocation> lastStructure = new HashMap<Integer, MapLocation>();
 
 	public static void run(GameController gc, Unit curUnit) {
 
@@ -29,6 +30,8 @@ public class Worker {
 		if (curUnit.location().isInGarrison()) {
 			return;
 		}
+
+		curLoc = curUnit.location().mapLocation();
 
 		//TODO: if on mars temporary code
 		if (gc.planet() == Planet.Mars) {
@@ -66,7 +69,6 @@ public class Worker {
 			} else {
 				//goto it and build it
 				MapLocation blueprintLoc = toWorkOn.location().mapLocation();
-				MapLocation curLoc = curUnit.location().mapLocation();
 				if (distance(blueprintLoc, curLoc) <= 2) {
 					//next to it, i can work on it
 					if (!buildBlueprint(targetBlueprint)) {
@@ -129,7 +131,13 @@ public class Worker {
 				goMine();
 			} else {
 				//go back near base
-				move(Player.startingLocation);
+				//blocking other people
+				//int tempX = curLoc.getX();
+				//int tempY = curLoc.getY();
+				//if ((goAble(tempX - 1, tempY) || goAble(tempX + 1, tempY)) && (goAble(tempX, tempY - 1) || goAble(tempX, tempY + 1))) {
+					move(Player.startingLocation);
+				//}
+				
 			}
 			
 		}
@@ -137,7 +145,6 @@ public class Worker {
 	}
 
 	public static void goMine() {
-		MapLocation curLoc = curUnit.location().mapLocation();
 		//if already have a karbonite target
 		if (karboniteTargets.get(curUnit.id()) != null && karboniteTargets.containsKey(curUnit.id())) {
 			MapLocation theKarb = karboniteTargets.get(curUnit.id());
@@ -171,7 +178,6 @@ public class Worker {
 	}
 
 	public static void takeCareOfKarbonite() {
-		MapLocation curLoc = curUnit.location().mapLocation();
 		MapLocation newTarget = selectKarbonite();
 		if (newTarget == null) {
 			return;
@@ -201,7 +207,6 @@ public class Worker {
 	public static MapLocation selectKarbonite() {
 		int smallest = 9999999;
 		MapLocation karb = null;
-		MapLocation curLoc = curUnit.location().mapLocation();
 		for (int i = 0; i < numKarbsCounter; i++) {
 			if (karbonites[i] != null) {
 				int dist = distance(curLoc, karbonites[i]);
@@ -229,13 +234,10 @@ public class Worker {
 	//bfs to find square such that there are no other factories or rockets around range n of it
 	public static void findBlueprintLocation(UnitType type) {
 		LinkedList<MapLocation> queue = new LinkedList<MapLocation>();
-		MapLocation curLoc = curUnit.location().mapLocation();
 		HashSet<Integer> visited = new HashSet<Integer>();
 		int curHash = hash(curLoc);
-		if (type == UnitType.Factory) {
-			queue.add(curLoc);
-		} else if (lastStructure != null) {
-			queue.add(lastStructure);
+		if (lastStructure.containsKey(curUnit.id())) {
+			queue.add(lastStructure.get(curUnit.id()));
 		} else {
 			queue.add(curLoc);
 		}
@@ -271,6 +273,17 @@ public class Worker {
 		return (x >= 0 && y >= 0 && x < Player.gridX && y < Player.gridY) && Player.gotoable[x][y];
 	}
 
+	//make sure workers dont get stuck between a factory and rocket
+	public static boolean goAble2(int x, int y) {
+		try {
+			Unit asdf = gc.senseUnitAtLocation(new MapLocation(gc.planet(), x, y));
+			if (asdf.unitType() == UnitType.Factory || asdf.unitType() == UnitType.Rocket || asdf.unitType() == UnitType.Worker) {
+				return false;
+			}
+		} catch (Exception e) {};
+		return (x >= 0 && y >= 0 && x < Player.gridX && y < Player.gridY) && Player.gotoable[x][y];
+	}
+
 	public static void buildStructure(UnitType type) {
 		System.out.println("build structure");
 		if (!buildBlueprintLocation.containsKey(curUnit.id())) {
@@ -278,12 +291,11 @@ public class Worker {
 		}
 		MapLocation blueprintLocation = buildBlueprintLocation.get(curUnit.id());
 		System.out.println("Blueprint coords: " + Integer.toString(blueprintLocation.getX()) + ", " + Integer.toString(blueprintLocation.getY()));
-		MapLocation curLoc = curUnit.location().mapLocation();
 		Direction dirToBlueprint = curLoc.directionTo(blueprintLocation);
 		//if i can build it
 		if (distance(curLoc, blueprintLocation) <= 2 && gc.canBlueprint(curUnit.id(), type, dirToBlueprint)) {
 			gc.blueprint(curUnit.id(), type, dirToBlueprint);
-			lastStructure = blueprintLocation;
+			lastStructure.put(curUnit.id(), blueprintLocation);
 			buildBlueprintLocation.remove(curUnit.id());
 			int targetBlueprint = gc.senseUnitAtLocation(curUnit.location().mapLocation().add(dirToBlueprint)).id();
 			if (type == UnitType.Rocket) {
@@ -310,7 +322,6 @@ public class Worker {
     //pathing
     //move towards target location
     public static void move(MapLocation target) {
-        MapLocation curLoc = curUnit.location().mapLocation();
         int startHash = hash(curLoc);
         int goal = hash(target);
         if (!gc.isMoveReady(curUnit.id()) || startHash == goal) {
@@ -448,7 +459,6 @@ public class Worker {
         int smallest = 999999;
         Direction d = null;
         int curDist = distance(curUnit.location().mapLocation(), target);
-        MapLocation curLoc = curUnit.location().mapLocation();
         int hash = hash(curLoc.getX(), curLoc.getY());
         if (!visited.containsKey(curUnit.id())) {
             HashSet<Integer> temp = new HashSet<Integer>();
