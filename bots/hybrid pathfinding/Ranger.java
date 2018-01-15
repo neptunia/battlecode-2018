@@ -22,6 +22,10 @@ public class Ranger {
         if (Player.timesReachedTarget >= 3 && target.enemyClosest == -1) {
             return;
         }
+        if (target.enemyClosest != -1 && gc.unit(target.enemyClosest).unitType() == UnitType.Ranger) {
+            rangerMicro(target.enemyClosest);
+        }
+
         if (target.enemyClosest == -1) {
             //explore if no units detected
             if (canMove()) {
@@ -66,8 +70,43 @@ public class Ranger {
 
     }
 
+    // ranger micro for ranger v ranger action
+    // only called when nearest enemy is a ranger, and our vision is upgraded
+    // takes in enemy ID
+    public static void rangerMicro(int enemyid) {
+        MapLocation enemyLoc = gc.unit(enemyid).location().mapLocation();
+        MapLocation myLoc = curUnit.location().mapLocation();
+        int dist = distance(myLoc, enemyLoc);
+        if (dist <= 10) {
+            // too close!
+            moveAway(enemyLoc);
+            attackNearbyEnemies();
+            return;
+        }
+        if (dist <= 50) {
+            // within attack range
+            gc.attack(curUnit.id(), enemyid);
+            moveAway(enemyLoc);
+            return;
+        }
+        if (dist <= 70) {
+            // within moveattack range
+            if (moveCloser(enemyLoc)) {
+                // move was successful
+                gc.attack(curUnit.id(), enemyid);
+            }
+            return;
+        }
+        // if distance is between 70 and 100, dont do anything
+        if (dist == 100) {
+            moveCloser(enemyLoc);
+        }
+
+    }
+
+
     //calc which direction maximizes distance between enemy and ranger
-    public static void moveAway(MapLocation enemy) {
+    public static boolean moveAway(MapLocation enemy) {
         int best = distance(curUnit.location().mapLocation(), enemy);
         Direction bestd = null;
         for (int i = 0; i < directions.length; i++) {
@@ -79,7 +118,27 @@ public class Ranger {
         }
         if (bestd != null) {
             gc.moveRobot(curUnit.id(), bestd);
+            return true;
         }
+        return false;
+    }
+
+    // calc which direction minimizes distance between enemy and ranger
+    public static boolean moveCloser(MapLocation enemy) {
+        int best = distance(curUnit.location().mapLocation(), enemy);
+        Direction bestd = null;
+        for (int i = 0; i < directions.length; i++) {
+            MapLocation temp = curUnit.location().mapLocation().add(directions[i]);
+            if (gc.canMove(curUnit.id(), directions[i]) && distance(temp, enemy) < best) {
+                best = distance(temp, enemy);
+                bestd = directions[i];
+            }
+        }
+        if (bestd != null) {
+            gc.moveRobot(curUnit.id(), bestd);
+            return true;
+        }
+        return false;
     }
 
     public static class Pair { //DIFFERENT FROM PAIR IN KNIGHT CLASS
