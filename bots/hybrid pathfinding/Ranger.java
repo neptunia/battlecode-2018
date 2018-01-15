@@ -9,12 +9,19 @@ public class Ranger {
     static Direction[] directions = Direction.values();
     static HashMap<Integer, HashSet<Integer>> visited = new HashMap<Integer, HashSet<Integer>>();
     static HashMap<Integer, Integer> prevLocation = new HashMap<Integer, Integer>();
+    static HashMap<Integer, MapLocation> priorityTarget = new HashMap<Integer, MapLocation>();
 
     public static void run(GameController gc, Unit curUnit) {
 
         Ranger.curUnit = curUnit;
 
         if (curUnit.location().isInGarrison()) {
+            return;
+        }
+
+        if (priorityTarget.containsKey(curUnit.id())) {
+            //i have a priority target
+            move(priorityTarget.get(curUnit.id()));
             return;
         }
 

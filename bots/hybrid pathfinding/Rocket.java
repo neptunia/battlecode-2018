@@ -11,6 +11,7 @@ public class Rocket {
         Rocket.curUnit = curUnit;
 
         if (curUnit.location().isInSpace()) {
+
             //in space
             return;
         } else if (curUnit.location().isOnPlanet(Planet.Earth)) {
@@ -31,6 +32,13 @@ public class Rocket {
                 MapLocation marsStart = new MapLocation(Planet.Mars, curUnit.location().mapLocation().getX(), curUnit.location().mapLocation().getY());
                 if (gc.canLaunchRocket(curUnit.id(), marsStart)) {
                     gc.launchRocket(curUnit.id(), marsStart);
+                    int myHash = hash(curUnit.location().mapLocation());
+                    for (Integer key : Factory.presetTargets.keySet()) {
+                        if (myHash == hash(Factory.presetTargets.get(key))) {
+                            Factory.presetTargets.remove(key);
+                            break;
+                        }
+                    }
                 } else {
                     for (int i = 0; i < marsmap.getWidth(); i++) {
                         boolean stop = false;
@@ -61,5 +69,9 @@ public class Rocket {
             }
         }
 
+    }
+
+    public static int hash(MapLocation loc) {
+        return 69 * loc.getX() + loc.getY();
     }
 }

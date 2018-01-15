@@ -139,7 +139,7 @@ public class Worker {
 				//int tempX = curLoc.getX();
 				//int tempY = curLoc.getY();
 				//if ((goAble(tempX - 1, tempY) || goAble(tempX + 1, tempY)) && (goAble(tempX, tempY - 1) || goAble(tempX, tempY + 1))) {
-					move(Player.startingLocation);
+					//move(Player.startingLocation);
 				//}
 				
 			}
@@ -303,6 +303,12 @@ public class Worker {
 		//if i can build it
 		if (distance(curLoc, blueprintLocation) <= 2 && gc.canBlueprint(curUnit.id(), type, dirToBlueprint)) {
 			gc.blueprint(curUnit.id(), type, dirToBlueprint);
+			if (type == UnitType.Rocket) {
+				MapLocation factoryLocation = lastStructure.get(curUnit.id());
+				int unitID = gc.senseUnitAtLocation(factoryLocation).id();
+				//set preset target from this factory go to rocket location
+				Factory.presetTargets.put(unitID, blueprintLocation);
+			}
 			buildBlueprintLocation.remove(curUnit.id());
 			int targetBlueprint = gc.senseUnitAtLocation(curUnit.location().mapLocation().add(dirToBlueprint)).id();
 			if (type == UnitType.Rocket) {

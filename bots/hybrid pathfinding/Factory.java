@@ -1,10 +1,13 @@
 import bc.*;
+import java.util.*;
 
 public class Factory {
 
 	static Unit curUnit;
 	static GameController gc;
 	static int c = 0;
+	//factory id, target
+	static HashMap<Integer, MapLocation> presetTargets = new HashMap<Integer, MapLocation>();
 
 	public static void run(GameController gc, Unit curUnit) {
 
@@ -26,7 +29,11 @@ public class Factory {
 			for (int a = 0; a < directions.length; a++) {
 				if (gc.canUnload(curUnit.id(), directions[a])) {
 					gc.unload(curUnit.id(), directions[a]);
-					//TODO update RobotPlayer.map with location of placed down robot
+					//set the unit's target to preset target
+					if (presetTargets.containsKey(curUnit.id())) {
+						MapLocation target = presetTargets.get(curUnit.id());
+						Ranger.priorityTarget.put(garrison.get(i), target);
+					}
 					break;
 				}
 			}
