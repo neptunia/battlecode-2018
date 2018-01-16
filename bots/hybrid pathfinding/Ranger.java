@@ -42,47 +42,12 @@ public class Ranger {
         if (Player.timesReachedTarget >= 3 && target.enemyClosest == -1) {
             return;
         }
-        if (target.enemyClosest != -1 && curUnit.visionRange() == 100 && gc.unit(target.enemyClosest).unitType() == UnitType.Ranger) {
+        if (target.enemyClosest != -1) {
             rangerMicro(target.enemyClosest);
         } else if (target.enemyClosest == -1) {
             //explore if no units detected
             if (canMove()) {
                 move(Player.enemyLocation);
-            }
-        } else {
-            Player.sawEnemy = true;
-            MapLocation loc = gc.unit(target.enemyClosest).location().mapLocation();
-            int distance = distance(loc, curUnit.location().mapLocation());
-            if (distance < 10) {
-                //move away, they're not even attackable! attack someone else instead.
-                if (canAttack() && gc.canAttack(curUnit.id(), target.enemyAttack)) {
-                    gc.attack(curUnit.id(), target.enemyAttack);
-                }
-                if (canMove()) {
-                    moveAway(loc);
-                }
-            } else if (distance <= 30) {
-                //move away, they're too close!
-                if (canAttack() && gc.canAttack(curUnit.id(), target.enemyClosest)) {
-                    gc.attack(curUnit.id(), target.enemyClosest);
-                }
-                if (canMove()) {
-                    moveAway(loc);
-                }
-            } else if (distance <= 50) {
-                //attack them
-                if (canAttack() && gc.canAttack(curUnit.id(), target.enemyClosest)) {
-                    gc.attack(curUnit.id(), target.enemyClosest);
-                }
-            } else {
-                //they're too far away, move towards them
-                if (canMove()) {
-                    moveAttack(loc);
-                }
-
-                if (canAttack() && gc.canAttack(curUnit.id(), target.enemyClosest)) {
-                    gc.attack(curUnit.id(), target.enemyClosest);
-                }
             }
         }
 
@@ -178,7 +143,7 @@ public class Ranger {
         Pair p = new Pair();
         VecUnit nearby = gc.senseNearbyUnitsByTeam(curUnit.location().mapLocation(), curUnit.visionRange(), Player.enemyTeam);
         int smallest1 = 9999999;
-        int smallest2 = 9999999;
+        int smallest2 = (int)curUnit.attackRange();
         for (int i = 0; i < nearby.size(); i++) {
             Unit temp3 = nearby.get(i);
             MapLocation temp2 = temp3.location().mapLocation();
@@ -187,7 +152,7 @@ public class Ranger {
                 smallest1 = temp;
                 p.enemyClosest = temp3.id();
             }
-            if (temp > 10 && temp < smallest2) {
+            if (temp >= 10 && temp <= smallest2) {
                 smallest2 = temp;
                 p.enemyAttack = temp3.id();
             }

@@ -43,7 +43,7 @@ public class Worker {
 			lastStructure.put(curUnit.id(), curLoc);
 		}
 
-		if (gc.round() == 1) {
+		if (gc.round() < 5) {
 			//Initial replication
 			for (int i = 0; i < directions.length; i++) {
 				if (gc.canReplicate(curUnit.id(), directions[i])) {
