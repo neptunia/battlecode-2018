@@ -21,7 +21,6 @@ public class Player {
     static boolean gotoableEmpty;
     static MapLocation[] unitLocations;
     static int numUnitsThisRound;
-    static int workerCount = 0;
     static int timesReachedTarget = 0;
     static boolean sawEnemy = false;
     //static boolean splitMap = false;

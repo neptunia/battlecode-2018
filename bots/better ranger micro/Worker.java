@@ -22,44 +22,8 @@ public class Worker {
 	static HashMap<Integer, MapLocation> karboniteTargets = new HashMap<Integer, MapLocation>();
 	static HashMap<Integer, MapLocation> lastStructure = new HashMap<Integer, MapLocation>();
 	static HashSet<Integer> structuresToBuild = new HashSet<Integer>();
-	static HashMap<Integer, Integer> initialRep = new HashMap<Integer, Integer>();
 	static HashMap<Integer, MapLocation> idleToMove = new HashMap<Integer, MapLocation>();
 	static HashMap<Integer, Boolean> goodPosition = new HashMap<Integer, Boolean>();
-
-	public static int initialRepCount() {
-		//count available squares with range 15 of me
-		LinkedList<MapLocation> queue = new LinkedList<MapLocation>();
-		HashSet<Integer> visited = new HashSet<Integer>();
-		int curHash = hash(curLoc);
-		queue.add(curLoc);
-
-		int count = 0;
-		
-		visited.add(curHash);
-		
-		while (!queue.isEmpty()) {
-			MapLocation current = queue.poll();
-			count++;
-			
-			for (int i = 0; i < directions.length; i++) {
-				MapLocation test = current.add(directions[i]);
-				int testHash = hash(test);
-				if (!visited.contains(testHash) && goAble(test.getX(), test.getY()) && distance(test, curLoc) < 9) {
-					visited.add(testHash);
-					queue.add(test);
-				}
-				
-			}
-		}
-
-		if (count < 10) {
-			return 1;
-		}
-		if (count < 18) {
-			return 2;
-		}
-		return 3;
-	}
 
 	public static void run(GameController gc, Unit curUnit) {
 
@@ -81,18 +45,11 @@ public class Worker {
 			lastStructure.put(curUnit.id(), curLoc);
 		}
 
-		if (!initialRep.containsKey(curUnit.id())) {
-			Player.workerCount++;
-			initialRep.put(curUnit.id(), initialRepCount());
-		}
-
-		if (gc.round() <= initialRep.get(curUnit.id()) && Player.workerCount < 8) {
-
+		if (gc.round() <= 3) {
 			//Initial replication
 			for (int i = 0; i < directions.length; i++) {
 				if (gc.canReplicate(curUnit.id(), directions[i])) {
 					gc.replicate(curUnit.id(), directions[i]);
-					Player.workerCount++;
 					break;
 				}
 			}
@@ -122,7 +79,7 @@ public class Worker {
                 }
 			} else {
 				//goto it and build it
-
+				
 				if (distance(blueprintLoc, curLoc) <= 2) {
 					//next to it, i can work on it
 					if (!buildBlueprint(targetBlueprint)) {
@@ -139,7 +96,7 @@ public class Worker {
 					}
 				}
 			}
-			VecUnit nearby = gc.senseNearbyUnitsByTeam(curUnit.location().mapLocation(), 9, Player.myTeam);
+			VecUnit nearby = gc.senseNearbyUnitsByTeam(curUnit.location().mapLocation(), 4, Player.myTeam);
 			for (int a = 0; a < nearby.size(); a++) {
 				Unit temp = nearby.get(a);
 				if (temp.unitType() == UnitType.Worker) {
@@ -194,10 +151,14 @@ public class Worker {
 				goMine();
 			} else {
 				//move to somewhere where worker won't block the way
-				Random r = new Random();
-				int dir = new Random().nextInt(directions.length);
-				if (gc.isMoveReady(curUnit.id()) && gc.canMove(curUnit.id(), directions[dir])) {
-					gc.moveRobot(curUnit.id(), directions[dir]);
+				if ((!goodPosition.containsKey(curUnit.id()) || !goodPosition.get(curUnit.id())) && !idleToMove.containsKey(curUnit.id())) {
+					MapLocation open = findBlueprintLocation();
+					idleToMove.put(curUnit.id(), open);
+				}
+				if (hash(curLoc) == hash(idleToMove.get(curUnit.id()))) {
+					goodPosition.put(curUnit.id(), true);
+				} else {
+					move(idleToMove.get(curUnit.id()));
 				}
 			}
 			
@@ -405,7 +366,7 @@ public class Worker {
                 numFacts++;
             }
 			//tell all nearby workers to go work on it
-			VecUnit nearby = gc.senseNearbyUnitsByTeam(curUnit.location().mapLocation(), 9, Player.myTeam);
+			VecUnit nearby = gc.senseNearbyUnitsByTeam(curUnit.location().mapLocation(), 4, Player.myTeam);
 			for (int a = 0; a < nearby.size(); a++) {
 				Unit temp = nearby.get(a);
 				if (temp.unitType() == UnitType.Worker) {
@@ -551,6 +512,7 @@ public class Worker {
         Direction temp = curUnit.location().mapLocation().directionTo(next);
         if (gc.canMove(curUnit.id(), temp)) {
             gc.moveRobot(curUnit.id(), temp);
+            goodPosition.put(curUnit.id(), false);
         } else {
             //blocked by something
             MapLocation tryToGoTo = curUnit.location().mapLocation().add(temp);
@@ -592,6 +554,7 @@ public class Worker {
             return false;
         }
         gc.moveRobot(curUnit.id(), d);
+        goodPosition.put(curUnit.id(), false);
         return true;
     }
 
