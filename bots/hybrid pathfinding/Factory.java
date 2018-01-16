@@ -8,6 +8,7 @@ public class Factory {
 	static int c = 0;
 	//factory id, target
 	static HashMap<Integer, MapLocation> presetTargets = new HashMap<Integer, MapLocation>();
+	static HashMap<Integer, Integer> presetCounter = new HashMap<Integer, Integer>();
 
 	public static void run(GameController gc, Unit curUnit) {
 
@@ -33,6 +34,11 @@ public class Factory {
 					if (presetTargets.containsKey(curUnit.id())) {
 						MapLocation target = presetTargets.get(curUnit.id());
 						Ranger.priorityTarget.put(garrison.get(i), target);
+						presetCounter.put(curUnit.id(), presetCounter.get(curUnit.id()) + 1);
+						if (presetCounter.get(curUnit.id()) >= 6) {
+							presetCounter.remove(curUnit.id());
+							presetTargets.remove(curUnit.id());
+						}
 					}
 					break;
 				}

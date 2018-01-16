@@ -43,7 +43,7 @@ public class Worker {
 			lastStructure.put(curUnit.id(), curLoc);
 		}
 
-		if (gc.round() == 1) {
+		if (gc.round() <= 3) {
 			//Initial replication
 			for (int i = 0; i < directions.length; i++) {
 				if (gc.canReplicate(curUnit.id(), directions[i])) {
@@ -68,6 +68,7 @@ public class Worker {
 		if (target.containsKey(curUnit.id())) {
 			int targetBlueprint = target.get(curUnit.id());
 			Unit toWorkOn = gc.unit(targetBlueprint);
+			MapLocation blueprintLoc = toWorkOn.location().mapLocation();
 			//already done working on
 			if (toWorkOn.health() == toWorkOn.maxHealth()) {
 				target.remove(curUnit.id());
@@ -76,13 +77,14 @@ public class Worker {
                 }
 			} else {
 				//goto it and build it
-				MapLocation blueprintLoc = toWorkOn.location().mapLocation();
+				
 				if (distance(blueprintLoc, curLoc) <= 2) {
 					//next to it, i can work on it
 					if (!buildBlueprint(targetBlueprint)) {
-						System.out.println("SUM TING WONG :(");
+						target.remove(curUnit.id());
 					} else {
 						doingAThing = true;
+						return;
 					}
 				} else {
 					//move towards it
@@ -90,6 +92,14 @@ public class Worker {
 						move(blueprintLoc);
 						doingAThing = true;
 					}
+				}
+			}
+			VecUnit nearby = gc.senseNearbyUnitsByTeam(curUnit.location().mapLocation(), 4, Player.myTeam);
+			for (int a = 0; a < nearby.size(); a++) {
+				Unit temp = nearby.get(a);
+				if (temp.unitType() == UnitType.Worker) {
+					target.put(temp.id(), targetBlueprint);
+					lastStructure.put(temp.id(), blueprintLoc);
 				}
 			}
 		}
@@ -259,7 +269,7 @@ public class Worker {
 				continue;
 			}
 			int around = 0;
-			VecUnit nearby = gc.senseNearbyUnitsByTeam(current, 2, Player.myTeam);
+			VecUnit nearby = gc.senseNearbyUnitsByTeam(current, 1, Player.myTeam);
 			for (int i = 0; i < nearby.size(); i++) {
 				UnitType temp = nearby.get(i).unitType();
 				//TODO maybe add unittype.rocket too
@@ -333,6 +343,7 @@ public class Worker {
 				int unitID = gc.senseUnitAtLocation(factoryLocation).id();
 				//set preset target from this factory go to rocket location
 				Factory.presetTargets.put(unitID, blueprintLocation);
+				Factory.presetCounter.put(unitID, 0);
 			}
 			buildBlueprintLocation.remove(curUnit.id());
 			
