@@ -17,6 +17,7 @@ public class Player {
     static long prevIncome;
     static long currentIncome;
     static boolean[][] gotoable;
+    static UnitType[][] units;
     static boolean gotoableEmpty;
     static MapLocation[] unitLocations;
     static int numUnitsThisRound;
@@ -76,6 +77,7 @@ public class Player {
             long endTime = 10000;
 
             unitLocations = new MapLocation[5000];
+            units = new UnitType[gridX][gridY];
 
             while (true) {
                 if (gc.planet() == Planet.Earth && gc.round() >= 750) {
@@ -95,9 +97,14 @@ public class Player {
                     Unit curUnit = myUnits.get(i);
                     try {
                         MapLocation curLoc = curUnit.location().mapLocation();
+                        units[curLoc.getX()][curLoc.getY()] = curUnit.unitType();
                         unitLocations[numUnitsThisRound] = curLoc;
                         numUnitsThisRound++;
                     } catch (Exception e) {};
+                }
+                for (int i = 0; i < numberOfUnits; i++) {
+                    Unit curUnit = myUnits.get(i);
+                    
                     //perform unit task based on unit type
                     switch (curUnit.unitType()) {
                         case Factory:

@@ -13,6 +13,7 @@ public class Worker {
 	static int rocketsBuilt = 0;
 	static int rocketBlueprintId = -1;
 	static int numFacts = 0;
+	static Planet curPlanet;
 	static boolean karbonitesLeft = true;
 	static int numWorkers = -1;
 	static MapLocation[] karbonites;
@@ -24,9 +25,8 @@ public class Worker {
 
 	public static void run(GameController gc, Unit curUnit) {
 
-		//Note: with bugmove, whenever a unit changes target, then prevLocation should remove their unit id from its keys
-
 		Worker.curUnit = curUnit;
+		curPlanet = gc.planet();
 
 		if (curUnit.location().isInGarrison()) {
 			return;
@@ -326,14 +326,16 @@ public class Worker {
 		//if i can build it
 		if (distance(curLoc, blueprintLocation) <= 2 && gc.canBlueprint(curUnit.id(), type, dirToBlueprint)) {
 			gc.blueprint(curUnit.id(), type, dirToBlueprint);
+			int targetBlueprint = gc.senseUnitAtLocation(curUnit.location().mapLocation().add(dirToBlueprint)).id();
 			if (type == UnitType.Rocket) {
 				MapLocation factoryLocation = lastStructure.get(curUnit.id());
+				System.out.println(factoryLocation);
 				int unitID = gc.senseUnitAtLocation(factoryLocation).id();
 				//set preset target from this factory go to rocket location
 				Factory.presetTargets.put(unitID, blueprintLocation);
 			}
 			buildBlueprintLocation.remove(curUnit.id());
-			int targetBlueprint = gc.senseUnitAtLocation(curUnit.location().mapLocation().add(dirToBlueprint)).id();
+			
 			if (type == UnitType.Rocket) {
 				rocketBlueprintId = targetBlueprint;
 				rocketsBuilt++;
@@ -432,7 +434,7 @@ public class Worker {
 
                 int tempY = current % 69;
                 int tempX = (current - tempY) / 69;
-                curLoc = new MapLocation(gc.planet(), tempX, tempY);
+                curLoc = new MapLocation(curPlanet, tempX, tempY);
 
                 //System.out.println("Node im on " + print(current));
 
@@ -495,7 +497,7 @@ public class Worker {
                 Unit blockedBy = gc.senseUnitAtLocation(tryToGoTo);
                 if (blockedBy.unitType() == UnitType.Factory || blockedBy.unitType() == UnitType.Rocket || blockedBy.unitType() == UnitType.Worker) {
                     //if im not blocked by an attacking unit, then move aside
-                    moveAttack(next);
+                    moveAttack(target);
                 }
             }
         }
@@ -555,9 +557,12 @@ public class Worker {
 
 	//workers, terrain, and off map are obstacles
 	public static boolean checkPassable(MapLocation test) {
-        if (test.getX() >= Player.gridX || test.getY() >= Player.gridY || test.getX() < 0 || test.getY() < 0) {
+		int x = test.getX();
+		int y = test.getY();
+        if (x >= Player.gridX || y >= Player.gridY || x < 0 || y < 0) {
             return false;
         }
+        /*
         boolean allyThere = true;
         try {
             Unit temp = gc.senseUnitAtLocation(test);
@@ -566,8 +571,8 @@ public class Worker {
             }
         } catch (Exception e) {
             allyThere = false;
-        }
-        return Player.planetMap.isPassableTerrainAt(test) == 1 && !allyThere;
+        }*/
+        return Player.gotoable[x][y];// && !allyThere;
     }
 
     //workers are obstacles

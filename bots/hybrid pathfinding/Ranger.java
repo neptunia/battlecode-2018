@@ -7,6 +7,7 @@ public class Ranger {
     static Unit curUnit;
     static GameController gc;
     static Direction[] directions = Direction.values();
+    static Planet curPlanet;
     static MapLocation curLoc;
     static HashMap<Integer, HashSet<Integer>> visited = new HashMap<Integer, HashSet<Integer>>();
     static HashMap<Integer, Integer> prevLocation = new HashMap<Integer, Integer>();
@@ -15,6 +16,7 @@ public class Ranger {
     public static void run(GameController gc, Unit curUnit) {
 
         Ranger.curUnit = curUnit;
+        curPlanet = gc.planet();
 
         if (curUnit.location().isInGarrison()) {
             return;
@@ -337,7 +339,7 @@ public class Ranger {
 
                 int tempY = current % 69;
                 int tempX = (current - tempY) / 69;
-                curLoc = new MapLocation(gc.planet(), tempX, tempY);
+                curLoc = new MapLocation(curPlanet, tempX, tempY);
 
                 //System.out.println("Node im on " + print(current));
 
@@ -390,7 +392,7 @@ public class Ranger {
         int y = toMove % 69;
         int x = (toMove - y) / 69;
 
-        MapLocation next = new MapLocation(gc.planet(), x, y);
+        MapLocation next = new MapLocation(curPlanet, x, y);
         Direction temp = curUnit.location().mapLocation().directionTo(next);
         if (gc.canMove(curUnit.id(), temp)) {
             gc.moveRobot(curUnit.id(), temp);
@@ -400,7 +402,7 @@ public class Ranger {
             Unit blockedBy = gc.senseUnitAtLocation(tryToGoTo);
             if (blockedBy.unitType() == UnitType.Factory || blockedBy.unitType() == UnitType.Rocket || blockedBy.unitType() == UnitType.Worker) {
                 //if im not blocked by an attacking unit, then move aside
-                moveAttack(next);
+                moveAttack(target);
             }
         }
     }
@@ -423,11 +425,13 @@ public class Ranger {
     }
 
     public static boolean checkPassable(MapLocation test) {
-        if (test.getX() >= Player.gridX || test.getY() >= Player.gridY || test.getX() < 0 || test.getY() < 0) {
+        int x = test.getX();
+        int y = test.getY();
+        if (x >= Player.gridX || y >= Player.gridY || x < 0 || y < 0) {
             return false;
         }
+        /*
         boolean allyThere = true;
-        //factories and rockets count as obstacles
         try {
             Unit temp = gc.senseUnitAtLocation(test);
             if (temp.unitType() != UnitType.Factory && temp.unitType() != UnitType.Rocket) {
@@ -435,8 +439,8 @@ public class Ranger {
             }
         } catch (Exception e) {
             allyThere = false;
-        }
-        return Player.planetMap.isPassableTerrainAt(test) == 1 && !allyThere;
+        }*/
+        return Player.gotoable[x][y];// && !allyThere;
     }
 
     public static int hash(int x, int y) {
