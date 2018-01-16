@@ -507,7 +507,7 @@ public class Worker {
         //greedy pathfinding
         int smallest = 999999;
         Direction d = null;
-        int curDist = distance(curUnit.location().mapLocation(), target);
+        //int curDist = distance(curUnit.location().mapLocation(), target);
         int hash = hash(curLoc.getX(), curLoc.getY());
         if (!visited.containsKey(curUnit.id())) {
             HashSet<Integer> temp = new HashSet<Integer>();
@@ -519,7 +519,7 @@ public class Worker {
         for (int i = 0; i < directions.length; i++) {
             MapLocation newSquare = curLoc.add(directions[i]);
             int dist = distance(newSquare, target);
-            if (!visited.get(curUnit.id()).contains(hash(newSquare.getX(), newSquare.getY())) && gc.canMove(curUnit.id(), directions[i]) && dist < smallest && dist < curDist) {
+            if (!visited.get(curUnit.id()).contains(hash(newSquare.getX(), newSquare.getY())) && gc.canMove(curUnit.id(), directions[i]) && dist < smallest) {
                 smallest = distance(newSquare, target);
                 d = directions[i];
             }
@@ -562,7 +562,7 @@ public class Worker {
         if (x >= Player.gridX || y >= Player.gridY || x < 0 || y < 0) {
             return false;
         }
-        /*
+       	/*
         boolean allyThere = true;
         try {
             Unit temp = gc.senseUnitAtLocation(test);

@@ -106,28 +106,30 @@ public class Player {
                     Unit curUnit = myUnits.get(i);
                     
                     //perform unit task based on unit type
-                    switch (curUnit.unitType()) {
-                        case Factory:
-                            Factory.run(gc, curUnit);
-                            break;
-                        case Healer:
-                            Healer.run(gc, curUnit);
-                            break;
-                        case Knight:
-                            Knight.run(gc, curUnit);
-                            break;
-                        case Mage:
-                            Mage.run(gc, curUnit);
-                            break;
-                        case Ranger:
-                        	Ranger.run(gc, curUnit);
-                            break;
-                        case Rocket:
-                            Rocket.run(gc, curUnit);
-                            break;
-                        case Worker:
-                            Worker.run(gc, curUnit);
-                    }
+                    try {
+                        switch (curUnit.unitType()) {
+                            case Factory:
+                                Factory.run(gc, curUnit);
+                                break;
+                            case Healer:
+                                Healer.run(gc, curUnit);
+                                break;
+                            case Knight:
+                                Knight.run(gc, curUnit);
+                                break;
+                            case Mage:
+                                Mage.run(gc, curUnit);
+                                break;
+                            case Ranger:
+                            	Ranger.run(gc, curUnit);
+                                break;
+                            case Rocket:
+                                Rocket.run(gc, curUnit);
+                                break;
+                            case Worker:
+                                Worker.run(gc, curUnit);
+                        }
+                    } catch (Exception e) {System.out.println("unit died");}
                 }
 
                 chooseTarget();
