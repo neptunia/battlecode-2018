@@ -25,9 +25,6 @@ public class Healer {
         if (nearestEnemy == -1) {
             if (gc.isMoveReady(curUnit.id())) {
                 move(Player.enemyLocation);
-                if (gc.isMoveReady(curUnit.id())) {
-                    moveAttack(Player.enemyLocation);
-                }
             }
             if (canHeal()) {
                 healNearbyAllies();
