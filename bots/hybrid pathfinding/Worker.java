@@ -153,7 +153,6 @@ public class Worker {
 								lastStructure.put(temp.id(), blueprintLoc);
 							}
 						}
-						doingAThing = true;
 						return;
 					}
 				} else {
@@ -207,7 +206,8 @@ public class Worker {
 			} else {
 				//move to somewhere where worker won't block the way
 				Random r = new Random();
-				int dir = new Random().nextInt(directions.length);
+				r.setSeed(1);
+				int dir = r.nextInt(directions.length);
 				if (gc.isMoveReady(curUnit.id()) && gc.canMove(curUnit.id(), directions[dir])) {
 					gc.moveRobot(curUnit.id(), directions[dir]);
 				}
