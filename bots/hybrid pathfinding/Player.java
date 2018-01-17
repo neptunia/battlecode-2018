@@ -130,7 +130,8 @@ public class Player {
                             case Worker:
                                 Worker.run(gc, curUnit);
                         }
-                    } catch (Exception e) {System.out.println("unit died");}
+                    } catch (Exception e) {
+                        //System.out.println("unit died");}
                 }
 
                 chooseTarget();
@@ -139,9 +140,9 @@ public class Player {
 
                 endTime = gc.getTimeLeftMs();
                 total += startTime - endTime;
-                System.out.println("Time: " + Long.toString(startTime - endTime));
-                System.out.println("Average: " + Float.toString(total / gc.round()));
-                System.out.println("Time Left: " + Long.toString(gc.getTimeLeftMs()));
+                //System.out.println("Time: " + Long.toString(startTime - endTime));
+                //System.out.println("Average: " + Float.toString(total / gc.round()));
+                //System.out.println("Time Left: " + Long.toString(gc.getTimeLeftMs()));
                 prevIncome = currentIncome;
                 //Runtime runtime = Runtime.getRuntime();
 
@@ -158,7 +159,7 @@ public class Player {
                 //sb.append("total free memory: " + format.format((freeMemory + (maxMemory - allocatedMemory)) / 1024) + "<br/>");
                 //System.out.println(sb);
                 //System.out.println("Enemy location: " + Integer.toString(enemyLocation.getX()) + ", " + Integer.toString(enemyLocation.getY()));
-                System.out.println("Round: " + Long.toString(gc.round()));
+                //System.out.println("Round: " + Long.toString(gc.round()));
                 startTime = endTime;
                 if (sawEnemy) {
                     timesReachedTarget = 0;
@@ -167,7 +168,7 @@ public class Player {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println("even worse");
+            //System.out.println("even worse");
         }
     }
 
@@ -286,8 +287,8 @@ public class Player {
                 }
                 double tempDist = 0;
                 for (int j = 0; j < numUnitsThisRound; j++) {
-                    System.out.println(unitLocations[j].getX());
-                    System.out.println(unitLocations[j].getY());
+                    //System.out.println(unitLocations[j].getX());
+                    //System.out.println(unitLocations[j].getY());
                     tempDist += distanceSq(i, a, unitLocations[j].getX(), unitLocations[j].getY());
                 }
                 if (tempDist < smallest) {

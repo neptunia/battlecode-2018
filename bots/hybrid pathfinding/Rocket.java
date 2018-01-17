@@ -39,7 +39,7 @@ public class Rocket {
                         try {
                             if (myHash == hash(Factory.presetTargets.get(key))) {
                                 Factory.presetTargets.remove(key);
-                                System.out.println("Removed");
+                                //System.out.println("Removed");
                                 break;
                             }
                         } catch (Exception e) {};
@@ -58,7 +58,7 @@ public class Rocket {
                                     try {
                                         if (myHash == hash(Factory.presetTargets.get(key))) {
                                             Factory.presetTargets.remove(key);
-                                            System.out.println("Removed");
+                                            //System.out.println("Removed");
                                             break;
                                         }
                                     } catch (Exception e) {};

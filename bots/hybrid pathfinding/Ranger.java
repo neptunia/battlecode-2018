@@ -346,10 +346,10 @@ public class Ranger {
         
 
         if (!Player.paths.containsKey(movingTo)) {
-            System.out.println("wot borked");
-            System.out.println("Enemy Location: " + Integer.toString(Player.enemyLocation.getX()) + " " + Integer.toString(Player.enemyLocation.getY()));
-            System.out.println("Cur location: " + Integer.toString(curLoc.getX()) + " " + Integer.toString(curLoc.getY()));
-            System.out.println("Target Location: " + Integer.toString(target.getX()) + " " + Integer.toString(target.getY()));
+            //System.out.println("wot borked");
+            //System.out.println("Enemy Location: " + Integer.toString(Player.enemyLocation.getX()) + " " + Integer.toString(Player.enemyLocation.getY()));
+            //System.out.println("Cur location: " + Integer.toString(curLoc.getX()) + " " + Integer.toString(curLoc.getY()));
+            //System.out.println("Target Location: " + Integer.toString(target.getX()) + " " + Integer.toString(target.getY()));
             return;
         }
 

@@ -212,9 +212,9 @@ public class Worker {
 			if (distance(curLoc, karboniteTargets.get(curUnit.id())) <= 2) {
 				//im next to it
 				Direction directionToKarb = curLoc.directionTo(theKarb);
-				System.out.println("first canharvest: " + Boolean.toString(gc.canHarvest(curUnit.id(), directionToKarb)));
+				//System.out.println("first canharvest: " + Boolean.toString(gc.canHarvest(curUnit.id(), directionToKarb)));
 				if (gc.canHarvest(curUnit.id(), directionToKarb)) {
-					System.out.println("harvest");
+					//System.out.println("harvest");
 					gc.harvest(curUnit.id(), directionToKarb);
 					Player.currentIncome += curUnit.workerHarvestAmount();
 					return;
@@ -246,9 +246,9 @@ public class Worker {
 		karboniteTargets.put(curUnit.id(), newTarget);
 		if (distance(curLoc, karboniteTargets.get(curUnit.id())) <= 2) {
 			Direction directionToKarb = curLoc.directionTo(newTarget);
-			System.out.println(gc.canHarvest(curUnit.id(), directionToKarb));
+			//System.out.println(gc.canHarvest(curUnit.id(), directionToKarb));
 			if (gc.canHarvest(curUnit.id(), directionToKarb)) {
-				System.out.println("harvest!!");
+				//System.out.println("harvest!!");
 				gc.harvest(curUnit.id(), directionToKarb);
 				Player.currentIncome += curUnit.workerHarvestAmount();
 			} else {
@@ -340,7 +340,7 @@ public class Worker {
 				return current;
 			}
 		}
-		System.out.println("no good position found :(");
+		//System.out.println("no good position found :(");
 		return null;
 	}
 
@@ -361,7 +361,7 @@ public class Worker {
 	}
 
 	public static void buildStructure(UnitType type) {
-		System.out.println("build structure");
+		//System.out.println("build structure");
 		if (!buildBlueprintLocation.containsKey(curUnit.id()) || buildBlueprintLocation.get(curUnit.id()) == null) {
 			MapLocation open = findBlueprintLocation();
 			buildBlueprintLocation.put(curUnit.id(), open);
@@ -372,7 +372,7 @@ public class Worker {
 			//shouldn't build a blueprint cuz no open spaces
 			return;
 		}
-		System.out.println("Blueprint coords: " + Integer.toString(blueprintLocation.getX()) + ", " + Integer.toString(blueprintLocation.getY()));
+		//System.out.println("Blueprint coords: " + Integer.toString(blueprintLocation.getX()) + ", " + Integer.toString(blueprintLocation.getY()));
 		Direction dirToBlueprint = curLoc.directionTo(blueprintLocation);
 		//if im standing on top of it
 		/*
@@ -389,7 +389,7 @@ public class Worker {
 			int targetBlueprint = gc.senseUnitAtLocation(curUnit.location().mapLocation().add(dirToBlueprint)).id();
 			if (type == UnitType.Rocket) {
 				MapLocation factoryLocation = lastStructure.get(curUnit.id());
-				System.out.println(factoryLocation);
+				//System.out.println(factoryLocation);
 				int unitID = gc.senseUnitAtLocation(factoryLocation).id();
 				//set preset target from this factory go to rocket location
 				Factory.presetTargets.put(unitID, blueprintLocation);
@@ -535,10 +535,10 @@ public class Worker {
         //System.out.println(Player.paths.get(movingTo).containsKey(hash(curUnit.location().mapLocation())));
 
         if (!Player.paths.containsKey(movingTo)) {
-            System.out.println("wot borked work move");
-            System.out.println("Enemy Location: " + Integer.toString(Player.enemyLocation.getX()) + " " + Integer.toString(Player.enemyLocation.getY()));
-            System.out.println("Cur location: " + Integer.toString(curLoc.getX()) + " " + Integer.toString(curLoc.getY()));
-            System.out.println("Target Location: " + Integer.toString(target.getX()) + " " + Integer.toString(target.getY()));
+            //System.out.println("wot borked work move");
+            //System.out.println("Enemy Location: " + Integer.toString(Player.enemyLocation.getX()) + " " + Integer.toString(Player.enemyLocation.getY()));
+            //System.out.println("Cur location: " + Integer.toString(curLoc.getX()) + " " + Integer.toString(curLoc.getY()));
+            //System.out.println("Target Location: " + Integer.toString(target.getX()) + " " + Integer.toString(target.getY()));
             return;
         }
 
