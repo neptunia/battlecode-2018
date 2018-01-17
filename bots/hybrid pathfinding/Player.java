@@ -26,6 +26,7 @@ public class Player {
     static int timesReachedTarget = 0;
     static boolean loadingRocket = false;
     static boolean sawEnemy = false;
+    static float averageTime = 0;
     //static boolean splitMap = false;
     static HashMap<Integer, Integer> paths = new HashMap<Integer, Integer>();
 
@@ -144,8 +145,10 @@ public class Player {
 
                 endTime = gc.getTimeLeftMs();
                 total += startTime - endTime;
+                averageTime = total / gc.round();
                 System.out.println("Time: " + Long.toString(startTime - endTime));
-                System.out.println("Average: " + Float.toString(total / gc.round()));
+                System.out.println("Average: " + Float.toString(averageTime));
+
                 System.out.println("Time Left: " + Long.toString(gc.getTimeLeftMs()));
                 prevIncome = currentIncome;
                 //Runtime runtime = Runtime.getRuntime();

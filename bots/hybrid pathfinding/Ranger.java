@@ -243,7 +243,7 @@ public class Ranger {
         }
         //a*
         int movingTo = doubleHash(curLoc, target);
-        if (!Player.paths.containsKey(movingTo)) {
+        if (Player.averageTime < 20 && !Player.paths.containsKey(movingTo)) {
             HashSet<Integer> closedList = new HashSet<Integer>();
             HashMap<Integer, Integer> gScore = new HashMap<Integer, Integer>();
             HashMap<Integer, Integer> fScore = new HashMap<Integer, Integer>();
@@ -354,6 +354,7 @@ public class Ranger {
             //System.out.println("Enemy Location: " + Integer.toString(Player.enemyLocation.getX()) + " " + Integer.toString(Player.enemyLocation.getY()));
             //System.out.println("Cur location: " + Integer.toString(curLoc.getX()) + " " + Integer.toString(curLoc.getY()));
             //System.out.println("Target Location: " + Integer.toString(target.getX()) + " " + Integer.toString(target.getY()));
+            moveAttack(target);
             return;
         }
 
