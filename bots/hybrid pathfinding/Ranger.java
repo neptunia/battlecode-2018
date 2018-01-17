@@ -91,7 +91,8 @@ public class Ranger {
             return;
         }
         // if distance is between 70 and 100, dont do anything
-        if (dist == 100 && gc.isMoveReady(curUnit.id())) {
+        // we can move closer if the enemy is not a ranger, though
+        if ((dist == 100 && gc.isMoveReady(curUnit.id())) && (dist < 100 && gc.unit(enemyid).unitType() != UnitType.Ranger)) {
             moveCloser(enemyLoc);
         }
 
