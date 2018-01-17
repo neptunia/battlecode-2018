@@ -162,7 +162,10 @@ public class Worker {
 						if (gc.isMoveReady(curUnit.id())) {
 							moveAttack(blueprintLoc);
 						}
-						doingAThing = true;
+						//mines any surrounding karbonite
+						if (karbonitesLeft) {
+								goMine();
+						}
 					}
 				}
 			}
@@ -389,6 +392,7 @@ public class Worker {
 		if (!buildBlueprintLocation.containsKey(curUnit.id()) || buildBlueprintLocation.get(curUnit.id()) == null) {
 			MapLocation open = findBlueprintLocation();
 			if (open == null) {
+				goMine();
 				return;
 			}
 			buildBlueprintLocation.put(curUnit.id(), open);
@@ -397,6 +401,7 @@ public class Worker {
 		MapLocation blueprintLocation = buildBlueprintLocation.get(curUnit.id());
 		if (blueprintLocation == null) {
 			//shouldn't build a blueprint cuz no open spaces
+			goMine();
 			return;
 		}
 		//System.out.println("Blueprint coords: " + Integer.toString(blueprintLocation.getX()) + ", " + Integer.toString(blueprintLocation.getY()));
@@ -443,6 +448,7 @@ public class Worker {
 		} else {
 			//move towards it
 			move(blueprintLocation);
+			goMine();
 		}
 	}
 
