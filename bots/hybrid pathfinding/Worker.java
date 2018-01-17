@@ -166,6 +166,9 @@ public class Worker {
 						if (gc.isMoveReady(curUnit.id())) {
 							moveAttack(blueprintLoc);
 						}
+						if (karbonitesLeft) {
+							goMine();
+						}
 					}
 				}
 			}
@@ -399,6 +402,10 @@ public class Worker {
 			structuresToBuild.add(hash(open));
 		}
 		MapLocation blueprintLocation = buildBlueprintLocation.get(curUnit.id());
+		if (blueprintLocation == null) {
+			goMine();
+			return;
+		}
 		//System.out.println("Blueprint coords: " + Integer.toString(blueprintLocation.getX()) + ", " + Integer.toString(blueprintLocation.getY()));
 		Direction dirToBlueprint = curLoc.directionTo(blueprintLocation);
 		//if im standing on top of it
