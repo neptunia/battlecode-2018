@@ -100,6 +100,10 @@ public class Worker {
 				numWorkers++;
 			}
 		}
+		if (gc.round() < 5 && distance(curLoc, selectKarbonite()) <= 4) {
+			goMine();
+			return;
+		}
 		if (gc.round() != 1 && numWorkers < (int) Math.round(Math.sqrt((Player.planetMap.getHeight()) * (Player.planetMap.getWidth())) / 1.5)) {
 
 			//Initial replication
