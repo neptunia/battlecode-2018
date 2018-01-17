@@ -71,6 +71,7 @@ public class Player {
 
 
             //do research
+            gc.queueResearch(UnitType.Worker);
             gc.queueResearch(UnitType.Ranger);
             gc.queueResearch(UnitType.Rocket);
             gc.queueResearch(UnitType.Ranger);
