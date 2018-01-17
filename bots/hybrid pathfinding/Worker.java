@@ -183,7 +183,7 @@ public class Worker {
 			// count number of factories and number of workers
 
 			// if we need more factories:
-			if (numWorkers >= numFacts && gc.karbonite() >= 119) {
+			if (numWorkers >= numFacts && gc.karbonite() >= 120) {
 				buildStructure(UnitType.Factory);
 				return;
 			}
