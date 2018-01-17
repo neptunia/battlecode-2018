@@ -142,6 +142,8 @@ public class Worker {
 					//next to it, i can work on it
 					if (!buildBlueprint(targetBlueprint)) {
 						//target.remove(curUnit.id());
+						//probably replicated
+						return;
 					} else {
 						VecUnit nearby = gc.senseNearbyUnitsByTeam(curUnit.location().mapLocation(), 9, Player.myTeam);
 						for (int a = 0; a < nearby.size(); a++) {
