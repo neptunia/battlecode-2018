@@ -166,10 +166,6 @@ public class Worker {
 						if (gc.isMoveReady(curUnit.id())) {
 							moveAttack(blueprintLoc);
 						}
-						//mines any surrounding karbonite
-						if (karbonitesLeft) {
-								goMine();
-						}
 					}
 				}
 			}
@@ -403,11 +399,6 @@ public class Worker {
 			structuresToBuild.add(hash(open));
 		}
 		MapLocation blueprintLocation = buildBlueprintLocation.get(curUnit.id());
-		if (blueprintLocation == null) {
-			//shouldn't build a blueprint cuz no open spaces
-			goMine();
-			return;
-		}
 		//System.out.println("Blueprint coords: " + Integer.toString(blueprintLocation.getX()) + ", " + Integer.toString(blueprintLocation.getY()));
 		Direction dirToBlueprint = curLoc.directionTo(blueprintLocation);
 		//if im standing on top of it
@@ -423,14 +414,6 @@ public class Worker {
 		if (distance(curLoc, blueprintLocation) <= 2 && gc.canBlueprint(curUnit.id(), type, dirToBlueprint)) {
 			gc.blueprint(curUnit.id(), type, dirToBlueprint);
 			int targetBlueprint = gc.senseUnitAtLocation(curUnit.location().mapLocation().add(dirToBlueprint)).id();
-			if (type == UnitType.Rocket) {
-				MapLocation factoryLocation = lastStructure.get(curUnit.id());
-				//System.out.println(factoryLocation);
-				int unitID = gc.senseUnitAtLocation(factoryLocation).id();
-				//set preset target from this factory go to rocket location
-				Factory.presetTargets.put(unitID, blueprintLocation);
-				Factory.presetCounter.put(unitID, 0);
-			}
 			buildBlueprintLocation.remove(curUnit.id());
 			
 			if (type == UnitType.Rocket) {
