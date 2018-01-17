@@ -73,13 +73,14 @@ public class Worker {
 		//TODO: if on mars temporary code
 		if (gc.planet() == Planet.Mars) {
 			move(Player.enemyLocation);
+			/*
 			for (int i = 0; i < directions.length; i++) {
 				if (gc.canReplicate(curUnit.id(), directions[i])) {
 					gc.replicate(curUnit.id(), directions[i]);
 					Player.workerCount++;
 					break;
 				}
-			}
+			}*/
 			return;
 		}
 
@@ -87,19 +88,26 @@ public class Worker {
 			lastStructure.put(curUnit.id(), curLoc);
 		}
 
-		if (!initialRep.containsKey(curUnit.id())) {
-			Player.workerCount++;
-			initialRep.put(curUnit.id(), initialRepCount());
-		}
+		//if (!initialRep.containsKey(curUnit.id())) {
+			//Player.workerCount++;
+			//initialRep.put(curUnit.id(), initialRepCount());
+		//}
 
-		if (gc.round() <= initialRep.get(curUnit.id())) {
+		VecUnit units = gc.myUnits();
+		numWorkers = 0;
+		for (int i = 0; i < units.size(); i++) {
+			if (units.get(i).unitType() == UnitType.Worker) {
+				numWorkers++;
+			}
+		}
+		if (gc.round() != 1 && numWorkers < (int) Math.round(Math.sqrt((Player.planetMap.getHeight()) * (Player.planetMap.getWidth())) / 1.5)) {
 
 			//Initial replication
 			for (int i = 0; i < directions.length; i++) {
 				if (gc.canReplicate(curUnit.id(), directions[i])) {
 					gc.replicate(curUnit.id(), directions[i]);
-					initialRep.put(gc.senseUnitAtLocation(curLoc.add(directions[i])).id(), 6);
-					Player.workerCount++;
+					//initialRep.put(gc.senseUnitAtLocation(curLoc.add(directions[i])).id(), 6);
+					numWorkers++;
 					break;
 				}
 			}
@@ -138,7 +146,7 @@ public class Worker {
 						VecUnit nearby = gc.senseNearbyUnitsByTeam(curUnit.location().mapLocation(), 9, Player.myTeam);
 						for (int a = 0; a < nearby.size(); a++) {
 							Unit temp = nearby.get(a);
-							if (temp.unitType() == UnitType.Worker) {
+							if (temp.unitType() == UnitType.Worker && !target.containsKey(temp.id())) {
 								target.put(temp.id(), targetBlueprint);
 								lastStructure.put(temp.id(), blueprintLoc);
 							}
@@ -148,7 +156,7 @@ public class Worker {
 					}
 				} else {
 					//move towards it
-					if (canMove()) {
+					if (gc.isMoveReady(curUnit.id())) {
 						move(blueprintLoc);
 						if (gc.isMoveReady(curUnit.id())) {
 							moveAttack(blueprintLoc);
@@ -166,19 +174,11 @@ public class Worker {
 				buildStructure(UnitType.Rocket);
 			}
 			// count number of factories and number of workers
-			VecUnit units = gc.myUnits();
-			if (numWorkers == -1) {
-				numWorkers = 0;
-				for (int i = 0; i < units.size(); i++) {
-					if (units.get(i).unitType() == UnitType.Worker) {
-						numWorkers++;
-					}
-				}
-			}
 
 			// if we need more factories:
 			if (numWorkers >= numFacts && gc.karbonite() >= 100) {
 				buildStructure(UnitType.Factory);
+				return;
 			}
 			// if we need more workers:
 			else if (numWorkers < numFacts && gc.karbonite() >= 15 && curUnit.abilityHeat() < 10) {
@@ -307,8 +307,10 @@ public class Worker {
 		LinkedList<MapLocation> queue = new LinkedList<MapLocation>();
 		HashSet<Integer> visited = new HashSet<Integer>();
 		int curHash = hash(curLoc);
-		queue.add(lastStructure.get(curUnit.id()));
-		MapLocation last = lastStructure.get(curUnit.id());
+		queue.add(curLoc);
+		//queue.add(lastStructure.get(curUnit.id()));
+		//MapLocation last = lastStructure.get(curUnit.id());
+		MapLocation last = curLoc;
 		
 		visited.add(curHash);
 		
@@ -370,10 +372,23 @@ public class Worker {
 		return (x >= 0 && y >= 0 && x < Player.gridX && y < Player.gridY) && Player.gotoable[x][y];
 	}
 
+	public static MapLocation findBlueprintLocation2() {
+		for (int i = 0; i < directions.length; i++) {
+			MapLocation test = curLoc.add(directions[i]);
+			if (checkPassable2(test)) {
+				return test;
+			}
+		}
+		return null;
+	}
+
 	public static void buildStructure(UnitType type) {
 		//System.out.println("build structure");
 		if (!buildBlueprintLocation.containsKey(curUnit.id()) || buildBlueprintLocation.get(curUnit.id()) == null) {
 			MapLocation open = findBlueprintLocation();
+			if (open == null) {
+				return;
+			}
 			buildBlueprintLocation.put(curUnit.id(), open);
 			structuresToBuild.add(hash(open));
 		}
@@ -418,7 +433,7 @@ public class Worker {
 			VecUnit nearby = gc.senseNearbyUnitsByTeam(curUnit.location().mapLocation(), 9, Player.myTeam);
 			for (int a = 0; a < nearby.size(); a++) {
 				Unit temp = nearby.get(a);
-				if (temp.unitType() == UnitType.Worker) {
+				if (temp.unitType() == UnitType.Worker && !target.containsKey(temp.id())) {
 					target.put(temp.id(), targetBlueprint);
 					lastStructure.put(temp.id(), blueprintLocation);
 				}
