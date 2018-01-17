@@ -67,20 +67,27 @@ public class Worker {
 		if (curUnit.location().isInGarrison()) {
 			return;
 		}
-
+		VecUnit units = gc.myUnits();
+		numWorkers = 0;
+		for (int i = 0; i < units.size(); i++) {
+			if (units.get(i).unitType() == UnitType.Worker) {
+				numWorkers++;
+			}
+		}
 		curLoc = curUnit.location().mapLocation();
 
 		//TODO: if on mars temporary code
 		if (gc.planet() == Planet.Mars) {
 			move(Player.enemyLocation);
-			/*
-			for (int i = 0; i < directions.length; i++) {
-				if (gc.canReplicate(curUnit.id(), directions[i])) {
-					gc.replicate(curUnit.id(), directions[i]);
-					Player.workerCount++;
-					break;
+			if (numWorkers < (int)(Math.sqrt(Player.gridX * Player.gridY))) {
+				for (int i = 0; i < directions.length; i++) {
+					if (gc.canReplicate(curUnit.id(), directions[i])) {
+						gc.replicate(curUnit.id(), directions[i]);
+						Player.workerCount++;
+						break;
+					}
 				}
-			}*/
+			}
 			return;
 		}
 
@@ -93,13 +100,7 @@ public class Worker {
 			//initialRep.put(curUnit.id(), initialRepCount());
 		//}
 
-		VecUnit units = gc.myUnits();
-		numWorkers = 0;
-		for (int i = 0; i < units.size(); i++) {
-			if (units.get(i).unitType() == UnitType.Worker) {
-				numWorkers++;
-			}
-		}
+		
 		if (gc.round() < 5 && distance(curLoc, selectKarbonite()) <= 4 && Player.gridX * Player.gridY >= 900) {
 			goMine();
 			return;
