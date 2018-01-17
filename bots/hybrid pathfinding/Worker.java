@@ -55,7 +55,7 @@ public class Worker {
 		if (count < 10) {
 			return 1;
 		}
-		return (int) Math.round(Math.sqrt((Player.planetMap.getHeight()) * (Player.planetMap.getWidth()))) / 10;
+		return (int) Math.round(Math.sqrt((Player.planetMap.getHeight()) * (Player.planetMap.getWidth())) / 7);
 	}
 
 	public static void run(GameController gc, Unit curUnit) {
@@ -91,7 +91,7 @@ public class Worker {
 			initialRep.put(curUnit.id(), initialRepCount());
 		}
 
-		if (gc.round() <= initialRep.get(curUnit.id()) && Player.workerCount < 8) {
+		if (gc.round() <= initialRep.get(curUnit.id())) {
 
 			//Initial replication
 			for (int i = 0; i < directions.length; i++) {
