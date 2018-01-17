@@ -133,8 +133,16 @@ public class Worker {
 				if (distance(blueprintLoc, curLoc) <= 2) {
 					//next to it, i can work on it
 					if (!buildBlueprint(targetBlueprint)) {
-						target.remove(curUnit.id());
+						//target.remove(curUnit.id());
 					} else {
+						VecUnit nearby = gc.senseNearbyUnitsByTeam(curUnit.location().mapLocation(), 9, Player.myTeam);
+						for (int a = 0; a < nearby.size(); a++) {
+							Unit temp = nearby.get(a);
+							if (temp.unitType() == UnitType.Worker) {
+								target.put(temp.id(), targetBlueprint);
+								lastStructure.put(temp.id(), blueprintLoc);
+							}
+						}
 						doingAThing = true;
 						return;
 					}
