@@ -49,6 +49,9 @@ public class Ranger {
             //explore if no units detected
             if (canMove()) {
                 move(Player.enemyLocation);
+                if (canMove()) {
+                    moveAttack(Player.enemyLocation);
+                }
             }
         }
 
