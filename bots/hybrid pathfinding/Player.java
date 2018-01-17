@@ -20,9 +20,11 @@ public class Player {
     static UnitType[][] units;
     static boolean gotoableEmpty;
     static MapLocation[] unitLocations;
+    static MapLocation pastLoc = null;
     static int numUnitsThisRound;
     static int workerCount = 0;
     static int timesReachedTarget = 0;
+    static boolean loadingRocket = false;
     static boolean sawEnemy = false;
     //static boolean splitMap = false;
     static HashMap<Integer, Integer> paths = new HashMap<Integer, Integer>();
@@ -131,7 +133,8 @@ public class Player {
                                 Worker.run(gc, curUnit);
                         }
                     } catch (Exception e) {
-                        //System.out.println("unit died");}
+                        //System.out.println("unit died");
+                    }
                 }
 
                 chooseTarget();
@@ -246,7 +249,7 @@ public class Player {
         if (enemyLocation == null) {
             enemyLocation = chooseFarthestPoint();
         } else {
-            if (gc.senseNearbyUnitsByTeam(enemyLocation, 2, myTeam).size() > 0) {
+            if (!loadingRocket && gc.senseNearbyUnitsByTeam(enemyLocation, 2, myTeam).size() > 0) {
                 timesReachedTarget++;
                 enemyLocation = chooseFarthestPoint();
             }
