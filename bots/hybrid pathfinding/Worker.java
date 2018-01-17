@@ -26,39 +26,6 @@ public class Worker {
 	static HashMap<Integer, MapLocation> idleToMove = new HashMap<Integer, MapLocation>();
 	static HashMap<Integer, Boolean> goodPosition = new HashMap<Integer, Boolean>();
 
-	public static int initialRepCount() {
-		//count available squares with range 15 of me
-		LinkedList<MapLocation> queue = new LinkedList<MapLocation>();
-		HashSet<Integer> visited = new HashSet<Integer>();
-		int curHash = hash(curLoc);
-		queue.add(curLoc);
-
-		int count = 0;
-		
-		visited.add(curHash);
-		
-		while (!queue.isEmpty()) {
-			MapLocation current = queue.poll();
-			count++;
-			
-			for (int i = 0; i < directions.length; i++) {
-				MapLocation test = current.add(directions[i]);
-				int testHash = hash(test);
-				if (!visited.contains(testHash) && goAble(test.getX(), test.getY()) && distance(test, curLoc) < 9) {
-					visited.add(testHash);
-					queue.add(test);
-				}
-				
-			}
-		}
-
-		if (count < 10) {
-			return 1;
-		}
-		System.out.println(Math.min((int) Math.round(Math.sqrt((Player.planetMap.getHeight()) * (Player.planetMap.getWidth())) / 7) + 3, 7));
-		return Math.min((int) Math.round(Math.sqrt((Player.planetMap.getHeight()) * (Player.planetMap.getWidth())) / 7) + 3, 7);
-	}
-
 	public static void run(GameController gc, Unit curUnit) {
 
 		Worker.curUnit = curUnit;
@@ -105,21 +72,6 @@ public class Worker {
 			goMine();
 			return;
 		}
-		if (gc.round() != 1 && numWorkers < (int) Math.round(Math.sqrt((Player.planetMap.getHeight()) * (Player.planetMap.getWidth())) / 1.5)) {
-
-			//Initial replication
-			for (int i = 0; i < directions.length; i++) {
-				if (gc.canReplicate(curUnit.id(), directions[i])) {
-					gc.replicate(curUnit.id(), directions[i]);
-					//initialRep.put(gc.senseUnitAtLocation(curLoc.add(directions[i])).id(), 6);
-					numWorkers++;
-					break;
-				}
-			}
-		}
-
-		//TODO worker AI: implement bfs, run away if enemies are too strong, and maybe improve when to replicate
-		//remove target if factory already died
 		try {
 			if (target.containsKey(curUnit.id())) {
 				gc.unit(target.get(curUnit.id()));
@@ -127,6 +79,34 @@ public class Worker {
 		} catch (Exception e) {
 			target.remove(curUnit.id());
 		}
+		if (gc.round() != 1 && numWorkers < (int) Math.round(Math.sqrt((Player.planetMap.getHeight()) * (Player.planetMap.getWidth())) / 1.5)) {
+			if (target.containsKey(curUnit.id())) {
+				int targetBlueprint = target.get(curUnit.id());
+				Unit toWorkOn = gc.unit(targetBlueprint);
+				MapLocation blueprintLoc = toWorkOn.location().mapLocation();
+				for (int i = 0; i < directions.length; i++) {
+					if (distance(blueprintLoc, curLoc.add(directions[i])) <= 2 && gc.canReplicate(curUnit.id(), directions[i])) {
+						gc.replicate(curUnit.id(), directions[i]);
+						numWorkers++;
+						break;
+					}
+				}
+			} else {
+				//just replicate anywhere
+				for (int i = 0; i < directions.length; i++) {
+					if (distance(blueprintLoc, curLoc.add(directions[i])) <= 2 && gc.canReplicate(curUnit.id(), directions[i])) {
+						gc.replicate(curUnit.id(), directions[i]);
+						numWorkers++;
+						break;
+					}
+				}
+			}
+			
+		}
+
+		//TODO worker AI: implement bfs, run away if enemies are too strong, and maybe improve when to replicate
+		//remove target if factory already died
+		
 
 		boolean doingAThing = false;
 		//if i do have a target blueprint
