@@ -55,10 +55,7 @@ public class Worker {
 		if (count < 10) {
 			return 1;
 		}
-		if (count < 18) {
-			return 2;
-		}
-		return 3;
+		return (int) Math.round(Math.sqrt((Player.planetMap.getHeight()) * (Player.planetMap.getWidth()))) / 10;
 	}
 
 	public static void run(GameController gc, Unit curUnit) {
