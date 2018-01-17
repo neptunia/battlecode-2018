@@ -7,13 +7,13 @@ public class Rocket {
     static GameController gc;
     static Direction[] directions = Direction.values();
     static HashSet<Integer> workersPerRocket = new HashSet<Integer>();
+    static HashMap<Integer, Integer> turnsSinceBuilt = new HashMap<Integer, Integer>();
 
     public static void run(GameController gc, Unit curUnit) {
 
         Rocket.curUnit = curUnit;
 
         if (curUnit.location().isInSpace()) {
-
             //in space
             return;
         } else if (curUnit.location().isOnPlanet(Planet.Earth)) {
@@ -21,7 +21,17 @@ public class Rocket {
                 Player.pastLoc = Player.enemyLocation;
                 Player.enemyLocation = curUnit.location().mapLocation();
                 Player.loadingRocket = true;
-
+            }
+            if (curUnit.health() == curUnit.maxHealth()) {
+                if (!turnsSinceBuilt.containsKey(curUnit.id())) {
+                    turnsSinceBuilt.put(curUnit.id(), 1);
+                } else if (turnsSinceBuilt.get(curUnit.id()) > 100 && curUnit.structureGarrison().size() != 0) {
+                    launch();
+                } else {
+                    turnsSinceBuilt.put(curUnit.id(), turnsSinceBuilt.get(curUnit.id())+1);
+                }
+            } else if (curUnit.structureGarrison().size() != 0) {
+                launch();
             }
             //on earth, load units
             VecUnit adjacentUnits = gc.senseNearbyUnitsByTeam(curUnit.location().mapLocation(), 2, Player.myTeam);
@@ -38,33 +48,7 @@ public class Rocket {
             }
 
             if (curUnit.structureMaxCapacity() == curUnit.structureGarrison().size()) {
-                Player.loadingRocket = false;
-                Player.enemyLocation = Player.pastLoc;
-                PlanetMap marsmap = gc.startingMap(Planet.Mars);
-                marsmap.setPlanet(Planet.Mars);
-                //garrison is full, launch
-                //first, try starting coords on mars
-                MapLocation marsStart = new MapLocation(Planet.Mars, curUnit.location().mapLocation().getX(), curUnit.location().mapLocation().getY());
-                if (gc.canLaunchRocket(curUnit.id(), marsStart)) {
-                    gc.launchRocket(curUnit.id(), marsStart);
-                    int myHash = hash(curUnit.location().mapLocation());
-                } else {
-                    for (int i = 0; i < marsmap.getWidth(); i++) {
-                        boolean stop = false;
-                        for (int j = 0; j < marsmap.getHeight(); j++) {
-                            MapLocation temp = new MapLocation(Planet.Mars, (int) ((curUnit.location().mapLocation().getX() + i) % marsmap.getWidth()), (int) ((curUnit.location().mapLocation().getY() + j) % marsmap.getWidth()));
-                            if (gc.canLaunchRocket(curUnit.id(), temp)) {
-                                gc.launchRocket(curUnit.id(), temp);
-                                int myHash = hash(curUnit.location().mapLocation());
-                                stop = true;
-                                break;
-                            }
-                        }
-                        if (stop) {
-                            break;
-                        }
-                    }
-                }
+                launch();
             }
         } else {
             //on mars, unload units
@@ -83,5 +67,35 @@ public class Rocket {
 
     public static int hash(MapLocation loc) {
         return 69 * loc.getX() + loc.getY();
+    }
+
+    public static void launch() {
+        Player.loadingRocket = false;
+        Player.enemyLocation = Player.pastLoc;
+        PlanetMap marsmap = gc.startingMap(Planet.Mars);
+        marsmap.setPlanet(Planet.Mars);
+        //garrison is full, launch
+        //first, try starting coords on mars
+        MapLocation marsStart = new MapLocation(Planet.Mars, curUnit.location().mapLocation().getX(), curUnit.location().mapLocation().getY());
+        if (gc.canLaunchRocket(curUnit.id(), marsStart)) {
+            gc.launchRocket(curUnit.id(), marsStart);
+            int myHash = hash(curUnit.location().mapLocation());
+        } else {
+            for (int i = 0; i < marsmap.getWidth(); i++) {
+                boolean stop = false;
+                for (int j = 0; j < marsmap.getHeight(); j++) {
+                    MapLocation temp = new MapLocation(Planet.Mars, (int) ((curUnit.location().mapLocation().getX() + i) % marsmap.getWidth()), (int) ((curUnit.location().mapLocation().getY() + j) % marsmap.getWidth()));
+                    if (gc.canLaunchRocket(curUnit.id(), temp)) {
+                        gc.launchRocket(curUnit.id(), temp);
+                        int myHash = hash(curUnit.location().mapLocation());
+                        stop = true;
+                        break;
+                    }
+                }
+                if (stop) {
+                    break;
+                }
+            }
+        }
     }
 }
