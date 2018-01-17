@@ -55,7 +55,8 @@ public class Worker {
 		if (count < 10) {
 			return 1;
 		}
-		return (int) Math.round(Math.sqrt((Player.planetMap.getHeight()) * (Player.planetMap.getWidth())) / 7);
+		System.out.println(Math.min((int) Math.round(Math.sqrt((Player.planetMap.getHeight()) * (Player.planetMap.getWidth())) / 7) + 3, 7));
+		return Math.min((int) Math.round(Math.sqrt((Player.planetMap.getHeight()) * (Player.planetMap.getWidth())) / 7) + 3, 7);
 	}
 
 	public static void run(GameController gc, Unit curUnit) {
@@ -97,6 +98,7 @@ public class Worker {
 			for (int i = 0; i < directions.length; i++) {
 				if (gc.canReplicate(curUnit.id(), directions[i])) {
 					gc.replicate(curUnit.id(), directions[i]);
+					initialRep.put(gc.senseUnitAtLocation(curLoc.add(directions[i])).id(), 6);
 					Player.workerCount++;
 					break;
 				}
@@ -139,17 +141,12 @@ public class Worker {
 				} else {
 					//move towards it
 					if (canMove()) {
-						singleMove(blueprintLoc);
+						move(blueprintLoc);
+						if (gc.isMoveReady(curUnit.id())) {
+							moveAttack(blueprintLoc);
+						}
 						doingAThing = true;
 					}
-				}
-			}
-			VecUnit nearby = gc.senseNearbyUnitsByTeam(curUnit.location().mapLocation(), 9, Player.myTeam);
-			for (int a = 0; a < nearby.size(); a++) {
-				Unit temp = nearby.get(a);
-				if (temp.unitType() == UnitType.Worker) {
-					target.put(temp.id(), targetBlueprint);
-					lastStructure.put(temp.id(), blueprintLoc);
 				}
 			}
 		}
@@ -576,31 +573,43 @@ public class Worker {
             return;
         }
         //a*
-        int movingTo = doubleHash(curLoc, target);
-        if (!Player.paths.containsKey(movingTo)) {
-            HashSet<Integer> closedList = new HashSet<Integer>();
-            HashMap<Integer, Integer> gScore = new HashMap<Integer, Integer>();
-            HashMap<Integer, Integer> fScore = new HashMap<Integer, Integer>();
-            HashMap<Integer, Integer> fromMap = new HashMap<Integer, Integer>();
-            PriorityQueue<Integer> openList = new PriorityQueue<Integer>(11, new Comparator<Integer>() {
-                public int compare(Integer nodeA, Integer nodeB) {
-                    return Integer.compare(fScore.get(nodeA), fScore.get(nodeB));
-                }
-            });
+        HashSet<Integer> closedList = new HashSet<Integer>();
+        HashMap<Integer, Integer> gScore = new HashMap<Integer, Integer>();
+        HashMap<Integer, Integer> fScore = new HashMap<Integer, Integer>();
+        HashMap<Integer, Integer> fromMap = new HashMap<Integer, Integer>();
+        PriorityQueue<Integer> openList = new PriorityQueue<Integer>(11, new Comparator<Integer>() {
+            public int compare(Integer nodeA, Integer nodeB) {
+                return Integer.compare(fScore.get(nodeA), fScore.get(nodeB));
+            }
+        });
 
 
 
-            gScore.put(startHash, 0);
-            fScore.put(startHash, manDistance(curLoc, target));
-            openList.offer(startHash);
-            while (!openList.isEmpty()) {
-                int current = openList.poll();
+        gScore.put(startHash, 0);
+        fScore.put(startHash, manDistance(curLoc, target));
+        openList.offer(startHash);
+        MapLocation testLoc = null;
+        while (!openList.isEmpty()) {
+            int current = openList.poll();
 
-                int remainingPath = doubleHash(current, goal);
 
-                if (current == goal) {
-                    HashMap<Integer, Integer> path2 = new HashMap<Integer, Integer>();
-                    int next = goal;
+            int tempY = current % 69;
+            int tempX = (current - tempY) / 69;
+            testLoc = new MapLocation(curPlanet, tempX, tempY);
+
+            //System.out.println("Node im on " + print(current));
+
+            closedList.add(current);
+
+            //iterate through neighbors
+            for (int i = 0; i < directions.length; i++) {
+                int neighbor = hash(testLoc.add(directions[i]));
+                //if a path is already computed for this node to the goal then dont needa compute more
+                if (neighbor == goal) {
+                	System.out.println("FOUND SHIT");
+                	fromMap.put(goal, current);
+                	HashMap<Integer, Integer> path2 = new HashMap<Integer, Integer>();
+                    int next = neighbor;
 
                     int prev = -1;
                     while (fromMap.containsKey(next)) {
@@ -612,6 +621,7 @@ public class Worker {
                         //Player.paths.put(doubleHash(next, prev), path);
                         //TODO put in between Player.paths... a b c d e needs bc, bd, cd
                         path2.put(prev, next);
+                        //System.out.println("FOUND SHIT2");
                     }
 
                     int toMove = path2.get(hash(curLoc));
@@ -627,43 +637,29 @@ public class Worker {
 			            //blocked by something
 			            System.out.println("UWOT MATE");
 			        }
+			        return;
 
-                    break;
                 }
 
-                int tempY = current % 69;
-                int tempX = (current - tempY) / 69;
-                curLoc = new MapLocation(curPlanet, tempX, tempY);
+                if (checkPassable2(curLoc.add(directions[i]))) {
+                    if (closedList.contains(neighbor)) {
+                        continue;
+                    }
 
-                //System.out.println("Node im on " + print(current));
+                    int tentG = gScore.get(current) + 1;
 
-                closedList.add(current);
+                    boolean contains = openList.contains(neighbor);
+                    if (!contains || tentG < gScore.get(neighbor)) {
+                        gScore.put(neighbor, tentG);
+                        fScore.put(neighbor, tentG + manDistance(neighbor, hash(target.getX(), target.getY())));
 
-                //iterate through neighbors
-                for (int i = 0; i < directions.length; i++) {
-                    int neighbor = hash(curLoc.add(directions[i]));
-                    //if a path is already computed for this node to the goal then dont needa compute more
-
-                    if (checkPassable2(curLoc.add(directions[i]))) {
-                        if (closedList.contains(neighbor)) {
-                            continue;
+                        if (contains) {
+                            openList.remove(neighbor);
                         }
 
-                        int tentG = gScore.get(current) + 1;
-
-                        boolean contains = openList.contains(neighbor);
-                        if (!contains || tentG < gScore.get(neighbor)) {
-                            gScore.put(neighbor, tentG);
-                            fScore.put(neighbor, tentG + manDistance(neighbor, hash(target.getX(), target.getY())));
-
-                            if (contains) {
-                                openList.remove(neighbor);
-                            }
-
-                            openList.offer(neighbor);
-                            //System.out.println("Add: " + print(neighbor));
-                            fromMap.put(neighbor, current);
-                        }
+                        openList.offer(neighbor);
+                        //System.out.println("Add: " + print(neighbor));
+                        fromMap.put(neighbor, current);
                     }
                 }
             }
