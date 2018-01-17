@@ -100,7 +100,7 @@ public class Worker {
 				numWorkers++;
 			}
 		}
-		if (gc.round() < 5 && distance(curLoc, selectKarbonite()) <= 4) {
+		if (gc.round() < 5 && distance(curLoc, selectKarbonite()) <= 4 && Player.gridX * Player.gridY >= 900) {
 			goMine();
 			return;
 		}
