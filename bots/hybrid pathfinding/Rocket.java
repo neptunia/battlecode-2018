@@ -6,6 +6,7 @@ public class Rocket {
     static Unit curUnit;
     static GameController gc;
     static Direction[] directions = Direction.values();
+    static HashSet<Integer> workersPerRocket = new HashSet<Integer>();
 
     public static void run(GameController gc, Unit curUnit) {
 
@@ -27,7 +28,12 @@ public class Rocket {
             //TODO prioritize certain units over others
             for (int i = 0; i < adjacentUnits.size(); i++) {
                 if (gc.canLoad(curUnit.id(), adjacentUnits.get(i).id())) {
-                    gc.load(curUnit.id(), adjacentUnits.get(i).id());
+                    if (!(workersPerRocket.contains(curUnit.id()) && adjacentUnits.get(i).unitType() == UnitType.Worker)) {
+                        gc.load(curUnit.id(), adjacentUnits.get(i).id());
+                        if (adjacentUnits.get(i).unitType() == UnitType.Worker) {
+                            workersPerRocket.add(curUnit.id());
+                        }
+                    }
                 }
             }
 
