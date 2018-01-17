@@ -76,7 +76,11 @@ public class Player {
             gc.queueResearch(UnitType.Ranger);
             gc.queueResearch(UnitType.Rocket);
             gc.queueResearch(UnitType.Ranger);
-            gc.queueResearch(UnitType.Ranger);
+            gc.queueResearch(UnitType.Rocket);
+            gc.queueResearch(UnitType.Worker);
+            gc.queueResearch(UnitType.Worker);
+            gc.queueResearch(UnitType.Worker);
+            gc.queueResearch(UnitType.Rocket);
 
             long startTime = 10000;
             long endTime = 10000;
@@ -146,10 +150,10 @@ public class Player {
                 endTime = gc.getTimeLeftMs();
                 total += startTime - endTime;
                 averageTime = total / gc.round();
-                System.out.println("Time: " + Long.toString(startTime - endTime));
-                System.out.println("Average: " + Float.toString(averageTime));
+                //System.out.println("Time: " + Long.toString(startTime - endTime));
+                //System.out.println("Average: " + Float.toString(averageTime));
 
-                System.out.println("Time Left: " + Long.toString(gc.getTimeLeftMs()));
+                //System.out.println("Time Left: " + Long.toString(gc.getTimeLeftMs()));
                 prevIncome = currentIncome;
                 //Runtime runtime = Runtime.getRuntime();
 
