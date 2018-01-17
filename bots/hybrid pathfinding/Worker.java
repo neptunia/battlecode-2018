@@ -130,12 +130,20 @@ public class Worker {
 						//probably replicated
 						return;
 					} else {
+						//worked on blueprint
 						VecUnit nearby = gc.senseNearbyUnitsByTeam(curUnit.location().mapLocation(), 9, Player.myTeam);
 						for (int a = 0; a < nearby.size(); a++) {
 							Unit temp = nearby.get(a);
 							if (temp.unitType() == UnitType.Worker && !target.containsKey(temp.id())) {
 								target.put(temp.id(), targetBlueprint);
 								lastStructure.put(temp.id(), blueprintLoc);
+							}
+						}
+						//try moving to an open space
+						for (int i = 0; i < directions.length; i++) {
+							if (distance(blueprintLoc, curLoc.add(directions[i])) <= 2 && gc.canMove(curUnit.id(), directions[i])) {
+								gc.moveRobot(curUnit.id(), directions[i]);
+								return;
 							}
 						}
 						return;
