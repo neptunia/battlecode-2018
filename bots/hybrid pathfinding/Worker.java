@@ -94,7 +94,7 @@ public class Worker {
 			} else {
 				//just replicate anywhere
 				for (int i = 0; i < directions.length; i++) {
-					if (distance(blueprintLoc, curLoc.add(directions[i])) <= 2 && gc.canReplicate(curUnit.id(), directions[i])) {
+					if (gc.canReplicate(curUnit.id(), directions[i])) {
 						gc.replicate(curUnit.id(), directions[i]);
 						numWorkers++;
 						break;
