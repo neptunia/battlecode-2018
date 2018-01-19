@@ -88,6 +88,7 @@ public class Worker {
 	public static void workOnBlueprint() {
 		int targetBlueprint = target.get(curUnit.id());
 		Unit toWorkOn = gc.unit(targetBlueprint);
+
 		MapLocation blueprintLoc = toWorkOn.location().mapLocation();
 		//already done working on
 		if (toWorkOn.health() == toWorkOn.maxHealth()) {
@@ -105,11 +106,25 @@ public class Worker {
 					System.out.println("Blueprint location: " + blueprintLoc.toString());
 					System.out.println("couldnt work on blueprint");
 				}
+				/*
 				if (gc.isMoveReady(curUnit.id())) {
+					makeWay(curLoc, new HashSet<Integer>(), blueprintLoc));
+				}
+				*/
+
+				if (curUnit.abilityHeat() < 10) {
+					//try replicating to where there's this blueprint while making others move if they can
+					MapLocation temp = null;
 					for (int i = 0; i < directions.length; i++) {
-						if (distance(blueprintLoc, curLoc.add(directions[i])) <= 2 && gc.canMove(curUnit.id(), directions[i])) {
-							gc.moveRobot(curUnit.id(), directions[i]);
-							return;
+						temp = curLoc.add(directions[i]);
+						if (distance(temp, blueprintLoc) <= 2) {
+							HashSet<Integer> cantGo = new HashSet<Integer>();
+							cantGo.add(hash(curLoc));
+							if (makeWay(temp, cantGo, blueprintLoc) && gc.canReplicate(curUnit.id(), directions[i])) {
+								gc.replicate(curUnit.id(), directions[i]);
+								target.put(gc.senseUnitAtLocation(temp).id(), targetBlueprint);
+								break;
+							}
 						}
 					}
 				}
@@ -117,24 +132,56 @@ public class Worker {
 			} else {
 				//move towards it
 				if (gc.isMoveReady(curUnit.id())) {
-					moveAttack(blueprintLoc);
-					//if (gc.isMoveReady(curUnit.id())) {
-						//moveAttack(blueprintLoc);
-					//}
+					if (manDistance(curLoc, blueprintLoc) == 2) {
+						MapLocation temp = null;
+						for (int i = 0; i < directions.length; i++) {
+							temp = curLoc.add(directions[i]);
+							if (manDistance(temp, blueprintLoc) == 1) {
+								HashSet<Integer> cantGo = new HashSet<Integer>();
+								cantGo.add(hash(curLoc));
+								if (makeWay(temp, cantGo, blueprintLoc) && gc.canMove(curUnit.id(), directions[i])) {
+									gc.moveRobot(curUnit.id(), directions[i]);
+									break;
+								}
+							}
+						}
+					} else {
+						moveAttack(blueprintLoc);
+					}
 				}
 			}
 		}
-		
-		if (curUnit.abilityHeat() < 10) {
-			//try replicating to where there's this blueprint
-			MapLocation temp = null;
+	}
+
+	public static boolean makeWay(MapLocation toGo, HashSet<Integer> cantGo, MapLocation blueprintLoc) {
+		try {
+			Unit unit = gc.senseUnitAtLocation(toGo);
+			if (!gc.isMoveReady(unit.id())) {
+				return false;
+			}
 			for (int i = 0; i < directions.length; i++) {
-				temp = curLoc.add(directions[i]);
-				if (distance(temp, blueprintLoc) <= 2 && gc.canReplicate(curUnit.id(), directions[i])) {
-					gc.replicate(curUnit.id(), directions[i]);
+				MapLocation temp = toGo.add(directions[i]);
+				if (!cantGo.contains(hash(toGo)) && onMap(temp) && Player.gotoable[temp.getX()][temp.getY()] && distance(temp, blueprintLoc) <= 2) {
+					HashSet<Integer> tempCantGo = new HashSet<Integer>();
+					tempCantGo.addAll(cantGo);
+					tempCantGo.add(hash(toGo));
+					if (makeWay(temp, tempCantGo, blueprintLoc)) {
+						gc.moveRobot(unit.id(), directions[i]);
+						return true;
+					}
 				}
 			}
+		} catch (Exception e) {
+			//e.printStackTrace();
+			return true;
 		}
+		return false;
+	}
+
+	public static boolean onMap(MapLocation test) {
+		int x = test.getX();
+		int y = test.getY();
+		return x >= 0 && y >= 0 && x < Player.gridX && y < Player.gridY;
 	}
 
 	//shuffles workers around factories effectively
@@ -309,16 +356,24 @@ public class Worker {
 		queue.add(facLoc);
 		visited.add(hash(facLoc));
 		int workersNeeded = 0;
+		for (int i = 0; i < directions.length; i++) {
+			MapLocation temp = facLoc.add(directions[i]);
+			int x = temp.getX();
+			int y = temp.getY();
+			if (x >= 0 && y >= 0 && x < Player.gridX && y < Player.gridY && Player.gotoable[x][y]) {
+				workersNeeded++;
+			}
+		}
 		while (!queue.isEmpty()) {
 			MapLocation current = queue.poll();
 			//System.out.println("HI");
-			if (manDistance(facLoc, current) >= 4) {
+			if (manDistance(facLoc, current) > 4) {
 				System.out.println(workersNeeded);
 				return;
 			}
 			for (int i = 0; i < directions.length; i++) {
 				MapLocation toCheck = current.add(directions[i]);
-				if (workersNeeded >= 8) {
+				if (workersNeeded <= 0) {
 					return;
 				}
 				try {
