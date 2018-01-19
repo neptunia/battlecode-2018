@@ -79,14 +79,14 @@ public class Healer {
 
     public static void healNearbyAllies() {
         VecUnit nearbyUnits = getNearby(curUnit.location().mapLocation(), (int) curUnit.attackRange());
-        long minHp = 99999999;
+        long maxHp = -1;
         int id = -1;
         for (int i = 0; i < nearbyUnits.size(); i++) {
             Unit unit = nearbyUnits.get(i);
             //if can attack this enemy unit
             if (unit.team() == gc.team() && gc.isHealReady(curUnit.id()) && gc.canHeal(curUnit.id(), unit.id())) {
-                if (unit.health() < minHp) {
-                    minHp = unit.health();
+                if (unit.health() > maxHp && unit.maxHealth() - unit.health() >= Math.abs(curUnit.damage())) {
+                    maxHp = unit.health();
                     id = unit.id();
                 }
             }

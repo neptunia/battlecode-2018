@@ -29,6 +29,8 @@ public class Player {
     static float averageTime = 0;
     //static boolean splitMap = false;
     static HashMap<Integer, Integer> paths = new HashMap<Integer, Integer>();
+    static int numHealers = 0;
+    static int numRangers = 0;
 
 	
 	public static void main(String args[]) {
@@ -73,14 +75,11 @@ public class Player {
 
             //do research
             gc.queueResearch(UnitType.Worker);
+            gc.queueResearch(UnitType.Healer);
+            gc.queueResearch(UnitType.Healer);
             gc.queueResearch(UnitType.Ranger);
             gc.queueResearch(UnitType.Rocket);
             gc.queueResearch(UnitType.Ranger);
-            gc.queueResearch(UnitType.Rocket);
-            gc.queueResearch(UnitType.Worker);
-            gc.queueResearch(UnitType.Worker);
-            gc.queueResearch(UnitType.Worker);
-            gc.queueResearch(UnitType.Rocket);
 
             long startTime = 10000;
             long endTime = 10000;
@@ -111,6 +110,8 @@ public class Player {
                         numUnitsThisRound++;
                     } catch (Exception e) {};
                 }
+                int tempRangers = 0;
+                int tempHealers = 0;
                 for (int i = 0; i < numberOfUnits; i++) {
                     Unit curUnit = myUnits.get(i);
                     
@@ -121,6 +122,7 @@ public class Player {
                                 Factory.run(gc, curUnit);
                                 break;
                             case Healer:
+                                tempHealers++;
                                 Healer.run(gc, curUnit);
                                 break;
                             case Knight:
@@ -130,6 +132,7 @@ public class Player {
                                 Mage.run(gc, curUnit);
                                 break;
                             case Ranger:
+                                tempRangers++;
                             	Ranger.run(gc, curUnit);
                                 break;
                             case Rocket:
@@ -175,6 +178,8 @@ public class Player {
                 if (sawEnemy) {
                     timesReachedTarget = 0;
                 }
+                numHealers = tempHealers;
+                numRangers = tempRangers;
                 gc.nextTurn();
             }
         } catch (Exception e) {
