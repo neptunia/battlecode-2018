@@ -261,22 +261,6 @@ public class Healer {
         }
     }
 
-    public static boolean moveCloser(MapLocation enemy) {
-        int best = distance(curUnit.location().mapLocation(), enemy);
-        Direction bestd = null;
-        for (int i = 0; i < directions.length; i++) {
-            MapLocation temp = curUnit.location().mapLocation().add(directions[i]);
-            if (gc.canMove(curUnit.id(), directions[i]) && distance(temp, enemy) < best) {
-                best = distance(temp, enemy);
-                bestd = directions[i];
-            }
-        }
-        if (bestd != null) {
-            gc.moveRobot(curUnit.id(), bestd);
-            return true;
-        }
-        return false;
-    }
 
     public static int manDistance(MapLocation first, MapLocation second) {
         int x1 = first.getX(), y1 = first.getY(), x2 = second.getX(), y2 = second.getY();
