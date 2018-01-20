@@ -157,7 +157,7 @@ public class Healer {
         }
         if (distance(curUnit.location().mapLocation(), gc.unit(id).location().mapLocation()) > 30) {
             // out of my range, attempt to move closer
-            if (gc.isMoveReady(curUnit.id()) && moveCloser(gc.unit(id).location().mapLocation()) && gc.canAttack(curUnit.id(), id)) {
+            if (gc.isMoveReady(curUnit.id()) && moveCloser(gc.unit(id).location().mapLocation()) && gc.canHeal(curUnit.id(), id)) {
                 gc.heal(curUnit.id(), id);
                 return true;
             }
