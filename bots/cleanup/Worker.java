@@ -16,6 +16,7 @@ public class Worker {
 	static boolean karbonitesLeft = true;
 	static int numWorkers = -1;
 	static MapLocation[] karbonites;
+	static HashMap<Integer, Integer> karboniteIndex = new HashMap<Integer, Integer>();
 	static int numKarbsCounter = 0;
 	static int factsQueued = 0;
 	static HashMap<Integer, MapLocation> karboniteTargets = new HashMap<Integer, MapLocation>();
@@ -62,6 +63,7 @@ public class Worker {
 
 		if (buildBlueprintLocation.containsKey(curUnit.id())) {
 			buildStructure(UnitType.Factory);
+			return;
 		}
 
 		//not enough workers - replicate
@@ -75,7 +77,6 @@ public class Worker {
 			buildStructure(UnitType.Rocket);
 		} else if (gc.karbonite() >= 120) {
 			buildStructure(UnitType.Factory);
-			return;
 		} else if (karbonitesLeft) {
 			// go mine
 			goMine();
@@ -249,15 +250,9 @@ public class Worker {
 				return;
 			} else if (gc.karboniteAt(theKarb) == 0) {
 				//karbonite is rip
-				MapLocation rem = karboniteTargets.get(curUnit.id());
+				karbonites[karboniteIndex.get(hash(theKarb))] = null;
 				karboniteTargets.remove(curUnit.id());
-				//TODO: optimize
-				for (int i = 0; i < karbonites.length; i++) {
-					if (karbonites[i] != null && hash(rem) == hash(karbonites[i])) {
-						karbonites[i] = null;
-						break;
-					}
-				}
+				
 				Worker.run(curUnit);
 			}
 		} else {

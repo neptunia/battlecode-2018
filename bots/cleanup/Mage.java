@@ -51,13 +51,13 @@ public class Mage {
     }
 
     // guaranteed killability. Assumes rushing knight research.
-    public static void isKillable(int enemyid) {
-        int myDamage = curUnit.damage()
+    public static boolean isKillable(int enemyid) {
+        int myDamage = curUnit.damage();
         if (gc.unit(enemyid).unitType() == UnitType.Knight) {
-            if (gc.round < 25) {
+            if (gc.round() < 25) {
                 // 5 armor
                 return (myDamage - 5) > gc.unit(enemyid).health();
-            } else if (gc.round < 100) {
+            } else if (gc.round() < 100) {
                 // 10 armor
                 return (myDamage - 10) > gc.unit(enemyid).health();
             } else {
@@ -81,7 +81,7 @@ public class Mage {
             // too close!
             // only attack it if I can kill it. If not, it's a lost cause anyways.
             // TODO: if an enemy worker is next to me i don't really care
-            if isKillable(gc.unit(closestenemy)) {
+            if (isKillable(closestenemy)) {
                 if (gc.isMoveReady(curUnit.id())) {
                     moveAway(enemyLoc);    
                 }
@@ -94,7 +94,7 @@ public class Mage {
                 if (canAttack()) {
                     gc.attack(curUnit.id(), enemyid);
                 }
-                moveAway(enemyLoc)
+                moveAway(enemyLoc);
             }
 
             return;

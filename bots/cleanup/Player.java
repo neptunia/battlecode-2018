@@ -253,6 +253,7 @@ public class Player {
                 MapLocation test = new MapLocation(gc.planet(), i, a);
                 if (gotoable[i][a] && planetMap.initialKarboniteAt(test) > 0) {
                     //karbs[i][a] = true;
+                    Worker.karboniteIndex.put(hash(test), Worker.numKarbsCounter);
                     Worker.karbonites[Worker.numKarbsCounter] = test;
                     Worker.numKarbsCounter++;
                 }
