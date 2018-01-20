@@ -329,8 +329,8 @@ public class Player {
                 }
             }
             c = 0;
-            for (int i = 0; i < startingmap.getWidth(); i += 2) {
-                for (int j = 0; j < startingmap.getHeight(); j += 2) {
+            for (int i = 0; i < startingmap.getWidth(); i += 3) {
+                for (int j = 0; j < startingmap.getHeight(); j += 3) {
                     //adding by two ensures that landing spots will never be adjacent
                     //inb4 they cuck us and give us only tiny pockets
                     if (map[i][j] == best && c < 100) {
