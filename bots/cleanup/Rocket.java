@@ -8,6 +8,7 @@ public class Rocket {
     static Direction[] directions = Direction.values();
     static HashSet<Integer> workersPerRocket = new HashSet<Integer>();
     static HashMap<Integer, Integer> turnsSinceBuilt = new HashMap<Integer, Integer>();
+    static int landSpotNumber = 0;
 
     public static void run(GameController gc, Unit curUnit) {
 
@@ -72,30 +73,19 @@ public class Rocket {
     public static void launch() {
         Player.loadingRocket = false;
         Player.enemyLocation = Player.pastLoc;
-        PlanetMap marsmap = gc.startingMap(Planet.Mars);
-        marsmap.setPlanet(Planet.Mars);
-        //garrison is full, launch
-        //first, try starting coords on mars
-        MapLocation marsStart = new MapLocation(Planet.Mars, curUnit.location().mapLocation().getX(), curUnit.location().mapLocation().getY());
+        int hashLoc = gc.getTeamArray(Planet.Mars).get(landSpotNumber);
+        int y = hashLoc % 69;
+        int x = (hashLoc - y) / 69;
+        System.out.println("X coordinate: " + Integer.toString(x));
+        System.out.println("Y coordinate: " + Integer.toString(y));
+
+        //launch
+        MapLocation marsStart = new MapLocation(Planet.Mars, x, y);
         if (gc.canLaunchRocket(curUnit.id(), marsStart)) {
             gc.launchRocket(curUnit.id(), marsStart);
-            int myHash = hash(curUnit.location().mapLocation());
+            landSpotNumber++;
         } else {
-            for (int i = 0; i < marsmap.getWidth(); i++) {
-                boolean stop = false;
-                for (int j = 0; j < marsmap.getHeight(); j++) {
-                    MapLocation temp = new MapLocation(Planet.Mars, (int) ((curUnit.location().mapLocation().getX() + i) % marsmap.getWidth()), (int) ((curUnit.location().mapLocation().getY() + j) % marsmap.getWidth()));
-                    if (gc.canLaunchRocket(curUnit.id(), temp)) {
-                        gc.launchRocket(curUnit.id(), temp);
-                        int myHash = hash(curUnit.location().mapLocation());
-                        stop = true;
-                        break;
-                    }
-                }
-                if (stop) {
-                    break;
-                }
-            }
+            System.out.println("Rocket precomputation borked");
         }
     }
 }

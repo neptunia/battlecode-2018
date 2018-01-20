@@ -31,7 +31,7 @@ public class Worker {
 		Worker.curUnit = curUnit;
 		curPlanet = gc.planet();
 
-		if (curUnit.location().isInSpace()) {
+		if (curUnit.location().isInGarrison()) {
 			return;
 		}
 		curLoc = curUnit.location().mapLocation();

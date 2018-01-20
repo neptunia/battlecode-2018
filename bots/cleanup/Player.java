@@ -29,6 +29,7 @@ public class Player {
     static float averageTime = 0;
     //static boolean splitMap = false;
     static HashMap<Integer, Integer> paths = new HashMap<Integer, Integer>();
+    static boolean marsBfsDone = false;
 
 	
 	public static void main(String args[]) {
@@ -287,7 +288,91 @@ public class Player {
                 }
             }
         }*/
+        //precompute landing spots for Mars.
+        if (gc.planet() == Planet.Mars && !marsBfsDone) {
+            int c = 1;
+            //first, do bfs and set values of map
+            PlanetMap startingmap = gc.startingMap(Planet.Mars);
+            int[][] map = new int[(int)startingmap.getWidth()][(int)startingmap.getHeight()];
+            HashSet<Integer> visitedmars = new HashSet<Integer>();
+            for (int i = 0; i < startingmap.getWidth(); i++) {
+                for (int j = 0; j < startingmap.getHeight(); j++) {
+                    //first, mark all unpassable tiles as visited
+                    if (!visitedmars.contains(hash(i,j))) {
+                        visitedmars.add(hash(i,j));
+                        if (startingmap.isPassableTerrainAt(new MapLocation(Planet.Mars, i, j)) == 0) {
+                            //unpassable
+                            map[i][j] = -1;
+                        } else {
+                            //passable, run bfs on it!
+                            Queue<MapLocation> marsbfs = new LinkedList<MapLocation>();
+                            MapLocation startingpoint = new MapLocation(Planet.Mars,i,j);
+                            marsbfs.add(startingpoint);
+                            visitedmars.add(hash(startingpoint));
+                            while (!marsbfs.isEmpty()) {
+                                //System.out.println(visitedmars.size());
+                                MapLocation nextpoint = marsbfs.poll();
+                                map[nextpoint.getX()][nextpoint.getY()] = c;
+                                for (int k = 0; k < directions.length-1; k++) {
+                                    MapLocation toAdd = nextpoint.add(directions[k]);
+                                    if (!visitedmars.contains(hash(toAdd.getX(), toAdd.getY())) && startingmap.onMap(toAdd) && startingmap.isPassableTerrainAt(toAdd) != 0) {
+                                        visitedmars.add(hash(toAdd));
+                                        marsbfs.add(toAdd);
+                                    }
+                                }
+                            }
+                            c++;
+                        }
+                    }
+                }
+            }
+            //System.out.println("bfs done");
+            //now count how large each section is
+            HashMap<Integer, Integer> sizeOfSection = new HashMap<Integer, Integer>();
 
+            for (int i = 0; i < startingmap.getWidth(); i++) {
+                for (int j = 0; j < startingmap.getHeight(); j++) {
+                    if (map[i][j] != -1) {
+                        if (!sizeOfSection.containsKey(map[i][j])) {
+                            sizeOfSection.put(map[i][j],1);
+                        } else {
+                            sizeOfSection.put(map[i][j], sizeOfSection.get(map[i][j])+1);
+                        }
+                    }
+                }
+            }
+            if (sizeOfSection.containsKey(0)) {
+                //bfs is broken (not all nodes are being visited)
+                //System.out.println("fix mars initialization");
+            }
+
+            int max = -1;
+            int best = 0;
+            //decide landing points
+            //land all rockets in biggest section
+            for (int i : sizeOfSection.keySet()) {
+                if (sizeOfSection.get(i) > max) {
+                    max = sizeOfSection.get(i);
+                    best = i;
+                }
+            }
+            c = 0;
+            for (int i = 0; i < startingmap.getWidth(); i += 2) {
+                for (int j = 0; j < startingmap.getHeight(); j += 2) {
+                    //adding by two ensures that landing spots will never be adjacent
+                    //inb4 they cuck us and give us only tiny pockets
+                    if (map[i][j] == best && c < 100) {
+                        gc.writeTeamArray(c, hash(i,j));
+                        c++;
+                    }
+                }
+            }
+            marsBfsDone = true;
+        }
+    }
+
+    public static int hash(int x, int y) {
+        return 69 * x + y;
     }
 
     public static void chooseTarget() {
