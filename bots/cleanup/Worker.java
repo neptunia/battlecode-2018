@@ -67,21 +67,21 @@ public class Worker {
 		}
 
 		//not enough workers - replicate
-		if (gc.round() != 1 && numWorkers < (int) Math.round(Math.sqrt((Player.planetMap.getHeight()) * (Player.planetMap.getWidth())) / 1.5)) {
+		if (gc.round() != 1 && (numWorkers < 6 || numWorkers < (int) Math.round(Math.sqrt((Player.planetMap.getHeight()) * (Player.planetMap.getWidth())) / 2 / Math.sqrt(gc.round())))) {
 			replicateAnywhere();
 		}
 
 
 		//rush first rocket
-		if (gc.karbonite() >= 75 && Worker.rocketsBuilt < 2 && gc.researchInfo().getLevel(UnitType.Rocket) > 0) {
-			buildStructure(UnitType.Rocket);
-		} else if (gc.karbonite() >= 120) {
+		if (Player.prevBlocked < 10 && gc.karbonite() >= 120 && Player.timesReachedTarget < 3) {
 			buildStructure(UnitType.Factory);
-		} else if (karbonitesLeft) {
-			// go mine
+		} else if (karbonitesLeft && gc.karbonite() < 300) {
 			goMine();
+		} else if (gc.karbonite() >= 75 && gc.researchInfo().getLevel(UnitType.Rocket) > 0) {
+			buildStructure(UnitType.Rocket);
+		} else {
+			//nothing to do
 		}
-			
 	}
 
 	public static void workOnBlueprint() {
@@ -447,7 +447,7 @@ public class Worker {
 				}
 				try {
 					Unit there = gc.senseUnitAtLocation(toCheck);
-					if (there.unitType() != UnitType.Factory && there.unitType() != UnitType.Rocket) {
+					if (there.unitType() != UnitType.Factory && there.unitType() != UnitType.Rocket && there.unitType() != UnitType.Worker) {
 						combatUnitsNeeded--;
 						//set combat unit's target to this rocket
 						Player.priorityTarget.put(there.id(), rocketLoc);
@@ -506,7 +506,7 @@ public class Worker {
             openList.offer(startHash);
             while (!openList.isEmpty()) {
                 int current = openList.poll();
-
+                /*
                 int remainingPath = doubleHash(current, goal);
                 if (Player.paths.containsKey(remainingPath)) {
                     //TODO: optimization once the killed has been fixed
@@ -519,7 +519,7 @@ public class Worker {
                         tempCur = nextNode;
                     }
                     current = goal;
-                }
+                }*/
 
                 if (current == goal) {
                     HashMap<Integer, Integer> path = new HashMap<Integer, Integer>();
@@ -594,11 +594,11 @@ public class Worker {
         //System.out.println(Player.paths.get(movingTo).containsKey(hash(curUnit.location().mapLocation())));
 
         if (!Player.paths.containsKey(movingTo)) {
-            //System.out.println("wot borked work move");
+            System.out.println("wot borked work move");
             //System.out.println("Enemy Location: " + Integer.toString(Player.enemyLocation.getX()) + " " + Integer.toString(Player.enemyLocation.getY()));
             //System.out.println("Cur location: " + Integer.toString(curLoc.getX()) + " " + Integer.toString(curLoc.getY()));
             //System.out.println("Target Location: " + Integer.toString(target.getX()) + " " + Integer.toString(target.getY()));
-            moveAttack(target);
+            //moveAttack(target);
             return;
         }
 
@@ -619,6 +619,11 @@ public class Worker {
                 if (blockedBy.unitType() == UnitType.Factory || blockedBy.unitType() == UnitType.Rocket || blockedBy.unitType() == UnitType.Worker) {
                     //if im not blocked by an attacking unit, then move aside
                     moveAttack(target);
+                } else {
+                	if (Player.timesReachedTarget >= 3) {
+                		gc.disintegrateUnit(blockedBy.id());
+                		move(target);
+                	}
                 }
             }
         }

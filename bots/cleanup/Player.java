@@ -17,6 +17,8 @@ public class Player {
     static long prevIncome;
     static long currentIncome;
     static boolean[][] gotoable;
+    static int blockedCount;
+    static int prevBlocked;
     //static UnitType[][] units;
     static boolean gotoableEmpty;
     static MapLocation[] unitLocations;
@@ -86,7 +88,6 @@ public class Player {
 
             unitLocations = new MapLocation[2500];
             //units = new UnitType[gridX][gridY];
-
             while (true) {
                 if (gc.planet() == Planet.Earth && gc.round() >= 750) {
                     gc.nextTurn();
@@ -98,6 +99,7 @@ public class Player {
                 numUnitsThisRound = 0;
                 Worker.numWorkers = 0;
                 Worker.numFacts = 0;
+                blockedCount = 0;
                 for (int i = 0; i < myUnits.size(); i++) {
                     Unit curUnit = myUnits.get(i);
                     try {
@@ -151,17 +153,18 @@ public class Player {
                     System.out.println("choose target borked");
                     e.printStackTrace();
                 }
-                
+                System.out.println(blockedCount);
+                prevBlocked = blockedCount;
 
 
                 try {
                     endTime = gc.getTimeLeftMs();
                     total += startTime - endTime;
                     averageTime = total / gc.round();
-                    //System.out.println("Time: " + Long.toString(startTime - endTime));
-                    //System.out.println("Average: " + Float.toString(averageTime));
+                    System.out.println("Time: " + Long.toString(startTime - endTime));
+                    System.out.println("Average: " + Float.toString(averageTime));
 
-                    //System.out.println("Time Left: " + Long.toString(gc.getTimeLeftMs()));
+                    System.out.println("Time Left: " + Long.toString(gc.getTimeLeftMs()));
                     prevIncome = currentIncome;
                     //Runtime runtime = Runtime.getRuntime();
 

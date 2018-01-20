@@ -25,9 +25,7 @@ public class Ranger {
 
         if (Player.priorityTarget.containsKey(curUnit.id())) {
             move(Player.priorityTarget.get(curUnit.id()));
-            if (gc.isMoveReady(curUnit.id())) {
-                moveAttack(Player.priorityTarget.get(curUnit.id()));
-            }
+            return;
         }
 
         Pair target = findNearestEnemy();
@@ -39,10 +37,8 @@ public class Ranger {
             rangerMicro(target.enemyClosest);
         } else if (target.enemyClosest == -1) {
             //explore if no units detected
+            System.out.println(Player.enemyLocation.toString());
             move(Player.enemyLocation);
-            if (gc.isMoveReady(curUnit.id())) {
-                moveAttack(Player.enemyLocation);
-            }
         }
 
     }
@@ -62,7 +58,7 @@ public class Ranger {
             attackNearbyEnemies();
             return;
         }
-        if (dist <= 50) {
+        if (dist < 50) {
             // within attack range
             if (canAttack()) {
                 gc.attack(curUnit.id(), enemyid);
@@ -82,9 +78,12 @@ public class Ranger {
         }
         // if distance is between 70 and 100, dont do anything
         // we can move closer if the enemy is not a ranger, though
-        if ((dist == 100 && gc.isMoveReady(curUnit.id())) || (dist < 100 && gc.unit(enemyid).unitType() != UnitType.Ranger)) {
-            moveCloser(enemyLoc);
+        if (gc.isMoveReady(curUnit.id())) {
+            if ((dist == 100) || (dist < 100 && gc.unit(enemyid).unitType() != UnitType.Ranger)) {
+                moveCloser(enemyLoc);
+            }
         }
+        
 
     }
 
@@ -191,40 +190,6 @@ public class Ranger {
         return nearby;
     }
 
-    public static boolean moveAttack(MapLocation target) {
-        if (!gc.isMoveReady(curUnit.id())) {
-            return false;
-        }
-        //greedy pathfinding
-        int smallest = 999999;
-        Direction d = null;
-        MapLocation curLoc = curUnit.location().mapLocation();
-        int hash = hash(curLoc.getX(), curLoc.getY());
-        if (!visited.containsKey(curUnit.id())) {
-            HashSet<Integer> temp = new HashSet<Integer>();
-            temp.add(hash);
-            visited.put(curUnit.id(), temp);
-        } else {
-            visited.get(curUnit.id()).add(hash);
-        }
-        for (int i = 0; i < directions.length; i++) {
-            MapLocation newSquare = curLoc.add(directions[i]);
-            int dist = distance(newSquare, target);
-            if (!visited.get(curUnit.id()).contains(hash(newSquare.getX(), newSquare.getY())) && gc.canMove(curUnit.id(), directions[i]) && dist < smallest) {
-                smallest = distance(newSquare, target);
-                d = directions[i];
-            }
-        }
-        if (d == null) {
-            //can't move
-            //TODO change
-            visited.remove(curUnit.id());
-            return false;
-        }
-        gc.moveRobot(curUnit.id(), d);
-        return true;
-    }
-
     //pathing
     //move towards target location
     public static void move(MapLocation target) {
@@ -243,7 +208,7 @@ public class Ranger {
             HashMap<Integer, Integer> fromMap = new HashMap<Integer, Integer>();
             PriorityQueue<Integer> openList = new PriorityQueue<Integer>(11, new Comparator<Integer>() {
                 public int compare(Integer nodeA, Integer nodeB) {
-                    return Integer.compare(fScore.get(nodeA), fScore.get(nodeB));
+                    return Integer.compare(fScore.containsKey(nodeA) ? fScore.get(nodeA) : 9999999, fScore.containsKey(nodeB) ? fScore.get(nodeB) : 9999999);
                 }
             });
 
@@ -254,7 +219,7 @@ public class Ranger {
             openList.offer(startHash);
             while (!openList.isEmpty()) {
                 int current = openList.poll();
-
+                /*
                 int remainingPath = doubleHash(current, goal);
                 if (Player.paths.containsKey(remainingPath)) {
                     //TODO: optimization once the killed has been fixed
@@ -267,7 +232,7 @@ public class Ranger {
                         tempCur = nextNode;
                     }
                     current = goal;
-                }
+                }*/
 
                 if (current == goal) {
                     HashMap<Integer, Integer> path = new HashMap<Integer, Integer>();
@@ -318,21 +283,19 @@ public class Ranger {
                             continue;
                         }
 
+                        if (!openList.contains(neighbor)) {
+                            openList.add(neighbor);
+                        }
+
                         int tentG = gScore.get(current) + 1;
 
-                        boolean contains = openList.contains(neighbor);
-                        if (!contains || tentG < gScore.get(neighbor)) {
-                            gScore.put(neighbor, tentG);
-                            fScore.put(neighbor, tentG + manDistance(neighbor, hash(target.getX(), target.getY())));
-
-                            if (contains) {
-                                openList.remove(neighbor);
-                            }
-
-                            openList.offer(neighbor);
-                            //System.out.println("Add: " + print(neighbor));
-                            fromMap.put(neighbor, current);
+                        if (gScore.containsKey(neighbor) && tentG >= gScore.get(neighbor)) {
+                            continue;
                         }
+                        fScore.put(neighbor, tentG + manDistance(neighbor, hash(target.getX(), target.getY())));
+                        openList.offer(neighbor);
+                        gScore.put(neighbor, tentG);
+                        fromMap.put(neighbor, current);
                     }
                 }
             }
@@ -343,11 +306,11 @@ public class Ranger {
         
 
         if (!Player.paths.containsKey(movingTo)) {
-            //System.out.println("wot borked");
+            System.out.println("wot borked");
             //System.out.println("Enemy Location: " + Integer.toString(Player.enemyLocation.getX()) + " " + Integer.toString(Player.enemyLocation.getY()));
             //System.out.println("Cur location: " + Integer.toString(curLoc.getX()) + " " + Integer.toString(curLoc.getY()));
             //System.out.println("Target Location: " + Integer.toString(target.getX()) + " " + Integer.toString(target.getY()));
-            moveAttack(target);
+            //moveAttack(target);
             return;
         }
 
@@ -362,12 +325,8 @@ public class Ranger {
             gc.moveRobot(curUnit.id(), temp);
         } else {
             //blocked by something
-            MapLocation tryToGoTo = curUnit.location().mapLocation().add(temp);
-            Unit blockedBy = gc.senseUnitAtLocation(tryToGoTo);
-            if (blockedBy.unitType() == UnitType.Factory || blockedBy.unitType() == UnitType.Rocket || blockedBy.unitType() == UnitType.Worker) {
-                //if im not blocked by an attacking unit, then move aside
-                moveAttack(target);
-            }
+            Player.blockedCount++;
+            //moveAttack(target);
         }
     }
 
