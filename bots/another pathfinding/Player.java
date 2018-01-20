@@ -161,7 +161,7 @@ public class Player {
                     System.out.println("choose target borked");
                     e.printStackTrace();
                 }
-                System.out.println(blockedCount);
+                //System.out.println(blockedCount);
                 prevBlocked = blockedCount;
 
 
@@ -169,9 +169,9 @@ public class Player {
                     endTime = gc.getTimeLeftMs();
                     total += startTime - endTime;
                     averageTime = total / gc.round();
-                    System.out.println("Time: " + Long.toString(startTime - endTime));
-                    System.out.println("Average: " + Float.toString(averageTime));
-                    System.out.println("Time Left: " + Long.toString(gc.getTimeLeftMs()));
+                    //System.out.println("Time: " + Long.toString(startTime - endTime));
+                    //System.out.println("Average: " + Float.toString(averageTime));
+                    //System.out.println("Time Left: " + Long.toString(gc.getTimeLeftMs()));
                     prevIncome = currentIncome;
                     if (gc.round() % 25 == 0) {
                         System.gc();

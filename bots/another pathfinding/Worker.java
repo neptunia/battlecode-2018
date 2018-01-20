@@ -19,6 +19,7 @@ public class Worker {
 	static HashMap<Integer, Integer> karboniteIndex = new HashMap<Integer, Integer>();
 	static int numKarbsCounter = 0;
 	static int factsQueued = 0;
+	static boolean wentToMine = false;
 	static HashMap<Integer, MapLocation> karboniteTargets = new HashMap<Integer, MapLocation>();
 	//set of factories or rockets a worker is going to build to prevent ppl queueing the saem location
 	static HashSet<Integer> structuresToBuild = new HashSet<Integer>();
@@ -41,7 +42,7 @@ public class Worker {
 					if (gc.canReplicate(curUnit.id(), directions[i])) {
 						gc.replicate(curUnit.id(), directions[i]);
 						Player.workerCount++;
-						Worker.run(gc.senseUnitAtLocation(curUnit.location().mapLocation().add(directions[i])));
+						//Worker.run(gc.senseUnitAtLocation(curUnit.location().mapLocation().add(directions[i])));
 						break;
 					}
 				}
@@ -52,11 +53,14 @@ public class Worker {
 		//if i do have a target blueprint
 		if (target.containsKey(curUnit.id())) {
 			workOnBlueprint();
+			removeBuildStructureTarget();
+			removeKarboniteTarget();
 			return;
 		}
 
 		if (gc.round() < 10 && distance(curLoc, selectKarbonite()) <= 4) {
 			goMine();
+			removeBuildStructureTarget();
 			replicateAnywhere();
 			return;
 		}
@@ -64,6 +68,7 @@ public class Worker {
 
 		if (buildBlueprintLocation.containsKey(curUnit.id())) {
 			buildStructure(UnitType.Factory);
+			removeKarboniteTarget();
 			return;
 		}
 
@@ -75,15 +80,34 @@ public class Worker {
 
 		if (Player.prevBlocked < 10 && numFacts < 5 && gc.karbonite() >= 120 && Player.timesReachedTarget < 3) {
 			buildStructure(UnitType.Factory);
+			removeKarboniteTarget();
 		} else if (karbonitesLeft && gc.karbonite() < 200) {
 			goMine();
+			removeBuildStructureTarget();
 		} else if (gc.karbonite() >= 75 && gc.researchInfo().getLevel(UnitType.Rocket) > 0) {
 			buildStructure(UnitType.Rocket);
+			removeKarboniteTarget();
 		} else if (karbonitesLeft) {
 			goMine();
+			removeBuildStructureTarget();
 		} else {
+			System.out.println("nothing to do");
 			//nothing to do
 			moveAnywhere();
+		}
+	}
+
+	public static void removeKarboniteTarget() {
+		if (karboniteTargets.containsKey(curUnit.id())) {
+			karboniteTargets.remove(curUnit.id());
+		}
+	}
+
+	public static void removeBuildStructureTarget() {
+		if (buildBlueprintLocation.containsKey(curUnit.id())) {
+			MapLocation temp = buildBlueprintLocation.get(curUnit.id());
+			structuresToBuild.remove(hash(temp));
+			buildBlueprintLocation.remove(curUnit.id());
 		}
 	}
 
@@ -147,7 +171,7 @@ public class Worker {
 							if (makeWay(temp, cantGo, blueprintLoc) && gc.canReplicate(curUnit.id(), directions[i])) {
 								gc.replicate(curUnit.id(), directions[i]);
 								target.put(gc.senseUnitAtLocation(temp).id(), targetBlueprint);
-								Worker.run(gc.senseUnitAtLocation(curUnit.location().mapLocation().add(directions[i])));
+								//Worker.run(gc.senseUnitAtLocation(curUnit.location().mapLocation().add(directions[i])));
 								break;
 							}
 						}
@@ -244,13 +268,14 @@ public class Worker {
 				gc.replicate(curUnit.id(), directions[i]);
 				//karboniteList.put(gc.senseUnitAtLocation(curLoc.add(directions[i])).id(), karboniteList.get(curUnit.id()));
 				numWorkers++;
-				Worker.run(gc.senseUnitAtLocation(curUnit.location().mapLocation().add(directions[i])));
+				//Worker.run(gc.senseUnitAtLocation(curUnit.location().mapLocation().add(directions[i])));
 				return;
 			}
 		}
 	}
 
 	public static void goMine() {
+		wentToMine = true;
 		if (!karboniteTargets.containsKey(curUnit.id())) {
 			karboniteTargets.put(curUnit.id(), selectKarbonite());
 		}
@@ -415,7 +440,7 @@ public class Worker {
 		while (!queue.isEmpty()) {
 			MapLocation current = queue.poll();
 			//System.out.println("HI");
-			if (manDistance(facLoc, current) > 4) {
+			if (manDistance(facLoc, current) > 3) {
 				//System.out.println(workersNeeded);
 				return;
 			}
@@ -545,7 +570,7 @@ public class Worker {
             }
         }
         if (gc.isMoveReady(curUnit.id())) {
-        	moveAnywhere();
+        	//moveAnywhere();
         }
     }
 
