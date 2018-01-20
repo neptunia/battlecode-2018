@@ -99,13 +99,27 @@ public class Mage {
 
             return;
         }
-        if (canAttack()) {
-            gc.attack(curUnit.id(), enemyid);
+        // if they're in attack range, attack them and run
+        if (dist < 30) {
+            if (canAttack()) {
+                gc.attack(curUnit.id(), enemyid);
+            }
+            if (gc.isMoveReady(curUnit.id())) {
+                moveAway(enemyLoc);
+            }
+            return;
         }
-        if (gc.isMoveReady(curUnit.id())) {
-            moveAway(enemyLoc);
+        if (dist <= 48) {
+            // try moving closer and attack
+            if (gc.isMoveReady(curUnit.id()) && canAttack() && moveCloser(enemyLoc) && gc.canAttack(curUnit.id(), enemyid)) {
+                // move was successful
+                gc.attack(curUnit.id(), enemyid);
+            } else {
+                gc.attack(curUnit.id(), closestenemy);
+            }
+            return;
         }
-        return;
+        
         
     }
 
@@ -118,7 +132,7 @@ public class Mage {
 
 
     //calc which direction maximizes distance between enemy and mage
-    public static void moveAway(MapLocation enemy) {
+    public static boolean moveAway(MapLocation enemy) {
         int best = distance(curUnit.location().mapLocation(), enemy);
         Direction bestd = null;
         for (int i = 0; i < directions.length; i++) {
@@ -130,7 +144,27 @@ public class Mage {
         }
         if (bestd != null) {
             gc.moveRobot(curUnit.id(), bestd);
+            return true;
         }
+        return false;
+    }
+
+    // calc which direction minimizes distance between enemy and mage
+    public static boolean moveCloser(MapLocation enemy) {
+        int best = distance(curUnit.location().mapLocation(), enemy);
+        Direction bestd = null;
+        for (int i = 0; i < directions.length; i++) {
+            MapLocation temp = curUnit.location().mapLocation().add(directions[i]);
+            if (gc.canMove(curUnit.id(), directions[i]) && distance(temp, enemy) < best) {
+                best = distance(temp, enemy);
+                bestd = directions[i];
+            }
+        }
+        if (bestd != null) {
+            gc.moveRobot(curUnit.id(), bestd);
+            return true;
+        }
+        return false;
     }
 
     //different from both knight and ranger pair
@@ -146,7 +180,8 @@ public class Mage {
     //finds best unit to attack
     public static Pair findBestUnit() {
         Pair ret = new Pair();
-        VecUnit nearby = gc.senseNearbyUnitsByTeam(curUnit.location().mapLocation(), curUnit.visionRange(), Player.enemyTeam);
+        // 48 is attackmove range
+        VecUnit nearby = gc.senseNearbyUnitsByTeam(curUnit.location().mapLocation(), 48, Player.enemyTeam);
         if (nearby.size() == 0) {
             return ret;
         }
