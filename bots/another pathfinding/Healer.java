@@ -144,7 +144,7 @@ public class Healer {
         for (int i = 0; i < nearbyUnits.size(); i++) {
             Unit unit = nearbyUnits.get(i);
             //if can attack this enemy unit
-            if (unit.team() == gc.team() && gc.isHealReady(curUnit.id()) && gc.canHeal(curUnit.id(), unit.id())) {
+            if (unit.team() == gc.team() && gc.isHealReady(curUnit.id())) {
                 if (unit.health() > maxHp && unit.maxHealth() - unit.health() >= Math.abs(curUnit.damage())) {
                     maxHp = unit.health();
                     id = unit.id();
