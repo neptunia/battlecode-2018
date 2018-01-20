@@ -91,7 +91,7 @@ public class Player {
                 if (gc.planet() == Planet.Earth && gc.round() >= 750) {
                     gc.nextTurn();
                 }
-
+                
                 currentIncome = 10 - Math.max(gc.karbonite() / 40, 0);
                 long currentRound = gc.round();
                 VecUnit myUnits = gc.myUnits();
@@ -141,40 +141,49 @@ public class Player {
                                 Worker.run(curUnit);
                         }
                     } catch (Exception e) {
-                        //System.out.println("unit died");
+                        System.out.println("unit died");
                         e.printStackTrace();
                     }
                 }
+                try {
+                    chooseTarget();
+                } catch (Exception e) {
+                    System.out.println("choose target borked");
+                    e.printStackTrace();
+                }
+                
 
-                chooseTarget();
 
+                try {
+                    endTime = gc.getTimeLeftMs();
+                    total += startTime - endTime;
+                    averageTime = total / gc.round();
+                    //System.out.println("Time: " + Long.toString(startTime - endTime));
+                    //System.out.println("Average: " + Float.toString(averageTime));
 
+                    //System.out.println("Time Left: " + Long.toString(gc.getTimeLeftMs()));
+                    prevIncome = currentIncome;
+                    //Runtime runtime = Runtime.getRuntime();
 
-                endTime = gc.getTimeLeftMs();
-                total += startTime - endTime;
-                averageTime = total / gc.round();
-                System.out.println("Time: " + Long.toString(startTime - endTime));
-                System.out.println("Average: " + Float.toString(averageTime));
+                    //NumberFormat format = NumberFormat.getInstance();
 
-                System.out.println("Time Left: " + Long.toString(gc.getTimeLeftMs()));
-                prevIncome = currentIncome;
-                //Runtime runtime = Runtime.getRuntime();
+                    //StringBuilder sb = new StringBuilder();
+                    //long maxMemory = runtime.maxMemory();
+                    //long allocatedMemory = runtime.totalMemory();
+                    //long freeMemory = runtime.freeMemory();
 
-                //NumberFormat format = NumberFormat.getInstance();
-
-                //StringBuilder sb = new StringBuilder();
-                //long maxMemory = runtime.maxMemory();
-                //long allocatedMemory = runtime.totalMemory();
-                //long freeMemory = runtime.freeMemory();
-
-                //sb.append("free memory: " + format.format(freeMemory / 1024) + "<br/>");
-                //sb.append("allocated memory: " + format.format(allocatedMemory / 1024) + "<br/>");
-                //sb.append("max memory: " + format.format(maxMemory / 1024) + "<br/>");
-                //sb.append("total free memory: " + format.format((freeMemory + (maxMemory - allocatedMemory)) / 1024) + "<br/>");
-                //System.out.println(sb);
-                //System.out.println("Enemy location: " + Integer.toString(enemyLocation.getX()) + ", " + Integer.toString(enemyLocation.getY()));
-                //System.out.println("Round: " + Long.toString(gc.round()));
-                startTime = endTime;
+                    //sb.append("free memory: " + format.format(freeMemory / 1024) + "<br/>");
+                    //sb.append("allocated memory: " + format.format(allocatedMemory / 1024) + "<br/>");
+                    //sb.append("max memory: " + format.format(maxMemory / 1024) + "<br/>");
+                    //sb.append("total free memory: " + format.format((freeMemory + (maxMemory - allocatedMemory)) / 1024) + "<br/>");
+                    //System.out.println(sb);
+                    //System.out.println("Enemy location: " + Integer.toString(enemyLocation.getX()) + ", " + Integer.toString(enemyLocation.getY()));
+                    //System.out.println("Round: " + Long.toString(gc.round()));
+                    startTime = endTime;
+                } catch (Exception e) {
+                    System.out.println("time borked");
+                    e.printStackTrace();
+                }
                 gc.nextTurn();
             }
         } catch (Exception e) {
@@ -329,8 +338,8 @@ public class Player {
                 }
             }
             c = 0;
-            for (int i = 0; i < startingmap.getWidth(); i += 2) {
-                for (int j = 0; j < startingmap.getHeight(); j += 2) {
+            for (int i = 0; i < startingmap.getWidth(); i += 3) {
+                for (int j = 0; j < startingmap.getHeight(); j += 3) {
                     //adding by two ensures that landing spots will never be adjacent
                     //inb4 they cuck us and give us only tiny pockets
                     if (map[i][j] == best && c < 100) {

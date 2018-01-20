@@ -114,8 +114,8 @@ public class Worker {
 					gc.build(curUnit.id(), targetBlueprint);
 				} else {
 					//couldnt work on it
-					System.out.println("Blueprint location: " + blueprintLoc.toString());
-					System.out.println("couldnt work on blueprint");
+					//System.out.println("Blueprint location: " + blueprintLoc.toString());
+					//System.out.println("couldnt work on blueprint");
 				}
 				/*
 				if (gc.isMoveReady(curUnit.id())) {
@@ -393,7 +393,7 @@ public class Worker {
 			MapLocation current = queue.poll();
 			//System.out.println("HI");
 			if (manDistance(facLoc, current) > 4) {
-				System.out.println(workersNeeded);
+				//System.out.println(workersNeeded);
 				return;
 			}
 			for (int i = 0; i < directions.length; i++) {
