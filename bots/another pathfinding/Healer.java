@@ -23,24 +23,7 @@ public class Healer {
         curLoc = curUnit.location().mapLocation();
 
         healerMicro();
-        /*
-        curLoc = curUnit.location().mapLocation();
-        int nearestEnemy = findNearestEnemy();
-        if (nearestEnemy == -1) {
-            if (gc.isMoveReady(curUnit.id())) {
-                move(Player.enemyLocation);
-            }
-            if (canHeal()) {
-                healNearbyAllies();
-            }
-        } else {
-            if (gc.isMoveReady(curUnit.id())){
-                moveAway(gc.unit(nearestEnemy).location().mapLocation());
-            }
-            if (canHeal()) {
-                healNearbyAllies();
-            }
-        }*/
+
     }
 
     public static void healerMicro() {
@@ -256,14 +239,11 @@ public class Healer {
                 gc.moveRobot(curUnit.id(), Direction.Southwest);
             }
         } else {
-            //bfs hasnt been run yet
-            Player.bfs(target);
-            move(target);
+            //cant get there
+            System.out.println("cant get there");
         }
-        //i didn't move :(
         if (gc.isMoveReady(curUnit.id())) {
             Player.blockedCount++;
-            moveCloser(target);
         }
     }
 

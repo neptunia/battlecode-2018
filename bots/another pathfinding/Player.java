@@ -452,9 +452,6 @@ public class Player {
             int distance = visitedDistances.get(curHash);
             pathDistances[pointHash][current.getX()][current.getY()] = distance;
             if (stopHash == curHash) {
-                stopDistance = distance;
-            }
-            if (distance > stopDistance) {
                 return true;
             }
             for (int i = 0; i < directions.length; i++) {

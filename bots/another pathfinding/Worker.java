@@ -67,12 +67,12 @@ public class Worker {
 		}
 
 		//not enough workers - replicate
-		if ((numWorkers < 10 || numWorkers < (int) Math.round(Math.sqrt((Player.planetMap.getHeight()) * (Player.planetMap.getWidth())) / 1.5))) {
+		if ((numWorkers < 6 || numWorkers < (int) Math.round(Math.sqrt((Player.planetMap.getHeight()) * (Player.planetMap.getWidth())) / 2 / Math.sqrt(gc.round())))) {
 			replicateAnywhere();
 		}
 
 
-		if (Player.prevBlocked < 10 && gc.karbonite() >= 120 && Player.timesReachedTarget < 3) {
+		if (Player.prevBlocked < 10 && numFacts < 5 && gc.karbonite() >= 120 && Player.timesReachedTarget < 3) {
 			buildStructure(UnitType.Factory);
 		} else if (karbonitesLeft && gc.karbonite() < 200) {
 			goMine();
@@ -80,6 +80,15 @@ public class Worker {
 			buildStructure(UnitType.Rocket);
 		} else {
 			//nothing to do
+			if (gc.isMoveReady(curUnit.id())) {
+				for (int i = 0; i < directions.length; i++) {
+					if (gc.canMove(curUnit.id(), directions[i])) {
+						gc.moveRobot(curUnit.id(), directions[i]);
+						return;
+					}
+				}
+			}
+			
 		}
 	}
 
@@ -121,8 +130,7 @@ public class Worker {
 					makeWay(curLoc, new HashSet<Integer>(), blueprintLoc));
 				}
 				*/
-
-				if (curUnit.abilityHeat() < 10) {
+				if (curUnit.abilityHeat() < 10 && numWorkers < (int) Math.round(Math.sqrt((Player.planetMap.getHeight()) * (Player.planetMap.getWidth())) / 2 / Math.sqrt(gc.round()))) {
 					//try replicating to where there's this blueprint while making others move if they can
 					MapLocation temp = null;
 					for (int i = 0; i < directions.length; i++) {
@@ -348,9 +356,9 @@ public class Worker {
 		//if i can build it
 		if (distance(curLoc, blueprintLocation) <= 2) {
 			//someone's probably blocking it
-			if (!gc.canBlueprint(curUnit.id(), type, dirToBlueprint)) {
-				moveAway(blueprintLocation, new HashSet<Integer>());
-			}
+			//if (!gc.canBlueprint(curUnit.id(), type, dirToBlueprint)) {
+				//moveAway(blueprintLocation, new HashSet<Integer>());
+			//}
 			if (gc.canBlueprint(curUnit.id(), type, dirToBlueprint)) {
 				gc.blueprint(curUnit.id(), type, dirToBlueprint);
 				Unit blueprint = gc.senseUnitAtLocation(blueprintLocation);
@@ -511,10 +519,6 @@ public class Worker {
             if (Player.bfsMin(target, curLoc)) {
             	move(target);
             }
-        }
-        //i didn't move :(
-        if (gc.isMoveReady(curUnit.id())) {
-            
         }
     }
 

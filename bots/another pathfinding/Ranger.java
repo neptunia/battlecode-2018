@@ -206,6 +206,9 @@ public class Ranger {
             //cant get there
             System.out.println("cant get there");
         }
+        if (gc.isMoveReady(curUnit.id())) {
+            Player.blockedCount++;
+        }
     }
 
     public static int doubleHash(int x1, int y1, int x2, int y2) {

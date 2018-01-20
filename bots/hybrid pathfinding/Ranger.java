@@ -203,7 +203,7 @@ public class Ranger {
 
     public static boolean moveAttack(MapLocation target) {
         if (!gc.isMoveReady(curUnit.id())) {
-            return;
+            return false;
         }
         //greedy pathfinding
         int smallest = 999999;
