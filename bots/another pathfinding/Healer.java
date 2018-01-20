@@ -62,6 +62,7 @@ public class Healer {
         if (!moveHeal()) {
             // lol no friendlies nearby either
             if (gc.isMoveReady(curUnit.id())) {
+                curLoc = curUnit.location().mapLocation();
                 move(Player.enemyLocation);
             }
         }
