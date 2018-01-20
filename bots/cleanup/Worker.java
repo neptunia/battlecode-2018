@@ -18,10 +18,6 @@ public class Worker {
 	static MapLocation[] karbonites;
 	static int numKarbsCounter = 0;
 	static int factsQueued = 0;
-	//static HashMap<Integer, Integer> karboniteList = new HashMap<Integer, Integer>();
-	//static MapLocation[][] karboniteSorted;
-	//static int[] currentKarbonite;
-	//karbonite target a worker is going to
 	static HashMap<Integer, MapLocation> karboniteTargets = new HashMap<Integer, MapLocation>();
 	//set of factories or rockets a worker is going to build to prevent ppl queueing the saem location
 	static HashSet<Integer> structuresToBuild = new HashSet<Integer>();
@@ -31,7 +27,7 @@ public class Worker {
 		Worker.curUnit = curUnit;
 		curPlanet = gc.planet();
 
-		if (curUnit.location().isInSpace()) {
+		if (curUnit.location().isInGarrison() || curUnit.location().isInSpace()) {
 			return;
 		}
 		curLoc = curUnit.location().mapLocation();
@@ -56,11 +52,12 @@ public class Worker {
 			workOnBlueprint();
 			return;
 		}
-
+		/*
 		if (gc.round() < 5 && distance(curLoc, selectKarbonite()) <= 4 && Player.gridX * Player.gridY >= 900) {
 			goMine();
 			return;
 		}
+		*/
 
 		if (buildBlueprintLocation.containsKey(curUnit.id())) {
 			buildStructure(UnitType.Factory);
@@ -87,12 +84,24 @@ public class Worker {
 
 	public static void workOnBlueprint() {
 		int targetBlueprint = target.get(curUnit.id());
-		Unit toWorkOn = gc.unit(targetBlueprint);
+		Unit toWorkOn = null;
+		try {
+			toWorkOn = gc.unit(targetBlueprint);
+		} catch (Exception e) {
+			//blueprint probably died
+			target.remove(curUnit.id());
+			Worker.run(curUnit);
+		}
+		
 
 		MapLocation blueprintLoc = toWorkOn.location().mapLocation();
 		//already done working on
 		if (toWorkOn.health() == toWorkOn.maxHealth()) {
 			target.remove(curUnit.id());
+			if (toWorkOn.unitType() == UnitType.Rocket && !Rocket.assignedUnits.contains(targetBlueprint)) {
+				assignUnits(blueprintLoc);
+				Rocket.assignedUnits.add(targetBlueprint);
+			}
 			Worker.run(curUnit);
 		} else {
 			//goto it and build it
@@ -130,7 +139,7 @@ public class Worker {
 				}
 				
 			} else {
-				//move towards it
+				//move towards it while optimizing workers around factory
 				if (gc.isMoveReady(curUnit.id())) {
 					if (manDistance(curLoc, blueprintLoc) == 2) {
 						MapLocation temp = null;
@@ -146,7 +155,7 @@ public class Worker {
 							}
 						}
 					} else {
-						moveAttack(blueprintLoc);
+						move(blueprintLoc);
 					}
 				}
 			}
@@ -342,6 +351,8 @@ public class Worker {
 	                numFacts++;
 	            }
 	            assignWorkers(blueprintLocation, targetBlueprint);
+			} else {
+				//someone's there blocking me
 			}
 			
 		} else {
@@ -381,9 +392,9 @@ public class Worker {
 					if (there.unitType() == UnitType.Worker && !target.containsKey(there.id())) {
 						//if worker can replicate
 						if (there.abilityHeat() < 10) {
-							workersNeeded += 4;
+							workersNeeded -= 4;
 						} else {
-							workersNeeded++;
+							workersNeeded--;
 						}
 						target.put(there.id(), id);
 						//System.out.println("WEW FOUND A WORKER");
@@ -401,6 +412,57 @@ public class Worker {
 			}
 		}
 	}
+	
+	public static void assignUnits(MapLocation rocketLoc) {
+		LinkedList<MapLocation> queue = new LinkedList<MapLocation>();
+		HashSet<Integer> visited = new HashSet<Integer>();
+		queue.add(rocketLoc);
+		visited.add(hash(rocketLoc));
+		//int workersNeeded = 1;
+		int combatUnitsNeeded = 7;
+		while (!queue.isEmpty()) {
+			MapLocation current = queue.poll();
+			//System.out.println("HI");
+			for (int i = 0; i < directions.length; i++) {
+				MapLocation toCheck = current.add(directions[i]);
+				//if (workersNeeded == 0 && combatUnitsNeeded == 0) {
+					//return;
+				//}
+				if (combatUnitsNeeded == 0) {
+					return;
+				}
+				try {
+					Unit there = gc.senseUnitAtLocation(toCheck);
+					if (there.unitType() != UnitType.Factory && there.unitType() != UnitType.Rocket) {
+						combatUnitsNeeded--;
+						//set combat unit's target to this rocket
+						Player.priorityTarget.put(there.id(), rocketLoc);
+					}
+					/*
+					if (there.unitType() == UnitType.Worker) {
+						workersNeeded--;
+						//set worker target to this rocket
+						Player.priorityTarget.put(there.id(), rocketLoc);
+					} else if (there.unitType() != UnitType.Factory && there.unitType() != UnitType.Rocket) {
+						combatUnitsNeeded--;
+						//set combat unit's target to this rocket
+						Player.priorityTarget.put(there.id(), rocketLoc);
+					}*/
+				} catch (Exception e) {
+					//no unit there
+					//e.printStackTrace();
+				}
+				int x = toCheck.getX();
+				int y = toCheck.getY();
+				if (x >= 0 && x < Player.gridX && y >= 0 && y < Player.gridY && Player.gotoable[toCheck.getX()][toCheck.getY()] && !visited.contains(hash(toCheck))) {
+					queue.add(toCheck);
+					visited.add(hash(toCheck));
+				}
+			}
+		}
+		System.out.println("Rip not enough units to put into rocket");
+	}
+	
 
     //pathing
     //move towards target location

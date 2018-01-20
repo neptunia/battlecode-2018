@@ -33,8 +33,8 @@ public class Factory {
 		Player.currentIncome -= 4;
 		//produce unit if no rockets have been started AND rockets can be built
 		if (gc.canProduceRobot(curUnit.id(), UnitType.Ranger)) {
-			gc.produceRobot(curUnit.id(), UnitType.Ranger);
-			c += 1;
+			//gc.produceRobot(curUnit.id(), UnitType.Ranger);
+			//c += 1;
 		}
 
 		return;

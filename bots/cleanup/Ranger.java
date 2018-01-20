@@ -11,31 +11,23 @@ public class Ranger {
     static MapLocation curLoc;
     static HashMap<Integer, HashSet<Integer>> visited = new HashMap<Integer, HashSet<Integer>>();
     static HashMap<Integer, Integer> prevLocation = new HashMap<Integer, Integer>();
-    static HashMap<Integer, MapLocation> priorityTarget = new HashMap<Integer, MapLocation>();
 
     public static void run(GameController gc, Unit curUnit) {
 
         Ranger.curUnit = curUnit;
         curPlanet = gc.planet();
 
-        if (curUnit.location().isInGarrison()) {
+        if (curUnit.location().isInGarrison() || curUnit.location().isInSpace()) {
             return;
         }
 
         curLoc = curUnit.location().mapLocation();
 
-        if (priorityTarget.containsKey(curUnit.id())) {
-            //i have a priority target
-            //System.out.println("Cur pos: " + Integer.toString(curLoc.getX()) + " " + Integer.toString(curLoc.getY()));
-            //System.out.println("Cur pos: " + Integer.toString(priorityTarget.get(curUnit.id()).getX()) + " " + Integer.toString(priorityTarget.get(curUnit.id()).getY()));
-            try {
-                move(priorityTarget.get(curUnit.id()));
-                return;
-            } catch (Exception e) {
-                priorityTarget.remove(curUnit.id());
+        if (Player.priorityTarget.containsKey(curUnit.id())) {
+            move(Player.priorityTarget.get(curUnit.id()));
+            if (gc.isMoveReady(curUnit.id())) {
+                moveAttack(Player.priorityTarget.get(curUnit.id()));
             }
-            
-            
         }
 
         Pair target = findNearestEnemy();
@@ -47,11 +39,9 @@ public class Ranger {
             rangerMicro(target.enemyClosest);
         } else if (target.enemyClosest == -1) {
             //explore if no units detected
-            if (canMove()) {
-                move(Player.enemyLocation);
-                if (canMove()) {
-                    moveAttack(Player.enemyLocation);
-                }
+            move(Player.enemyLocation);
+            if (gc.isMoveReady(curUnit.id())) {
+                moveAttack(Player.enemyLocation);
             }
         }
 
