@@ -81,7 +81,7 @@ public class Mage {
             // too close!
             // only attack it if I can kill it. If not, it's a lost cause anyways.
             // TODO: if an enemy worker is next to me i don't really care
-            if isKillable(gc.unit(closestenemy)) {
+            if (isKillable(gc.unit(closestenemy))) {
                 if (gc.isMoveReady(curUnit.id())) {
                     moveAway(enemyLoc);    
                 }
