@@ -203,14 +203,8 @@ public class Ranger {
                 gc.moveRobot(curUnit.id(), Direction.Southwest);
             }
         } else {
-            //bfs hasnt been run yet
-            Player.bfs(target);
-            move(target);
-        }
-        //i didn't move :(
-        if (gc.isMoveReady(curUnit.id())) {
-            Player.blockedCount++;
-            moveCloser(target);
+            //cant get there
+            System.out.println("cant get there");
         }
     }
 

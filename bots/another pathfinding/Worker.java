@@ -508,8 +508,9 @@ public class Worker {
         } else {
             //bfs hasnt been run yet
             //Player.bfsMin(target, curLoc);
-            Player.bfs(target);
-            move(target);
+            if (Player.bfsMin(target, curLoc)) {
+            	move(target);
+            }
         }
         //i didn't move :(
         if (gc.isMoveReady(curUnit.id())) {

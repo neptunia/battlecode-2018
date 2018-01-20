@@ -438,14 +438,14 @@ public class Player {
         }
     }
 
-    public static void bfsMin(MapLocation point, MapLocation stop) {
+    public static boolean bfsMin(MapLocation point, MapLocation stop) {
         LinkedList<MapLocation> queue = new LinkedList<MapLocation>();
         HashMap<Integer, Integer> visitedDistances = new HashMap<Integer, Integer>();
         queue.add(point);
         int pointHash = hash(point);
         int stopHash = hash(stop);
         visitedDistances.put(hash(point), 0);
-        int stopDistance = -1;
+        int stopDistance = 99999999;
         while (!queue.isEmpty()) {
             MapLocation current = queue.poll();
             int curHash = hash(current);
@@ -455,7 +455,7 @@ public class Player {
                 stopDistance = distance;
             }
             if (distance > stopDistance) {
-                return;
+                return true;
             }
             for (int i = 0; i < directions.length; i++) {
                 MapLocation neighbor = current.add(directions[i]);
@@ -466,6 +466,7 @@ public class Player {
                 }
             }
         }
+        return false;
     }
 
     public static boolean onMap(MapLocation test) {
