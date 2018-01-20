@@ -78,15 +78,20 @@ public class Worker {
 			goMine();
 		} else if (gc.karbonite() >= 75 && gc.researchInfo().getLevel(UnitType.Rocket) > 0) {
 			buildStructure(UnitType.Rocket);
+		} else if (karbonitesLeft) {
+			goMine();
 		} else {
 			//nothing to do
-			System.out.println("nothing to do");
-			if (gc.isMoveReady(curUnit.id())) {
-				for (int i = 0; i < directions.length; i++) {
-					if (gc.canMove(curUnit.id(), directions[i])) {
-						gc.moveRobot(curUnit.id(), directions[i]);
-						return;
-					}
+			moveAnywhere();
+		}
+	}
+
+	public static void moveAnywhere() {
+		if (gc.isMoveReady(curUnit.id())) {
+			for (int i = 0; i < directions.length; i++) {
+				if (gc.canMove(curUnit.id(), directions[i])) {
+					gc.moveRobot(curUnit.id(), directions[i]);
+					return;
 				}
 			}
 		}
@@ -305,9 +310,17 @@ public class Worker {
 					queue.add(test);
 				}
 			}
-
 			int around = 0;
-			VecUnit nearby = gc.senseNearbyUnitsByTeam(current, 1, Player.myTeam);
+			for (int i = 0; i < directions.length; i++) {
+				MapLocation test = current.add(directions[i]);
+				if (onMap(test) && !Player.gotoable[test.getX()][test.getY()]) {
+					around++;
+					break;
+				}
+			}
+
+			
+			VecUnit nearby = gc.senseNearbyUnitsByTeam(current, 2, Player.myTeam);
 			for (int i = 0; i < nearby.size(); i++) {
 				UnitType temp = nearby.get(i).unitType();
 				//TODO maybe add unittype.rocket too
@@ -521,6 +534,9 @@ public class Worker {
             } else {
             	System.out.println("cant get there worker");
             }
+        }
+        if (gc.isMoveReady(curUnit.id())) {
+        	moveAnywhere();
         }
     }
 

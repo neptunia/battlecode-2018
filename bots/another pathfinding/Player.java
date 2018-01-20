@@ -171,7 +171,6 @@ public class Player {
                     averageTime = total / gc.round();
                     System.out.println("Time: " + Long.toString(startTime - endTime));
                     System.out.println("Average: " + Float.toString(averageTime));
-
                     System.out.println("Time Left: " + Long.toString(gc.getTimeLeftMs()));
                     prevIncome = currentIncome;
                     if (gc.round() % 25 == 0) {
