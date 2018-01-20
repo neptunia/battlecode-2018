@@ -6,7 +6,6 @@ public class Factory {
 	static Unit curUnit;
 	static MapLocation curLoc;
 	static GameController gc;
-	static int c = 0;
 	static HashSet<Integer> workers = new HashSet<Integer>();
 	static Direction[] directions = Direction.values();
 
@@ -33,8 +32,7 @@ public class Factory {
 		Player.currentIncome -= 4;
 		//produce unit if no rockets have been started AND rockets can be built
 		if (gc.canProduceRobot(curUnit.id(), UnitType.Ranger)) {
-			//gc.produceRobot(curUnit.id(), UnitType.Ranger);
-			//c += 1;
+			gc.produceRobot(curUnit.id(), UnitType.Ranger);
 		}
 
 		return;
