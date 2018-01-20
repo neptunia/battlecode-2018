@@ -432,11 +432,16 @@ public class Player {
         int pointHash = hash(point);
         int stopHash = hash(stop);
         visitedDistances.put(hash(point), 0);
+        int stopDistance = -1;
         while (!queue.isEmpty()) {
             MapLocation current = queue.poll();
             int curHash = hash(current);
-            pathDistances[pointHash][current.getX()][current.getY()] = visitedDistances.get(curHash);
+            int distance = visitedDistances.get(curHash);
+            pathDistances[pointHash][current.getX()][current.getY()] = distance;
             if (stopHash == curHash) {
+                stopDistance = distance;
+            }
+            if (distance > stopDistance) {
                 return;
             }
             for (int i = 0; i < directions.length; i++) {

@@ -210,6 +210,7 @@ public class Ranger {
         //i didn't move :(
         if (gc.isMoveReady(curUnit.id())) {
             Player.blockedCount++;
+            moveCloser(target);
         }
     }
 

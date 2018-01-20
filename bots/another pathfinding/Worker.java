@@ -54,7 +54,7 @@ public class Worker {
 			return;
 		}
 
-		if (gc.round() < 5 && distance(curLoc, selectKarbonite()) <= 4 && Player.gridX * Player.gridY >= 900) {
+		if (gc.round() < 10 && distance(curLoc, selectKarbonite()) <= 4) {
 			goMine();
 			replicateAnywhere();
 			return;
@@ -67,15 +67,14 @@ public class Worker {
 		}
 
 		//not enough workers - replicate
-		if (gc.round() != 1 && (numWorkers < 6 || numWorkers < (int) Math.round(Math.sqrt((Player.planetMap.getHeight()) * (Player.planetMap.getWidth())) / 2 / Math.sqrt(gc.round())))) {
+		if ((numWorkers < 10 || numWorkers < (int) Math.round(Math.sqrt((Player.planetMap.getHeight()) * (Player.planetMap.getWidth())) / 1.5))) {
 			replicateAnywhere();
 		}
 
 
-		//rush first rocket
 		if (Player.prevBlocked < 10 && gc.karbonite() >= 120 && Player.timesReachedTarget < 3) {
 			buildStructure(UnitType.Factory);
-		} else if (karbonitesLeft && gc.karbonite() < 300) {
+		} else if (karbonitesLeft && gc.karbonite() < 200) {
 			goMine();
 		} else if (gc.karbonite() >= 75 && gc.researchInfo().getLevel(UnitType.Rocket) > 0) {
 			buildStructure(UnitType.Rocket);
@@ -508,12 +507,13 @@ public class Worker {
             }
         } else {
             //bfs hasnt been run yet
-            Player.bfsMin(target, curLoc);
+            //Player.bfsMin(target, curLoc);
+            Player.bfs(target);
             move(target);
         }
         //i didn't move :(
         if (gc.isMoveReady(curUnit.id())) {
-            Player.blockedCount++;
+            
         }
     }
 
