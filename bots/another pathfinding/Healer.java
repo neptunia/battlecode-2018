@@ -25,7 +25,7 @@ public class Healer {
         if (Player.priorityTarget.containsKey(curUnit.id())) {
             MapLocation rocket = Player.priorityTarget.get(curUnit.id());
             try {
-                if (gc.senseUnitAtLocation(rocket).unitType() == UnitType.Rocket) {
+                if (gc.hasUnitAtLocation(rocket) && gc.senseUnitAtLocation(rocket).unitType() == UnitType.Rocket) {
                     System.out.println("Going to rocket!");
                     move(Player.priorityTarget.get(curUnit.id()));
                 }
