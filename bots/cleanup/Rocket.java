@@ -73,8 +73,8 @@ public class Rocket {
         int hashLoc = gc.getTeamArray(Planet.Mars).get(landSpotNumber);
         int y = hashLoc % 69;
         int x = (hashLoc - y) / 69;
-        System.out.println("X coordinate: " + Integer.toString(x));
-        System.out.println("Y coordinate: " + Integer.toString(y));
+        //System.out.println("X coordinate: " + Integer.toString(x));
+        //System.out.println("Y coordinate: " + Integer.toString(y));
 
         //launch
         MapLocation marsStart = new MapLocation(Planet.Mars, x, y);
@@ -82,7 +82,7 @@ public class Rocket {
             gc.launchRocket(curUnit.id(), marsStart);
             landSpotNumber++;
         } else {
-            System.out.println("Rocket precomputation borked");
+            //System.out.println("Rocket precomputation borked");
         }
     }
 }

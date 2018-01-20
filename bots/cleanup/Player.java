@@ -153,10 +153,10 @@ public class Player {
                 endTime = gc.getTimeLeftMs();
                 total += startTime - endTime;
                 averageTime = total / gc.round();
-                System.out.println("Time: " + Long.toString(startTime - endTime));
-                System.out.println("Average: " + Float.toString(averageTime));
+                //System.out.println("Time: " + Long.toString(startTime - endTime));
+                //System.out.println("Average: " + Float.toString(averageTime));
 
-                System.out.println("Time Left: " + Long.toString(gc.getTimeLeftMs()));
+                //System.out.println("Time Left: " + Long.toString(gc.getTimeLeftMs()));
                 prevIncome = currentIncome;
                 //Runtime runtime = Runtime.getRuntime();
 
