@@ -51,10 +51,11 @@ public class Healer {
                 moveAway(gc.unit(closestEnemy).location().mapLocation());
             }
 
-            // then heal whoever's available 
+            // then heal whoever's available
             if (canHeal()) {
                 healNearbyAllies();
             }
+
             return;
         }
 
@@ -183,7 +184,9 @@ public class Healer {
                 }
             }
         }
-        gc.heal(curUnit.id(), id);
+        if (id != -1) {
+            gc.heal(curUnit.id(), id);
+        }
     }
 
     public static void healWeakestAllies() {
