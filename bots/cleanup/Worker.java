@@ -52,12 +52,13 @@ public class Worker {
 			workOnBlueprint();
 			return;
 		}
-		/*
+		
 		if (gc.round() < 5 && distance(curLoc, selectKarbonite()) <= 4 && Player.gridX * Player.gridY >= 900) {
 			goMine();
+			replicateAnywhere();
 			return;
 		}
-		*/
+		
 
 		if (buildBlueprintLocation.containsKey(curUnit.id())) {
 			buildStructure(UnitType.Factory);
@@ -187,6 +188,31 @@ public class Worker {
 		return false;
 	}
 
+	public static boolean moveAway(MapLocation toGo, HashSet<Integer> cantGo) {
+		try {
+			Unit unit = gc.senseUnitAtLocation(toGo);
+			if (!gc.isMoveReady(unit.id())) {
+				return false;
+			}
+			for (int i = 0; i < directions.length; i++) {
+				MapLocation temp = toGo.add(directions[i]);
+				if (!cantGo.contains(hash(toGo)) && onMap(temp) && Player.gotoable[temp.getX()][temp.getY()]) {
+					HashSet<Integer> tempCantGo = new HashSet<Integer>();
+					tempCantGo.addAll(cantGo);
+					tempCantGo.add(hash(toGo));
+					if (moveAway(temp, tempCantGo)) {
+						gc.moveRobot(unit.id(), directions[i]);
+						return true;
+					}
+				}
+			}
+		} catch (Exception e) {
+			//e.printStackTrace();
+			return true;
+		}
+		return false;
+	}
+
 	public static boolean onMap(MapLocation test) {
 		int x = test.getX();
 		int y = test.getY();
@@ -261,11 +287,10 @@ public class Worker {
 	public static MapLocation findBlueprintLocation() {
 		LinkedList<MapLocation> queue = new LinkedList<MapLocation>();
 		HashSet<Integer> visited = new HashSet<Integer>();
-		int curHash = hash(curLoc);
 		queue.add(curLoc);
 		MapLocation last = curLoc;
 		
-		visited.add(curHash);
+		visited.add(hash(curLoc));
 		
 		while (!queue.isEmpty()) {
 			MapLocation current = queue.poll();
@@ -298,7 +323,7 @@ public class Worker {
 			int tempX = current.getX();
 			int tempY = current.getY();
 			//on the map and gotoable and doesnt block off any spots
-			if (around == 0 && !structuresToBuild.contains(hash(current)) && curHash != hash(current) && (goAble(tempX - 1, tempY) || goAble(tempX + 1, tempY)) && (goAble(tempX, tempY - 1) || goAble(tempX, tempY + 1))) {
+			if (around == 0 && !structuresToBuild.contains(hash(current)) && (goAble(tempX - 1, tempY) || goAble(tempX + 1, tempY)) && (goAble(tempX, tempY - 1) || goAble(tempX, tempY + 1))) {
 				return current;
 			}
 		}
@@ -323,26 +348,22 @@ public class Worker {
 			structuresToBuild.add(hash(open));
 		}
 		MapLocation blueprintLocation = buildBlueprintLocation.get(curUnit.id());
+		int blueprintHash = hash(blueprintLocation);
 		//System.out.println("Blueprint coords: " + Integer.toString(blueprintLocation.getX()) + ", " + Integer.toString(blueprintLocation.getY()));
 		Direction dirToBlueprint = curLoc.directionTo(blueprintLocation);
-		//if im standing on top of it
-		/*
-		if (hash(blueprintLocation) == hash(curLoc) && gc.isMoveReady(curUnit.id())) {
-			for (int i = 0; i < directions.length; i++) {
-				if (gc.canMove(curUnit.id(), directions[i])) {
-					gc.moveRobot(curUnit.id(), directions[i]);
-				}
-			}
-		}*/
 		//if i can build it
 		if (distance(curLoc, blueprintLocation) <= 2) {
+			//someone's probably blocking it
+			if (!gc.canBlueprint(curUnit.id(), type, dirToBlueprint)) {
+				moveAway(blueprintLocation, new HashSet<Integer>());
+			}
 			if (gc.canBlueprint(curUnit.id(), type, dirToBlueprint)) {
 				gc.blueprint(curUnit.id(), type, dirToBlueprint);
 				Unit blueprint = gc.senseUnitAtLocation(blueprintLocation);
 				UnitType temp = blueprint.unitType();
 				int targetBlueprint = blueprint.id();
 				buildBlueprintLocation.remove(curUnit.id());
-				structuresToBuild.remove(hash(blueprintLocation));
+				structuresToBuild.remove(blueprintHash);
 				
 				if (temp == UnitType.Rocket) {
 					rocketsBuilt++;
@@ -351,8 +372,6 @@ public class Worker {
 	                numFacts++;
 	            }
 	            assignWorkers(blueprintLocation, targetBlueprint);
-			} else {
-				//someone's there blocking me
 			}
 			
 		} else {
