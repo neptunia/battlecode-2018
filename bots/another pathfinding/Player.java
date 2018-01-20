@@ -408,14 +408,17 @@ public class Player {
         LinkedList<MapLocation> queue = new LinkedList<MapLocation>();
         HashMap<Integer, Integer> visitedDistances = new HashMap<Integer, Integer>();
         queue.add(point);
+        int pointHash = hash(point);
         visitedDistances.put(hash(point), 0);
         while (!queue.isEmpty()) {
             MapLocation current = queue.poll();
-            pathDistances[hash(point)][current.getX()][current.getY()] = visitedDistances.get(hash(current));
+            int curHash = hash(current);
+            pathDistances[pointHash][current.getX()][current.getY()] = visitedDistances.get(curHash);
             for (int i = 0; i < directions.length; i++) {
                 MapLocation neighbor = current.add(directions[i]);
-                if (!visitedDistances.containsKey(hash(neighbor)) && onMap(neighbor) && passable[neighbor.getX()][neighbor.getY()]) {
-                    visitedDistances.put(hash(neighbor), visitedDistances.get(hash(current)) + 1);
+                int neighborHash = hash(neighbor);
+                if (!visitedDistances.containsKey(neighborHash) && onMap(neighbor) && passable[neighbor.getX()][neighbor.getY()]) {
+                    visitedDistances.put(neighborHash, visitedDistances.get(curHash) + 1);
                     queue.add(neighbor);
                 }
             }
