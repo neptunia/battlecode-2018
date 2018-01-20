@@ -41,7 +41,7 @@ public class Worker {
 					if (gc.canReplicate(curUnit.id(), directions[i])) {
 						gc.replicate(curUnit.id(), directions[i]);
 						Player.workerCount++;
-						Worker.run(gc.senseUnitAtLocation(curLoc.add(directions[i])));
+						Worker.run(gc.senseUnitAtLocation(curUnit.location().mapLocation().add(directions[i])));
 						break;
 					}
 				}
@@ -147,7 +147,7 @@ public class Worker {
 							if (makeWay(temp, cantGo, blueprintLoc) && gc.canReplicate(curUnit.id(), directions[i])) {
 								gc.replicate(curUnit.id(), directions[i]);
 								target.put(gc.senseUnitAtLocation(temp).id(), targetBlueprint);
-								Worker.run(gc.senseUnitAtLocation(curLoc.add(directions[i])));
+								Worker.run(gc.senseUnitAtLocation(curUnit.location().mapLocation().add(directions[i])));
 								break;
 							}
 						}
@@ -244,7 +244,7 @@ public class Worker {
 				gc.replicate(curUnit.id(), directions[i]);
 				//karboniteList.put(gc.senseUnitAtLocation(curLoc.add(directions[i])).id(), karboniteList.get(curUnit.id()));
 				numWorkers++;
-				Worker.run(gc.senseUnitAtLocation(curLoc.add(directions[i])));
+				Worker.run(gc.senseUnitAtLocation(curUnit.location().mapLocation().add(directions[i])));
 				return;
 			}
 		}
