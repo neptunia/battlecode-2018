@@ -20,6 +20,8 @@ public class Healer {
             return;
         }
 
+        healerMicro();
+        /*
         curLoc = curUnit.location().mapLocation();
         int nearestEnemy = findNearestEnemy();
         if (nearestEnemy == -1) {
@@ -36,7 +38,65 @@ public class Healer {
             if (canHeal()) {
                 healNearbyAllies();
             }
+        }*/
+    }
+
+    public static void healerMicro() {
+        int closestEnemy = enemyTooClose();
+        if (closestEnemy != -1) {
+            // there is an enemy within 70 units of me. This is bad, move away.
+            if (gc.isMoveReady(curUnit.id())) {
+                moveAway(closestEnemy);
+            }
+
+            // then heal whoever's available 
+            if (canHeal()) {
+                healNearbyAllies();
+            }
+            return;
         }
+
+        // no enemies nearby;
+        if (!moveHeal()) {
+            // lol no friendlies nearby either
+            if (gc.isMoveReady(curUnit.id())) {
+                move(Player.enemyLocation);
+            }
+        }
+    }
+
+
+    public static int enemyTooClose() {
+        int p = -1;
+        VecUnit nearby = gc.senseNearbyUnitsByTeam(curUnit.location().mapLocation(), 70, Player.enemyTeam);
+        int smallest1 = 9999999;
+        for (int i = 0; i < nearby.size(); i++) {
+            Unit temp3 = nearby.get(i);
+            MapLocation temp2 = temp3.location().mapLocation();
+            int temp = distance(curUnit.location().mapLocation(), temp2);
+            if (temp < smallest1) {
+                smallest1 = temp;
+                p = temp3.id();
+            }
+        }
+        return p;
+    }
+
+    public static boolean moveCloser(MapLocation enemy) {
+        int best = distance(curUnit.location().mapLocation(), enemy);
+        Direction bestd = null;
+        for (int i = 0; i < directions.length; i++) {
+            MapLocation temp = curUnit.location().mapLocation().add(directions[i]);
+            if (gc.canMove(curUnit.id(), directions[i]) && distance(temp, enemy) < best) {
+                best = distance(temp, enemy);
+                bestd = directions[i];
+            }
+        }
+        if (bestd != null) {
+            gc.moveRobot(curUnit.id(), bestd);
+            return true;
+        }
+        return false;
     }
 
     //calc which direction maximizes distance between enemy and ranger
@@ -77,7 +137,53 @@ public class Healer {
         return curUnit.attackHeat() < 10;
     }
 
+    public static boolean moveHeal() {
+        VecUnit nearbyUnits = getNearby(curUnit.location().mapLocation(), 48);
+        long maxHp = -1;
+        int id = -1;
+        for (int i = 0; i < nearbyUnits.size(); i++) {
+            Unit unit = nearbyUnits.get(i);
+            //if can attack this enemy unit
+            if (unit.team() == gc.team() && gc.isHealReady(curUnit.id()) && gc.canHeal(curUnit.id(), unit.id())) {
+                if (unit.health() > maxHp && unit.maxHealth() - unit.health() >= Math.abs(curUnit.damage())) {
+                    maxHp = unit.health();
+                    id = unit.id();
+                }
+            }
+        }
+        if (id == -1) {
+            // no friendlies in vision range
+            return false;
+        }
+        if (distance(curUnit.location().mapLocation(), gc.unit(id).location().mapLocation()) > 30) {
+            // out of my range, attempt to move closer
+            if (gc.isMoveReady(curUnit.id()) && moveCloser(gc.unit(id).location().mapLocation()) && gc.canAttack(curUnit.id(), id)) {
+                gc.heal(curUnit.id(), id);
+                return true;
+            }
+        }
+        healNearbyAllies();
+        return true;
+    }
+
     public static void healNearbyAllies() {
+        VecUnit nearbyUnits = getNearby(curUnit.location().mapLocation(), (int) curUnit.attackRange());
+        long maxHp = -1;
+        int id = -1;
+        for (int i = 0; i < nearbyUnits.size(); i++) {
+            Unit unit = nearbyUnits.get(i);
+            //if can attack this enemy unit
+            if (unit.team() == gc.team() && gc.isHealReady(curUnit.id()) && gc.canHeal(curUnit.id(), unit.id())) {
+                if (unit.health() > maxHp && unit.maxHealth() - unit.health() >= Math.abs(curUnit.damage())) {
+                    maxHp = unit.health();
+                    id = unit.id();
+                }
+            }
+        }
+        gc.heal(curUnit.id(), id);
+    }
+
+    public static void healWeakestAllies() {
         VecUnit nearbyUnits = getNearby(curUnit.location().mapLocation(), (int) curUnit.attackRange());
         long minHp = 99999999;
         int id = -1;
