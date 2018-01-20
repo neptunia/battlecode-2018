@@ -166,6 +166,9 @@ public class Player {
 
                     System.out.println("Time Left: " + Long.toString(gc.getTimeLeftMs()));
                     prevIncome = currentIncome;
+                    if (gc.round() % 100 == 0) {
+                        System.gc();
+                    }
                     //Runtime runtime = Runtime.getRuntime();
 
                     //NumberFormat format = NumberFormat.getInstance();
