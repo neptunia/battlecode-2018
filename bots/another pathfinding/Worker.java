@@ -42,7 +42,10 @@ public class Worker {
 					if (gc.canReplicate(curUnit.id(), directions[i])) {
 						gc.replicate(curUnit.id(), directions[i]);
 						Player.workerCount++;
-						//Worker.run(gc.senseUnitAtLocation(curUnit.location().mapLocation().add(directions[i])));
+                        int tempid = curUnit.id();
+                        Worker.run(gc.senseUnitAtLocation(curUnit.location().mapLocation().add(directions[i])));
+                        curUnit = gc.unit(tempid);
+                        curLoc = curUnit.location().mapLocation();
 						break;
 					}
 				}
@@ -53,14 +56,14 @@ public class Worker {
 		//if i do have a target blueprint
 		if (target.containsKey(curUnit.id())) {
 			workOnBlueprint();
-			removeBuildStructureTarget();
-			removeKarboniteTarget();
+			//removeBuildStructureTarget();
+			//removeKarboniteTarget();
 			return;
 		}
 
 		if (gc.round() < 10 && distance(curLoc, selectKarbonite()) <= 4) {
 			goMine();
-			removeBuildStructureTarget();
+			//removeBuildStructureTarget();
 			replicateAnywhere();
 			return;
 		}
@@ -68,7 +71,7 @@ public class Worker {
 
 		if (buildBlueprintLocation.containsKey(curUnit.id())) {
 			buildStructure(UnitType.Factory);
-			removeKarboniteTarget();
+			//removeKarboniteTarget();
 			return;
 		}
 
@@ -80,16 +83,16 @@ public class Worker {
 
 		if (Player.prevBlocked < 10 && numFacts < 5 && gc.karbonite() >= 120 && Player.timesReachedTarget < 3) {
 			buildStructure(UnitType.Factory);
-			removeKarboniteTarget();
+			//removeKarboniteTarget();
 		} else if (karbonitesLeft && gc.karbonite() < 200) {
 			goMine();
-			removeBuildStructureTarget();
+			//removeBuildStructureTarget();
 		} else if (gc.karbonite() >= 75 && gc.researchInfo().getLevel(UnitType.Rocket) > 0) {
 			buildStructure(UnitType.Rocket);
-			removeKarboniteTarget();
+			//removeKarboniteTarget();
 		} else if (karbonitesLeft) {
 			goMine();
-			removeBuildStructureTarget();
+			//removeBuildStructureTarget();
 		} else {
 			System.out.println("nothing to do");
 			//nothing to do
@@ -116,6 +119,7 @@ public class Worker {
 			for (int i = 0; i < directions.length; i++) {
 				if (gc.canMove(curUnit.id(), directions[i])) {
 					gc.moveRobot(curUnit.id(), directions[i]);
+					curLoc = curUnit.location().mapLocation();
 					return;
 				}
 			}
@@ -170,9 +174,12 @@ public class Worker {
 							cantGo.add(hash(curLoc));
 							if (makeWay(temp, cantGo, blueprintLoc) && gc.canReplicate(curUnit.id(), directions[i])) {
 								gc.replicate(curUnit.id(), directions[i]);
-								target.put(gc.senseUnitAtLocation(temp).id(), targetBlueprint);
-								//Worker.run(gc.senseUnitAtLocation(curUnit.location().mapLocation().add(directions[i])));
-								break;
+                                target.put(gc.senseUnitAtLocation(temp).id(), targetBlueprint);
+                                int tempid = curUnit.id();
+                                Worker.run(gc.senseUnitAtLocation(curUnit.location().mapLocation().add(directions[i])));
+                                curUnit = gc.unit(tempid);
+                                curLoc = curUnit.location().mapLocation();
+                                break;
 							}
 						}
 					}
@@ -190,6 +197,7 @@ public class Worker {
 								cantGo.add(hash(curLoc));
 								if (makeWay(temp, cantGo, blueprintLoc) && gc.canMove(curUnit.id(), directions[i])) {
 									gc.moveRobot(curUnit.id(), directions[i]);
+									curLoc = curUnit.location().mapLocation();
 									break;
 								}
 							}
@@ -216,6 +224,7 @@ public class Worker {
 					tempCantGo.add(hash(toGo));
 					if (makeWay(temp, tempCantGo, blueprintLoc)) {
 						gc.moveRobot(unit.id(), directions[i]);
+                        curLoc = curUnit.location().mapLocation();
 						return true;
 					}
 				}
@@ -241,6 +250,7 @@ public class Worker {
 					tempCantGo.add(hash(toGo));
 					if (moveAway(temp, tempCantGo)) {
 						gc.moveRobot(unit.id(), directions[i]);
+                        curLoc = curUnit.location().mapLocation();
 						return true;
 					}
 				}
@@ -268,7 +278,10 @@ public class Worker {
 				gc.replicate(curUnit.id(), directions[i]);
 				//karboniteList.put(gc.senseUnitAtLocation(curLoc.add(directions[i])).id(), karboniteList.get(curUnit.id()));
 				numWorkers++;
-				//Worker.run(gc.senseUnitAtLocation(curUnit.location().mapLocation().add(directions[i])));
+                int tempid = curUnit.id();
+                Worker.run(gc.senseUnitAtLocation(curUnit.location().mapLocation().add(directions[i])));
+                curUnit = gc.unit(tempid);
+                curLoc = curUnit.location().mapLocation();
 				return;
 			}
 		}
@@ -572,6 +585,7 @@ public class Worker {
         if (gc.isMoveReady(curUnit.id())) {
         	//moveAnywhere();
         }
+        curLoc = curUnit.location().mapLocation();
     }
 
 	public static boolean canMove() {
