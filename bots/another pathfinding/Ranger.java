@@ -24,8 +24,19 @@ public class Ranger {
         curLoc = curUnit.location().mapLocation();
 
         if (Player.priorityTarget.containsKey(curUnit.id())) {
-            System.out.println("Going to rocket!");
-            move(Player.priorityTarget.get(curUnit.id()));
+            MapLocation rocket = Player.priorityTarget.get(curUnit.id());
+            try {
+                if (gc.senseUnitAtLocation(rocket).unitType() == UnitType.Rocket) {
+                    System.out.println("Going to rocket!");
+                    move(Player.priorityTarget.get(curUnit.id()));
+                }
+                
+            } catch (Exception e) {
+                //e.printStackTrace();
+                //rocket probably died or took off
+                Player.priorityTarget.remove(curUnit.id());
+            }
+            
             return;
         }
 
@@ -185,29 +196,121 @@ public class Ranger {
         int y = curLoc.getY();
         int currentDist = Player.pathDistances[targetHash][x][y];
         if (currentDist != -1) {
-            if (x < Player.gridX - 1 && Player.pathDistances[targetHash][x + 1][y] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.East)) {
-                gc.moveRobot(curUnit.id(), Direction.East);
-            } else if (x > 0 && Player.pathDistances[targetHash][x - 1][y] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.West)) {
-                gc.moveRobot(curUnit.id(), Direction.West);
-            } else if (y < Player.gridY - 1 && Player.pathDistances[targetHash][x][y + 1] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.North)) {
-                gc.moveRobot(curUnit.id(), Direction.North);
-            } else if (y > 0 && Player.pathDistances[targetHash][x][y - 1] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.South)) {
-                gc.moveRobot(curUnit.id(), Direction.South);
-            } else if (y < Player.gridY - 1 && x < Player.gridX - 1 && Player.pathDistances[targetHash][x + 1][y + 1] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.Northeast)) {
-                gc.moveRobot(curUnit.id(), Direction.Northeast);
-            } else if (y > 0 && x < Player.gridX - 1 && Player.pathDistances[targetHash][x + 1][y - 1] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.Southeast)) {
-                gc.moveRobot(curUnit.id(), Direction.Southeast);
-            } else if (x > 0 && y < Player.gridY - 1 && Player.pathDistances[targetHash][x - 1][y + 1] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.Northwest)) {
-                gc.moveRobot(curUnit.id(), Direction.Northwest);
-            } else if (x > 0 && y > 0 && Player.pathDistances[targetHash][x - 1][y - 1] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.Southwest)) {
-                gc.moveRobot(curUnit.id(), Direction.Southwest);
+            if (x < Player.gridX - 1 && Player.pathDistances[targetHash][x + 1][y] - currentDist < 0) {
+                if (gc.canMove(curUnit.id(), Direction.East)) {
+                    gc.moveRobot(curUnit.id(), Direction.East);
+                    return;
+                } else {
+                    HashSet<Integer> temp = new HashSet<Integer>();
+                    temp.add(hash(curLoc));
+                    if (Worker.moveAway(curLoc.add(Direction.East), temp) && gc.canMove(curUnit.id(), Direction.East)) {
+                        gc.moveRobot(curUnit.id(), Direction.East);
+                        return;
+                    }
+                }
+            }
+            if (x > 0 && Player.pathDistances[targetHash][x - 1][y] - currentDist < 0) {
+                if (gc.canMove(curUnit.id(), Direction.West)) {
+                    gc.moveRobot(curUnit.id(), Direction.West);
+                    return;
+                } else {
+                    HashSet<Integer> temp = new HashSet<Integer>();
+                    temp.add(hash(curLoc));
+                    if (Worker.moveAway(curLoc.add(Direction.West), temp) && gc.canMove(curUnit.id(), Direction.West)) {
+                        gc.moveRobot(curUnit.id(), Direction.West);
+                        return;
+                    }
+                }
+            }
+            if (y < Player.gridY - 1 && Player.pathDistances[targetHash][x][y + 1] - currentDist < 0) {
+                if (gc.canMove(curUnit.id(), Direction.North)) {
+                    gc.moveRobot(curUnit.id(), Direction.North);
+                    return;
+                } else {
+                    HashSet<Integer> temp = new HashSet<Integer>();
+                    temp.add(hash(curLoc));
+                    if (Worker.moveAway(curLoc.add(Direction.North), temp) && gc.canMove(curUnit.id(), Direction.North)) {
+                        gc.moveRobot(curUnit.id(), Direction.North);
+                        return;
+                    }
+                }
+            }
+            if (y > 0 && Player.pathDistances[targetHash][x][y - 1] - currentDist < 0) {
+                if (gc.canMove(curUnit.id(), Direction.South)) {
+                    gc.moveRobot(curUnit.id(), Direction.South);
+                    return;
+                } else {
+                    HashSet<Integer> temp = new HashSet<Integer>();
+                    temp.add(hash(curLoc));
+                    if (Worker.moveAway(curLoc.add(Direction.South), temp) && gc.canMove(curUnit.id(), Direction.South)) {
+                        gc.moveRobot(curUnit.id(), Direction.South);
+                        return;
+                    }
+                }
+            }
+            if (y < Player.gridY - 1 && x < Player.gridX - 1 && Player.pathDistances[targetHash][x + 1][y + 1] - currentDist < 0) {
+                if (gc.canMove(curUnit.id(), Direction.Northeast)) {
+                    gc.moveRobot(curUnit.id(), Direction.Northeast);
+                    return;
+                } else {
+                    HashSet<Integer> temp = new HashSet<Integer>();
+                    temp.add(hash(curLoc));
+                    if (Worker.moveAway(curLoc.add(Direction.Northeast), temp) && gc.canMove(curUnit.id(), Direction.Northeast)) {
+                        gc.moveRobot(curUnit.id(), Direction.Northeast);
+                        return;
+                    }
+                }
+            }
+            if (y > 0 && x < Player.gridX - 1 && Player.pathDistances[targetHash][x + 1][y - 1] - currentDist < 0) {
+                if (gc.canMove(curUnit.id(), Direction.Southeast)) {
+                    gc.moveRobot(curUnit.id(), Direction.Southeast);
+                    return;
+                } else {
+                    HashSet<Integer> temp = new HashSet<Integer>();
+                    temp.add(hash(curLoc));
+                    if (Worker.moveAway(curLoc.add(Direction.Southeast), temp) && gc.canMove(curUnit.id(), Direction.Southeast)) {
+                        gc.moveRobot(curUnit.id(), Direction.Southeast);
+                        return;
+                    }
+                }
+            }
+            if (x > 0 && y < Player.gridY - 1 && Player.pathDistances[targetHash][x - 1][y + 1] - currentDist < 0) {
+                if (gc.canMove(curUnit.id(), Direction.Northwest)) {
+                    gc.moveRobot(curUnit.id(), Direction.Northwest);
+                    return;
+                } else {
+                    HashSet<Integer> temp = new HashSet<Integer>();
+                    temp.add(hash(curLoc));
+                    if (Worker.moveAway(curLoc.add(Direction.Northwest), temp) && gc.canMove(curUnit.id(), Direction.Northwest)) {
+                        gc.moveRobot(curUnit.id(), Direction.Northwest);
+                        return;
+                    }
+                }
+            }
+            if (x > 0 && y > 0 && Player.pathDistances[targetHash][x - 1][y - 1] - currentDist < 0) {
+                if (gc.canMove(curUnit.id(), Direction.Southwest)) {
+                    gc.moveRobot(curUnit.id(), Direction.Southwest);
+                    return;
+                } else {
+                    HashSet<Integer> temp = new HashSet<Integer>();
+                    temp.add(hash(curLoc));
+                    if (Worker.moveAway(curLoc.add(Direction.Southwest), temp) && gc.canMove(curUnit.id(), Direction.Southwest)) {
+                        gc.moveRobot(curUnit.id(), Direction.Southwest);
+                        return;
+                    }
+                }
             }
         } else {
             //cant get there
-            System.out.println("cant get there");
+            if (Player.bfsMin(target, curLoc)) {
+                move(target);
+            } else {
+                System.out.println("cant get there ranger");
+            }
         }
         if (gc.isMoveReady(curUnit.id())) {
             Player.blockedCount++;
+            //tell someone blocking to move over
         }
     }
 

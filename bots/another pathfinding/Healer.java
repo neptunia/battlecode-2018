@@ -22,6 +22,23 @@ public class Healer {
 
         curLoc = curUnit.location().mapLocation();
 
+        if (Player.priorityTarget.containsKey(curUnit.id())) {
+            MapLocation rocket = Player.priorityTarget.get(curUnit.id());
+            try {
+                if (gc.senseUnitAtLocation(rocket).unitType() == UnitType.Rocket) {
+                    System.out.println("Going to rocket!");
+                    move(Player.priorityTarget.get(curUnit.id()));
+                }
+                
+            } catch (Exception e) {
+                e.printStackTrace();
+                //rocket probably died or took off
+                Player.priorityTarget.remove(curUnit.id());
+            }
+            
+            return;
+        }
+
         healerMicro();
 
     }

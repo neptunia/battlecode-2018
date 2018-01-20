@@ -80,6 +80,7 @@ public class Worker {
 			buildStructure(UnitType.Rocket);
 		} else {
 			//nothing to do
+			System.out.println("nothing to do");
 			if (gc.isMoveReady(curUnit.id())) {
 				for (int i = 0; i < directions.length; i++) {
 					if (gc.canMove(curUnit.id(), directions[i])) {
@@ -88,7 +89,6 @@ public class Worker {
 					}
 				}
 			}
-			
 		}
 	}
 
@@ -199,7 +199,7 @@ public class Worker {
 	public static boolean moveAway(MapLocation toGo, HashSet<Integer> cantGo) {
 		try {
 			Unit unit = gc.senseUnitAtLocation(toGo);
-			if (!gc.isMoveReady(unit.id())) {
+			if (!gc.isMoveReady(unit.id()) || unit.unitType() == UnitType.Factory) {
 				return false;
 			}
 			for (int i = 0; i < directions.length; i++) {
@@ -356,9 +356,9 @@ public class Worker {
 		//if i can build it
 		if (distance(curLoc, blueprintLocation) <= 2) {
 			//someone's probably blocking it
-			//if (!gc.canBlueprint(curUnit.id(), type, dirToBlueprint)) {
-				//moveAway(blueprintLocation, new HashSet<Integer>());
-			//}
+			if (!gc.canBlueprint(curUnit.id(), type, dirToBlueprint)) {
+				moveAway(blueprintLocation, new HashSet<Integer>());
+			}
 			if (gc.canBlueprint(curUnit.id(), type, dirToBlueprint)) {
 				gc.blueprint(curUnit.id(), type, dirToBlueprint);
 				Unit blueprint = gc.senseUnitAtLocation(blueprintLocation);
@@ -518,6 +518,8 @@ public class Worker {
             //Player.bfsMin(target, curLoc);
             if (Player.bfsMin(target, curLoc)) {
             	move(target);
+            } else {
+            	System.out.println("cant get there worker");
             }
         }
     }
