@@ -453,7 +453,8 @@ public class Worker {
 		queue.add(rocketLoc);
 		visited.add(hash(rocketLoc));
 		//int workersNeeded = 1;
-		int combatUnitsNeeded = 7;
+		int rangersNeeded = 5;
+		int healersNeeded = 2;
 		while (!queue.isEmpty()) {
 			MapLocation current = queue.poll();
 			//System.out.println("HI");
@@ -462,13 +463,18 @@ public class Worker {
 				//if (workersNeeded == 0 && combatUnitsNeeded == 0) {
 					//return;
 				//}
-				if (combatUnitsNeeded == 0) {
+				if (rangersNeeded == 0 && healersNeeded == 0) {
 					return;
 				}
 				try {
 					Unit there = gc.senseUnitAtLocation(toCheck);
-					if (there.unitType() != UnitType.Factory && there.unitType() != UnitType.Rocket && there.unitType() != UnitType.Worker) {
-						combatUnitsNeeded--;
+					UnitType temp = there.unitType();
+					if (temp != UnitType.Factory && temp != UnitType.Rocket && temp != UnitType.Worker && !Player.priorityTarget.containsKey(there.id())) {
+						if (temp == UnitType.Ranger) {
+							rangersNeeded--;
+						} else if (temp == UnitType.Healer) {
+							healersNeeded--;
+						}
 						//set combat unit's target to this rocket
 						Player.priorityTarget.put(there.id(), rocketLoc);
 					}

@@ -20,6 +20,9 @@ public class Rocket {
             return;
         } else if (curUnit.location().isOnPlanet(Planet.Earth)) {
             if (curUnit.health() == curUnit.maxHealth()) {
+                if (gc.round() == 749) {
+                    launch();
+                }
                 if (!turnsSinceBuilt.containsKey(curUnit.id())) {
                     turnsSinceBuilt.put(curUnit.id(), 1);
                 } else if (turnsSinceBuilt.get(curUnit.id()) > 100 && curUnit.structureGarrison().size() != 0) {
