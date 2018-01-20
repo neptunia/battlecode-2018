@@ -45,14 +45,15 @@ public class Healer {
         int closestEnemy = enemyTooClose();
         if (closestEnemy != -1) {
             // there is an enemy within 70 units of me. This is bad, move away.
+            if (canHeal()) {
+                healNearbyAllies();
+            }
             if (gc.isMoveReady(curUnit.id())) {
                 moveAway(gc.unit(closestEnemy).location().mapLocation());
             }
 
             // then heal whoever's available 
-            if (canHeal()) {
-                healNearbyAllies();
-            }
+            
             return;
         }
 
