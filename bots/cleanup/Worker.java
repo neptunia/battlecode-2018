@@ -488,7 +488,7 @@ public class Worker {
         }
         //a*
         int movingTo = doubleHash(curLoc, target);
-        if (Player.averageTime < 20 && !Player.paths.containsKey(movingTo)) {
+        if (!Player.paths.containsKey(movingTo)) {
             HashSet<Integer> closedList = new HashSet<Integer>();
             HashMap<Integer, Integer> gScore = new HashMap<Integer, Integer>();
             HashMap<Integer, Integer> fScore = new HashMap<Integer, Integer>();
