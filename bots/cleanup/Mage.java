@@ -33,6 +33,9 @@ public class Mage {
         } else {
             //good attack opportunity
             //moves away if there is an adjacent unit, else do nothing
+            mageMicro(bestunit.unit1, bestunit.unit2);
+
+            /*
             if (canAttack() && gc.canAttack(curUnit.id(), bestunit.unit1)) {
                 gc.attack(curUnit.id(), bestunit.unit1);
             }
@@ -43,7 +46,67 @@ public class Mage {
             } catch (Exception e) {
                 //do nothing
             }
+            */
         }
+    }
+
+    // guaranteed killability. Assumes rushing knight research.
+    public static void isKillable(int enemyid) {
+        int myDamage = curUnit.damage()
+        if (gc.unit(enemyid).unitType() == UnitType.Knight) {
+            if (gc.round < 25) {
+                // 5 armor
+                return (myDamage - 5) > gc.unit(enemyid).health();
+            } else if (gc.round < 100) {
+                // 10 armor
+                return (myDamage - 10) > gc.unit(enemyid).health();
+            } else {
+                // 15 armor
+                return (myDamage - 15) > gc.unit(enemyid).health();
+            }
+        } else {
+            return myDamage > gc.unit(enemyid).health();
+        }
+    }
+
+    public static void mageMicro(int enemyid, int closestenemy) {
+        MapLocation enemyLoc = gc.unit(enemyid).location().mapLocation();
+        MapLocation closestLoc = gc.unit(closestenemy).location().mapLocation();
+        MapLocation myLoc = curUnit.location().mapLocation();
+        
+        int dist = distance(myLoc, enemyLoc);
+        int closestdist = distance(myLoc, enemyLoc);
+
+        if (closestdist <= 2) {
+            // too close!
+            // only attack it if I can kill it. If not, it's a lost cause anyways.
+            // TODO: if an enemy worker is next to me i don't really care
+            if isKillable(gc.unit(closestenemy)) {
+                if (gc.isMoveReady(curUnit.id())) {
+                    moveAway(enemyLoc);    
+                }
+                // note: putting attack here means that the mage commits suicide if it was unable to move.
+                // however, it also kills the enemy. Maybe change later.
+                if (canAttack()) {
+                    gc.attack(curUnit.id(), closestenemy);
+                }
+            } else {
+                if (canAttack()) {
+                    gc.attack(curUnit.id(), enemyid);
+                }
+                moveAway(enemyLoc)
+            }
+
+            return;
+        }
+        if (canAttack()) {
+            gc.attack(curUnit.id(), enemyid);
+        }
+        if (gc.isMoveReady(curUnit.id())) {
+            moveAway(enemyLoc);
+        }
+        return;
+        
     }
 
     public static void moveIfNeeded(MapLocation enemy) {
@@ -51,6 +114,8 @@ public class Mage {
             moveAway(enemy);
         }
     }
+
+
 
     //calc which direction maximizes distance between enemy and mage
     public static void moveAway(MapLocation enemy) {

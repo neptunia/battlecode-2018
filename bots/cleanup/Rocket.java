@@ -8,6 +8,7 @@ public class Rocket {
     static Direction[] directions = Direction.values();
     static HashSet<Integer> workersPerRocket = new HashSet<Integer>();
     static HashMap<Integer, Integer> turnsSinceBuilt = new HashMap<Integer, Integer>();
+    static HashSet<Integer> assignedUnits = new HashSet<Integer>();
     static int landSpotNumber = 0;
 
     public static void run(GameController gc, Unit curUnit) {
@@ -18,11 +19,6 @@ public class Rocket {
             //in space
             return;
         } else if (curUnit.location().isOnPlanet(Planet.Earth)) {
-            if (!Player.loadingRocket && curUnit.health() == curUnit.maxHealth()) {
-                Player.pastLoc = Player.enemyLocation;
-                Player.enemyLocation = curUnit.location().mapLocation();
-                Player.loadingRocket = true;
-            }
             if (curUnit.health() == curUnit.maxHealth()) {
                 if (!turnsSinceBuilt.containsKey(curUnit.id())) {
                     turnsSinceBuilt.put(curUnit.id(), 1);
@@ -71,8 +67,9 @@ public class Rocket {
     }
 
     public static void launch() {
-        Player.loadingRocket = false;
-        Player.enemyLocation = Player.pastLoc;
+        //Player.loadingRocket = false;
+        //Player.enemyLocation = Player.pastLoc;
+
         int hashLoc = gc.getTeamArray(Planet.Mars).get(landSpotNumber);
         int y = hashLoc % 69;
         int x = (hashLoc - y) / 69;

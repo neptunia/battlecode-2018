@@ -17,21 +17,21 @@ public class Player {
     static long prevIncome;
     static long currentIncome;
     static boolean[][] gotoable;
-    static UnitType[][] units;
+    //static UnitType[][] units;
     static boolean gotoableEmpty;
     static MapLocation[] unitLocations;
     static MapLocation pastLoc = null;
     static int numUnitsThisRound;
     static int workerCount = 0;
     static int timesReachedTarget = 0;
-    static boolean loadingRocket = false;
     static boolean sawEnemy = false;
     static float averageTime = 0;
     //static boolean splitMap = false;
     static HashMap<Integer, Integer> paths = new HashMap<Integer, Integer>();
     static boolean marsBfsDone = false;
 
-	
+    static HashMap<Integer, MapLocation> priorityTarget = new HashMap<Integer, MapLocation>();
+
 	public static void main(String args[]) {
         try {
             GameController gc = new GameController();
@@ -58,8 +58,6 @@ public class Player {
 
             VecUnit temp = gc.myUnits();
             numUnitsThisRound = 0;
-            //iterate through units
-            // might need to fix this later; what happens if I create a new unit in the middle of this loop?
             for (int i = 0; i < temp.size(); i++) {
                 Unit curUnit = temp.get(i);
                 try {
@@ -87,7 +85,7 @@ public class Player {
             long endTime = 10000;
 
             unitLocations = new MapLocation[2500];
-            units = new UnitType[gridX][gridY];
+            //units = new UnitType[gridX][gridY];
 
             while (true) {
                 if (gc.planet() == Planet.Earth && gc.round() >= 750) {
@@ -105,7 +103,7 @@ public class Player {
                     try {
                         MapLocation curLoc = curUnit.location().mapLocation();
                         UnitType tempType = curUnit.unitType();
-                        units[curLoc.getX()][curLoc.getY()] = tempType;
+                        //units[curLoc.getX()][curLoc.getY()] = tempType;
                         unitLocations[numUnitsThisRound] = curLoc;
                         numUnitsThisRound++;
                         if (tempType == UnitType.Worker) {
@@ -261,33 +259,6 @@ public class Player {
             }
         }
 
-        //create list of best karbonites list for each workers
-        /*
-        Worker.karboniteSorted = new MapLocation[myUnits.size()][Worker.numKarbsCounter];
-        Worker.currentKarbonite = new int[myUnits.size()];
-        for (int i = 0; i < myUnits.size(); i++) {
-            Unit worker = myUnits.get(i);
-            Worker.karboniteList.put(worker.id(), i);
-            int c = 0;
-            LinkedList<MapLocation> queue = new LinkedList<MapLocation>();
-            HashSet<Integer> visited = new HashSet<Integer>();
-            queue.add(worker.location().mapLocation());
-            while (!queue.isEmpty()) {
-                MapLocation current = queue.poll();
-                if (karbs[current.getX()][current.getY()]) {
-                    Worker.karboniteSorted[i][c] = current;
-                    c++;
-                }
-                for (int i = 0; i < directions.length; i++) {
-                    MapLocation toCheck = current.add(directions[i]);
-                    int tempHash = hash(toCheck);
-                    if (!visited.contains(tempHash) && checkPassable(toCheck)) {
-                        visited.add(tempHash);
-                        queue.add(toCheck);
-                    }
-                }
-            }
-        }*/
         //precompute landing spots for Mars.
         if (gc.planet() == Planet.Mars && !marsBfsDone) {
             int c = 1;
@@ -379,7 +350,7 @@ public class Player {
         if (enemyLocation == null) {
             enemyLocation = chooseFarthestPoint();
         } else {
-            if (!loadingRocket && gc.senseNearbyUnitsByTeam(enemyLocation, 2, myTeam).size() > 0) {
+            if (gc.senseNearbyUnitsByTeam(enemyLocation, 0, myTeam).size() > 0) {
                 timesReachedTarget++;
                 enemyLocation = chooseFarthestPoint();
             }
