@@ -102,6 +102,8 @@ public class Player {
                 Worker.numWorkers = 0;
                 Worker.numFacts = 0;
                 blockedCount = 0;
+                numRangers = 0;
+                numHealers = 0;
                 for (int i = 0; i < myUnits.size(); i++) {
                     Unit curUnit = myUnits.get(i);
                     try {
@@ -172,7 +174,7 @@ public class Player {
 
                     System.out.println("Time Left: " + Long.toString(gc.getTimeLeftMs()));
                     prevIncome = currentIncome;
-                    if (gc.round() % 100 == 0) {
+                    if (gc.round() % 25 == 0) {
                         System.gc();
                     }
                     //Runtime runtime = Runtime.getRuntime();
@@ -288,6 +290,8 @@ public class Player {
                 }
             }
         }
+
+        //startingLocation = chooseClosestPoint();
 
         //precompute landing spots for Mars.
         if (gc.planet() == Planet.Mars && !marsBfsDone) {

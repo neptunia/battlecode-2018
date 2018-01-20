@@ -20,6 +20,8 @@ public class Healer {
             return;
         }
 
+        curLoc = curUnit.location().mapLocation();
+
         healerMicro();
         /*
         curLoc = curUnit.location().mapLocation();
