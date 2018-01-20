@@ -19,6 +19,7 @@ public class Player {
     static boolean[][] gotoable;
     static int blockedCount;
     static int prevBlocked;
+    static int numRangers = 0, numHealers = 0;
     //static UnitType[][] units;
     static boolean gotoableEmpty;
     static MapLocation[] unitLocations;
@@ -74,14 +75,15 @@ public class Player {
 
             //do research
             gc.queueResearch(UnitType.Worker);
-            gc.queueResearch(UnitType.Ranger);
+            gc.queueResearch(UnitType.Healer);
+            gc.queueResearch(UnitType.Healer);
             gc.queueResearch(UnitType.Rocket);
             gc.queueResearch(UnitType.Ranger);
+            gc.queueResearch(UnitType.Ranger);
+            gc.queueResearch(UnitType.Worker);
+            gc.queueResearch(UnitType.Worker);
             gc.queueResearch(UnitType.Rocket);
-            gc.queueResearch(UnitType.Worker);
-            gc.queueResearch(UnitType.Worker);
-            gc.queueResearch(UnitType.Worker);
-            gc.queueResearch(UnitType.Rocket);
+
 
             long startTime = 10000;
             long endTime = 10000;
@@ -112,6 +114,10 @@ public class Player {
                             Worker.numWorkers++;
                         } else if (tempType == UnitType.Factory) {
                             Worker.numFacts++;
+                        } else if (tempType == UnitType.Ranger) {
+                            numRangers++;
+                        } else if (tempType == UnitType.Healer) {
+                            numHealers++;
                         }
                     } catch (Exception e) {};
                 }

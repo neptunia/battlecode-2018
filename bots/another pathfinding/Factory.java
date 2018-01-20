@@ -32,7 +32,13 @@ public class Factory {
 		Player.currentIncome -= 4;
 		//produce unit if no rockets have been started AND rockets can be built
 		if (Player.prevBlocked < 10 && gc.canProduceRobot(curUnit.id(), UnitType.Ranger)) {
-			gc.produceRobot(curUnit.id(), UnitType.Ranger);
+			if (gc.researchInfo().getLevel(UnitType.Healer) >= 1 && Player.numRangers > 4*Player.numHealers) {
+				gc.produceRobot(curUnit.id(), UnitType.Healer);
+				Player.numHealers++;
+			} else {
+				gc.produceRobot(curUnit.id(), UnitType.Ranger);
+				Player.numRangers++;
+			}
 		}
 
 		return;
