@@ -19,7 +19,7 @@ public class Worker {
 	static HashMap<Integer, Integer> karboniteIndex = new HashMap<Integer, Integer>();
 	static int numKarbsCounter = 0;
 	static int factsQueued = 0;
-	static int replicationLimit = (int) Math.round(Math.sqrt((Player.planetMap.getHeight()) * (Player.planetMap.getWidth())) / 1.5 / Math.sqrt(gc.round())));
+	static int replicationLimit;
 	static boolean wentToMine = false;
 	static HashMap<Integer, MapLocation> karboniteTargets = new HashMap<Integer, MapLocation>();
 	//set of factories or rockets a worker is going to build to prevent ppl queueing the saem location
@@ -36,6 +36,7 @@ public class Worker {
 			return;
 		}
 		curLoc = curUnit.location().mapLocation();
+		replicationLimit = (int) Math.round(Math.sqrt((Player.planetMap.getHeight()) * (Player.planetMap.getWidth())) / 1.5 / Math.sqrt(gc.round())));
 
 		if (!prevHealth.containsKey(curUnit.id())) {
 		    prevHealth.put(curUnit.id(), (int) curUnit.health());
