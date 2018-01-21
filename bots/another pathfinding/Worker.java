@@ -86,7 +86,7 @@ public class Worker {
 		}
 
 		//not enough workers - replicate
-		if ((numWorkers < 6 || numWorkers < (int) Math.round(Math.sqrt((Player.planetMap.getHeight()) * (Player.planetMap.getWidth())) / 2 / Math.sqrt(gc.round())))) {
+		if ((numWorkers < 6 || numWorkers < (int) Math.round(Math.sqrt((Player.planetMap.getHeight()) * (Player.planetMap.getWidth())) / 1.5 / Math.sqrt(gc.round())))) {
 			replicateAnywhere();
 		}
 
@@ -174,7 +174,7 @@ public class Worker {
 					makeWay(curLoc, new HashSet<Integer>(), blueprintLoc));
 				}
 				*/
-				if (curUnit.abilityHeat() < 10 && numWorkers < (int) Math.round(Math.sqrt((Player.planetMap.getHeight()) * (Player.planetMap.getWidth())) / 2 / Math.sqrt(gc.round()))) {
+				if (curUnit.abilityHeat() < 10 && numWorkers < (int) Math.round(Math.sqrt((Player.planetMap.getHeight()) * (Player.planetMap.getWidth())) / 1.5 / Math.sqrt(gc.round()))) {
 					//try replicating to where there's this blueprint while making others move if they can
 					MapLocation temp = null;
 					for (int i = 0; i < directions.length; i++) {
