@@ -22,7 +22,7 @@ public class Worker {
 	static boolean wentToMine = false;
 	static HashMap<Integer, MapLocation> karboniteTargets = new HashMap<Integer, MapLocation>();
 	//set of factories or rockets a worker is going to build to prevent ppl queueing the saem location
-	static HashSet<Integer> structuresToBuild = new HashSet<Integer>();
+	static HashMap<Integer, UnitType> structuresToBuild = new HashMap<Integer, UnitType>();
 	static HashMap<Integer, Integer> prevHealth = new HashMap<Integer, Integer>();
 
 	public static void run(Unit curUnit) {
@@ -80,7 +80,7 @@ public class Worker {
 
 
 		if (buildBlueprintLocation.containsKey(curUnit.id())) {
-			buildStructure(UnitType.Factory);
+			buildStructure(structuresToBuild.get(curUnit.id()));
 			//removeKarboniteTarget();
 			return;
 		}
@@ -382,14 +382,14 @@ public class Worker {
 			}
 			for (int i = 0; i < directions.length && around == 0; i++) {
 				MapLocation toTest = current.add(directions[i]);
-				if (structuresToBuild.contains(hash(toTest))) {
+				if (structuresToBuild.containsKey(hash(toTest))) {
 					around++;
 				}
 			}
 			int tempX = current.getX();
 			int tempY = current.getY();
 			//on the map and gotoable and doesnt block off any spots
-			if (around == 0 && !structuresToBuild.contains(hash(current)) && (goAble(tempX - 1, tempY) || goAble(tempX + 1, tempY)) && (goAble(tempX, tempY - 1) || goAble(tempX, tempY + 1))) {
+			if (around == 0 && !structuresToBuild.containsKey(hash(current)) && (goAble(tempX - 1, tempY) || goAble(tempX + 1, tempY)) && (goAble(tempX, tempY - 1) || goAble(tempX, tempY + 1))) {
 				return current;
 			}
 		}
@@ -411,7 +411,7 @@ public class Worker {
 				return;
 			}
 			buildBlueprintLocation.put(curUnit.id(), open);
-			structuresToBuild.add(hash(open));
+			structuresToBuild.put(hash(open), type);
 		}
 		MapLocation blueprintLocation = buildBlueprintLocation.get(curUnit.id());
 		int blueprintHash = hash(blueprintLocation);
