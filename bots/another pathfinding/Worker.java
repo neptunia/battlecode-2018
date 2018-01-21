@@ -47,16 +47,12 @@ public class Worker {
         }
 		//TODO: if on mars temporary code
 		if (gc.planet() == Planet.Mars) {
-			move(Player.enemyLocation);
+			goMine();
 			if (numWorkers < (int)(Math.sqrt(Player.gridX * Player.gridY))) {
 				for (int i = 0; i < directions.length; i++) {
 					if (gc.canReplicate(curUnit.id(), directions[i])) {
 						gc.replicate(curUnit.id(), directions[i]);
 						Player.workerCount++;
-                        int tempid = curUnit.id();
-                        Worker.run(gc.senseUnitAtLocation(curUnit.location().mapLocation().add(directions[i])));
-                        curUnit = gc.unit(tempid);
-                        curLoc = curUnit.location().mapLocation();
 						break;
 					}
 				}
