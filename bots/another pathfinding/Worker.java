@@ -36,7 +36,11 @@ public class Worker {
 			return;
 		}
 		curLoc = curUnit.location().mapLocation();
-		replicationLimit = (int) Math.round(Math.sqrt(Math.sqrt((Player.planetMap.getHeight()) * (Player.planetMap.getWidth())) * Math.sqrt(numKarbsCounter)) / Math.sqrt(gc.round()));
+		if (numKarbsCounter != 0) {
+		    replicationLimit = (int) Math.round(Math.sqrt(Math.sqrt((Player.planetMap.getHeight()) * (Player.planetMap.getWidth())) * Math.sqrt(numKarbsCounter)) / Math.sqrt(gc.round()));
+        } else {
+		    replicationLimit = (int) Math.round(Math.sqrt((Player.planetMap.getHeight()) * (Player.planetMap.getWidth())) / 1.5 / Math.sqrt(gc.round()));
+        }
 
 		if (!prevHealth.containsKey(curUnit.id())) {
 		    prevHealth.put(curUnit.id(), (int) curUnit.health());
