@@ -37,7 +37,7 @@ public class Worker {
 		}
 		curLoc = curUnit.location().mapLocation();
 		if (numKarbsCounter != 0) {
-		    replicationLimit = (int) Math.round(Math.sqrt(Math.sqrt((Player.planetMap.getHeight()) * (Player.planetMap.getWidth())) * Math.sqrt(numKarbsCounter)) / Math.sqrt(gc.round()));
+		    replicationLimit = (int) Math.round(Math.sqrt(Math.sqrt((Player.planetMap.getHeight()) * (Player.planetMap.getWidth())) * Math.sqrt(numKarbsCounter*3)) / Math.sqrt(gc.round()));
         } else {
 		    replicationLimit = (int) Math.round(Math.sqrt((Player.planetMap.getHeight()) * (Player.planetMap.getWidth())) / 1.5 / Math.sqrt(gc.round()));
         }
