@@ -65,7 +65,7 @@ public class Ranger {
             attackNearbyEnemies();
             return;
         }
-        if (dist < 50) {
+        if (dist <= 50) {
             // within attack range
             if (canAttack()) {
                 gc.attack(curUnit.id(), enemyid);
@@ -219,7 +219,7 @@ public class Ranger {
         }
         if (gc.isMoveReady(curUnit.id())) {
             Player.blockedCount++;
-            moveCloser(Player.enemyLocation);
+            moveCloser(target);
         }
     }
 

@@ -261,7 +261,7 @@ public class Healer {
         }
         if (gc.isMoveReady(curUnit.id())) {
             Player.blockedCount++;
-            moveCloser(Player.enemyLocation);
+            moveCloser(target);
         }
     }
 

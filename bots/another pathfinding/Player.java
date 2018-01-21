@@ -1,8 +1,6 @@
 import bc.*;
 import java.util.*;
 
-import java.text.NumberFormat;
-
 public class Player {
 
     static boolean[][] passable;

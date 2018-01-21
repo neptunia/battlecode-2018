@@ -8,6 +8,7 @@ public class Rocket {
     static Direction[] directions = Direction.values();
     static HashSet<Integer> workersPerRocket = new HashSet<Integer>();
     static HashMap<Integer, Integer> turnsSinceBuilt = new HashMap<Integer, Integer>();
+    //static HashMap<Integer, HashSet<Integer>> assignedUnits = new HashMap<Integer, HashSet<Integer>>();
     static HashSet<Integer> assignedUnits = new HashSet<Integer>();
     static int landSpotNumber = 0;
 
@@ -37,8 +38,10 @@ public class Rocket {
             VecUnit adjacentUnits = gc.senseNearbyUnitsByTeam(curUnit.location().mapLocation(), 2, Player.myTeam);
             //TODO prioritize certain units over others
             for (int i = 0; i < adjacentUnits.size(); i++) {
-                if (gc.canLoad(curUnit.id(), adjacentUnits.get(i).id())) {
+                int id = adjacentUnits.get(i).id();
+                if (gc.canLoad(curUnit.id(), id) && Player.priorityTarget.containsKey(id)) {
                     if (!(workersPerRocket.contains(curUnit.id()) && adjacentUnits.get(i).unitType() == UnitType.Worker)) {
+                        Player.priorityTarget.remove(id);
                         gc.load(curUnit.id(), adjacentUnits.get(i).id());
                         if (adjacentUnits.get(i).unitType() == UnitType.Worker) {
                             workersPerRocket.add(curUnit.id());

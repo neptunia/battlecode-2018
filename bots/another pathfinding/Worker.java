@@ -36,6 +36,18 @@ public class Worker {
 			return;
 		}
 		curLoc = curUnit.location().mapLocation();
+
+		if (Player.priorityTarget.containsKey(curUnit.id())) {
+            MapLocation rocket = Player.priorityTarget.get(curUnit.id());
+            if (gc.hasUnitAtLocation(rocket) && gc.senseUnitAtLocation(rocket).unitType() == UnitType.Rocket) {
+                //System.out.println("Going to rocket!");
+                move(Player.priorityTarget.get(curUnit.id()));
+            } else {
+                Player.priorityTarget.remove(curUnit.id());
+            }
+            return;
+        }
+
 		replicationLimit = (int) Math.max(Math.round(Math.sqrt(Math.sqrt((Player.planetMap.getHeight()) * (Player.planetMap.getWidth())) * Math.sqrt(numKarbsCounter*3)) / Math.sqrt(gc.round())),Math.round(Math.sqrt((Player.planetMap.getHeight()) * (Player.planetMap.getWidth())) / 1.5 / Math.sqrt(gc.round())));
 
 
@@ -94,9 +106,6 @@ public class Worker {
 		if (Player.prevBlocked < 10 && numFacts < 5 && gc.karbonite() >= 120 && Player.timesReachedTarget < 3) {
 			buildStructure(UnitType.Factory);
 			//removeKarboniteTarget();
-		} else if (karbonitesLeft && gc.karbonite() < 200) {
-			goMine();
-			//removeBuildStructureTarget();
 		} else if (gc.karbonite() >= 75 && gc.researchInfo().getLevel(UnitType.Rocket) > 0) {
 			buildStructure(UnitType.Rocket);
 			//removeKarboniteTarget();
@@ -139,16 +148,16 @@ public class Worker {
 	public static void workOnBlueprint() {
 		int targetBlueprint = target.get(curUnit.id());
 		Unit toWorkOn = null;
+		MapLocation blueprintLoc = null;
 		try {
 			toWorkOn = gc.unit(targetBlueprint);
+			blueprintLoc = toWorkOn.location().mapLocation();
 		} catch (Exception e) {
 			//blueprint probably died
 			target.remove(curUnit.id());
 			Worker.run(curUnit);
 		}
 
-
-		MapLocation blueprintLoc = toWorkOn.location().mapLocation();
 		//already done working on
 		if (toWorkOn.health() == toWorkOn.maxHealth()) {
 			target.remove(curUnit.id());
@@ -411,6 +420,7 @@ public class Worker {
 
 	public static void buildStructure(UnitType type) {
 		//System.out.println("build structure");
+		structureType.put(curUnit.id(), type);
 		if (!buildBlueprintLocation.containsKey(curUnit.id())) {
 			MapLocation open = findBlueprintLocation();
 			if (open == null) {
@@ -418,7 +428,6 @@ public class Worker {
 				return;
 			}
 			buildBlueprintLocation.put(curUnit.id(), open);
-			structureType.put(curUnit.id(), type);
 			structuresToBuild.add(hash(open));
 		}
 		MapLocation blueprintLocation = buildBlueprintLocation.get(curUnit.id());
@@ -429,7 +438,9 @@ public class Worker {
 		if (distance(curLoc, blueprintLocation) <= 2) {
 			//someone's probably blocking it
 			if (!gc.canBlueprint(curUnit.id(), type, dirToBlueprint)) {
-				moveAway(blueprintLocation, new HashSet<Integer>());
+				HashSet<Integer> temp = new HashSet<Integer>();
+				temp.add(hash(curLoc));
+				moveAway(blueprintLocation, temp);
 			}
 			if (gc.canBlueprint(curUnit.id(), type, dirToBlueprint)) {
 				gc.blueprint(curUnit.id(), type, dirToBlueprint);
@@ -515,6 +526,7 @@ public class Worker {
 		//int workersNeeded = 1;
 		int rangersNeeded = 5;
 		int healersNeeded = 2;
+		int workersNeeded = 1;
 		while (!queue.isEmpty()) {
 			MapLocation current = queue.poll();
 			//System.out.println("HI");
@@ -523,43 +535,35 @@ public class Worker {
 				//if (workersNeeded == 0 && combatUnitsNeeded == 0) {
 					//return;
 				//}
-				if (rangersNeeded == 0 && healersNeeded == 0) {
-					return;
-				}
-				try {
-					Unit there = gc.senseUnitAtLocation(toCheck);
-					UnitType temp = there.unitType();
-					if (temp != UnitType.Factory && temp != UnitType.Rocket && temp != UnitType.Worker && !Player.priorityTarget.containsKey(there.id())) {
-						if (temp == UnitType.Ranger) {
-							rangersNeeded--;
-						} else if (temp == UnitType.Healer) {
-							healersNeeded--;
-						}
-						//set combat unit's target to this rocket
-						Player.priorityTarget.put(there.id(), rocketLoc);
-					}
-					/*
-					if (there.unitType() == UnitType.Worker) {
-						workersNeeded--;
-						//set worker target to this rocket
-						Player.priorityTarget.put(there.id(), rocketLoc);
-					} else if (there.unitType() != UnitType.Factory && there.unitType() != UnitType.Rocket) {
-						combatUnitsNeeded--;
-						//set combat unit's target to this rocket
-						Player.priorityTarget.put(there.id(), rocketLoc);
-					}*/
-				} catch (Exception e) {
-					//no unit there
-					//e.printStackTrace();
-				}
 				int x = toCheck.getX();
 				int y = toCheck.getY();
 				if (x >= 0 && x < Player.gridX && y >= 0 && y < Player.gridY && Player.gotoable[toCheck.getX()][toCheck.getY()] && !visited.contains(hash(toCheck))) {
 					queue.add(toCheck);
 					visited.add(hash(toCheck));
 				}
+				if (rangersNeeded == 0 && healersNeeded == 0 && workersNeeded == 0) {
+					return;
+				}
+				if (gc.hasUnitAtLocation(toCheck)) {
+					Unit there = gc.senseUnitAtLocation(toCheck);
+					UnitType temp = there.unitType();
+					if (!Player.priorityTarget.containsKey(there.id())) {
+						if (temp == UnitType.Ranger && rangersNeeded > 0) {
+							rangersNeeded--;
+							Player.priorityTarget.put(there.id(), rocketLoc);
+						} else if (temp == UnitType.Healer && healersNeeded > 0) {
+							healersNeeded--;
+							Player.priorityTarget.put(there.id(), rocketLoc);
+						} else if (temp == UnitType.Worker && workersNeeded > 0) {
+							workersNeeded--;
+							Player.priorityTarget.put(there.id(), rocketLoc);
+						}
+					}
+				}
+				
 			}
 		}
+		System.out.println(rocketLoc);
 		System.out.println("Rip not enough units to put into rocket");
 	}
 
@@ -602,9 +606,27 @@ public class Worker {
             }
         }
         if (gc.isMoveReady(curUnit.id())) {
-        	moveAnywhere();
+        	Player.blockedCount++;
+        	moveCloser(target);
         }
         curLoc = curUnit.location().mapLocation();
+    }
+
+    public static boolean moveCloser(MapLocation enemy) {
+        int best = distance(curUnit.location().mapLocation(), enemy);
+        Direction bestd = null;
+        for (int i = 0; i < directions.length; i++) {
+            MapLocation temp = curUnit.location().mapLocation().add(directions[i]);
+            if (gc.canMove(curUnit.id(), directions[i]) && distance(temp, enemy) < best) {
+                best = distance(temp, enemy);
+                bestd = directions[i];
+            }
+        }
+        if (bestd != null) {
+            gc.moveRobot(curUnit.id(), bestd);
+            return true;
+        }
+        return false;
     }
 
 	public static boolean canMove() {
