@@ -290,7 +290,7 @@ public class Player {
             }
         }
 
-        //startingLocation = chooseClosestPoint();
+        startingLocation = chooseClosestPoint();
 
         //precompute landing spots for Mars.
         if (gc.planet() == Planet.Mars && !marsBfsDone) {
@@ -404,6 +404,32 @@ public class Player {
                     tempDist += distanceSq(i, a, unitLocations[j].getX(), unitLocations[j].getY());
                 }
                 if (tempDist > greatest) {
+                    greatest = tempDist;
+                    smallX = i;
+                    smallY = a;
+                }
+            }
+        }
+        MapLocation point = new MapLocation(gc.planet(), smallX, smallY);
+        //BFS the whole map
+        bfs(point);
+        return point;
+    }
+
+    public static MapLocation chooseClosestPoint() {
+        double greatest = 9999999;
+        int smallX = 0;
+        int smallY = 0;
+        for (int i = 0; i < gridX; i++) {
+            for (int a = 0; a < gridY; a++) {
+                if (!gotoable[i][a]) {
+                    continue;
+                }
+                double tempDist = 0;
+                for (int j = 0; j < numUnitsThisRound; j++) {
+                    tempDist += distanceSq(i, a, unitLocations[j].getX(), unitLocations[j].getY());
+                }
+                if (tempDist < greatest) {
                     greatest = tempDist;
                     smallX = i;
                     smallY = a;

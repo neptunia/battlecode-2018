@@ -23,6 +23,7 @@ public class Worker {
 	static HashMap<Integer, MapLocation> karboniteTargets = new HashMap<Integer, MapLocation>();
 	//set of factories or rockets a worker is going to build to prevent ppl queueing the saem location
 	static HashSet<Integer> structuresToBuild = new HashSet<Integer>();
+	static HashMap<Integer, Integer> prevHealth = new HashMap<Integer, Integer>();
 
 	public static void run(Unit curUnit) {
 
@@ -34,6 +35,15 @@ public class Worker {
 		}
 		curLoc = curUnit.location().mapLocation();
 
+		if (!prevHealth.containsKey(curUnit.id())) {
+		    prevHealth.put(curUnit.id(), (int) curUnit.health());
+        } else {
+		    if (prevHealth.get(curUnit.id()) > curUnit.health()) {
+		        //run away!!!
+                move(Player.startingLocation);
+            }
+            prevHealth.put(curUnit.id(), (int) curUnit.health());
+        }
 		//TODO: if on mars temporary code
 		if (gc.planet() == Planet.Mars) {
 			move(Player.enemyLocation);
