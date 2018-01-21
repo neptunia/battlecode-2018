@@ -19,6 +19,7 @@ public class Worker {
 	static HashMap<Integer, Integer> karboniteIndex = new HashMap<Integer, Integer>();
 	static int numKarbsCounter = 0;
 	static int factsQueued = 0;
+	static int replicationLimit = (int) Math.round(Math.sqrt((Player.planetMap.getHeight()) * (Player.planetMap.getWidth())) / 1.5 / Math.sqrt(gc.round())));
 	static boolean wentToMine = false;
 	static HashMap<Integer, MapLocation> karboniteTargets = new HashMap<Integer, MapLocation>();
 	//set of factories or rockets a worker is going to build to prevent ppl queueing the saem location
@@ -85,7 +86,7 @@ public class Worker {
 		}
 
 		//not enough workers - replicate
-		if ((numWorkers < 6 || numWorkers < (int) Math.round(Math.sqrt((Player.planetMap.getHeight()) * (Player.planetMap.getWidth())) / 1.5 / Math.sqrt(gc.round())))) {
+		if ((numWorkers < 6 || numWorkers < replicationLimit) {
 			replicateAnywhere();
 		}
 
@@ -173,7 +174,7 @@ public class Worker {
 					makeWay(curLoc, new HashSet<Integer>(), blueprintLoc));
 				}
 				*/
-				if (curUnit.abilityHeat() < 10 && numWorkers < (int) Math.round(Math.sqrt((Player.planetMap.getHeight()) * (Player.planetMap.getWidth())) / 1.5 / Math.sqrt(gc.round()))) {
+				if (curUnit.abilityHeat() < 10 && numWorkers < replicationLimit) {
 					//try replicating to where there's this blueprint while making others move if they can
 					MapLocation temp = null;
 					for (int i = 0; i < directions.length; i++) {
