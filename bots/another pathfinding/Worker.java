@@ -36,7 +36,7 @@ public class Worker {
 			return;
 		}
 		curLoc = curUnit.location().mapLocation();
-		replicationLimit = (int) Math.round(Math.sqrt((Player.planetMap.getHeight()) * (Player.planetMap.getWidth())) / 1.5 / Math.sqrt(gc.round())));
+		replicationLimit = (int) Math.round(Math.sqrt((Player.planetMap.getHeight()) * (Player.planetMap.getWidth())) / 1.5 / Math.sqrt(gc.round()));
 
 		if (!prevHealth.containsKey(curUnit.id())) {
 		    prevHealth.put(curUnit.id(), (int) curUnit.health());
