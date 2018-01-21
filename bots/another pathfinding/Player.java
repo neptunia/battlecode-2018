@@ -102,6 +102,7 @@ public class Player {
                             if (!Worker.karbonitesLeft) {
                                 Worker.karbonitesLeft = true;
                             }
+                            Worker.karboniteIndex.put(hash(aster.getLocation()), Worker.numKarbsCounter);
                             Worker.numKarbsCounter++;
                         }
                     }
