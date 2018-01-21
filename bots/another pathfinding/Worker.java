@@ -299,7 +299,14 @@ public class Worker {
 	public static void goMine() {
 		wentToMine = true;
 		if (!karboniteTargets.containsKey(curUnit.id())) {
-			karboniteTargets.put(curUnit.id(), selectKarbonite());
+			MapLocation karb = selectKarbonite();
+			if (karb != null) {
+				karboniteTargets.put(curUnit.id(), karb);
+			} else {
+				//there should be no more karbonite
+				return;
+			}
+			
 		}
 		MapLocation theKarb = karboniteTargets.get(curUnit.id());
 		//if im next to karbonite
@@ -594,7 +601,7 @@ public class Worker {
             }
         }
         if (gc.isMoveReady(curUnit.id())) {
-        	//moveAnywhere();
+        	moveAnywhere();
         }
         curLoc = curUnit.location().mapLocation();
     }
