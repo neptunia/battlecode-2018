@@ -36,7 +36,7 @@ public class Worker {
 			return;
 		}
 		curLoc = curUnit.location().mapLocation();
-		replicationLimit = (int) Math.round(Math.sqrt((Player.planetMap.getHeight()) * (Player.planetMap.getWidth())) / 1.5 / Math.sqrt(gc.round()));
+		replicationLimit = (int) Math.round(Math.sqrt(Math.sqrt((Player.planetMap.getHeight()) * (Player.planetMap.getWidth())) * Math.sqrt(numKarbsCounter)) / Math.sqrt(gc.round()));
 
 		if (!prevHealth.containsKey(curUnit.id())) {
 		    prevHealth.put(curUnit.id(), (int) curUnit.health());
@@ -52,15 +52,13 @@ public class Worker {
 			if (Worker.karbonitesLeft) {
 			    goMine();
             }
-			if (numWorkers < (int)(Math.sqrt(Player.gridX * Player.gridY))) {
-				for (int i = 0; i < directions.length; i++) {
-					if (gc.canReplicate(curUnit.id(), directions[i])) {
-						gc.replicate(curUnit.id(), directions[i]);
-						Player.workerCount++;
-						break;
-					}
-				}
-			}
+            for (int i = 0; i < directions.length; i++) {
+                if (gc.canReplicate(curUnit.id(), directions[i])) {
+                    gc.replicate(curUnit.id(), directions[i]);
+                    Player.workerCount++;
+                    break;
+                }
+            }
 			return;
 		}
 
@@ -87,7 +85,7 @@ public class Worker {
 		}
 
 		//not enough workers - replicate
-		if ((numWorkers < 6 || numWorkers < replicationLimit) {
+		if ((numWorkers < 6 || numWorkers < replicationLimit)) {
 			replicateAnywhere();
 		}
 

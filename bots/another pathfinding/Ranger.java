@@ -40,7 +40,7 @@ public class Ranger {
         }
 
         Pair target = findNearestEnemy();
-        if (Player.timesReachedTarget >= 3 && target.enemyClosest == -1) {
+        if (Player.timesReachedTarget >= 3 && target.enemyClosest == -1 && gc.planet() == Planet.Earth) {
             return;
         }
         if (target.enemyClosest != -1) {
