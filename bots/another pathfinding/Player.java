@@ -289,6 +289,11 @@ public class Player {
                 }
             }
         }
+        if (Worker.numKarbsCounter > 0) {
+            Worker.karbonitesLeft = true;
+        } else {
+            Worker.karbonitesLeft = false;
+        }
 
         startingLocation = chooseClosestPoint();
 
