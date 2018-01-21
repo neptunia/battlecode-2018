@@ -94,6 +94,18 @@ public class Player {
                 if (gc.planet() == Planet.Earth && gc.round() >= 750) {
                     gc.nextTurn();
                 }
+                if (gc.planet() == Planet.Mars) {
+                    if (gc.asteroidPattern().hasAsteroid(gc.round())) {
+                        AsteroidStrike aster = gc.asteroidPattern().asteroid(gc.round());
+                        if (gotoable[aster.getLocation().getX()][aster.getLocation().getY()]) {
+                            Worker.karbonites[Worker.numKarbsCounter] = aster.getLocation();
+                            if (!Worker.karbonitesLeft) {
+                                Worker.karbonitesLeft = true;
+                            }
+                            Worker.numKarbsCounter++;
+                        }
+                    }
+                }
                 
                 currentIncome = 10 - Math.max(gc.karbonite() / 40, 0);
                 long currentRound = gc.round();
