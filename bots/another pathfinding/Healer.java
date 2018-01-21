@@ -253,10 +253,15 @@ public class Healer {
             }
         } else {
             //cant get there
-            System.out.println("cant get there");
+            if (Player.bfsMin(target, curLoc)) {
+                move(target);
+            } else {
+                System.out.println("cant get there healer");
+            }
         }
         if (gc.isMoveReady(curUnit.id())) {
             Player.blockedCount++;
+            moveCloser(Player.enemyLocation);
         }
     }
 

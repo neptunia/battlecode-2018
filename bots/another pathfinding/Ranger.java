@@ -219,7 +219,7 @@ public class Ranger {
         }
         if (gc.isMoveReady(curUnit.id())) {
             Player.blockedCount++;
-            //moveAnywhere();
+            moveCloser(Player.enemyLocation);
         }
     }
 
