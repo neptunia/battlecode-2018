@@ -54,7 +54,7 @@ public class Worker {
 		if (!prevHealth.containsKey(curUnit.id())) {
 		    prevHealth.put(curUnit.id(), (int) curUnit.health());
         } else {
-		    if (prevHealth.get(curUnit.id()) > curUnit.health()) {
+		    if (prevHealth.get(curUnit.id()) > curUnit.health() || curUnit.health() < curUnit.maxHealth() / 2) {
 		        //run away!!!
                 move(Player.startingLocation);
             }
