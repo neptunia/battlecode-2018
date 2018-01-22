@@ -34,6 +34,8 @@ public class Player {
     static HashMap<Integer, MapLocation> priorityTarget = new HashMap<Integer, MapLocation>();
     static int[][][] pathDistances;
     static HashMap<Integer, Integer> parentWorker = new HashMap<Integer, Integer>();
+    static MapLocation[] asteroidsBeforeLand = new MapLocation[2500];
+    static int asteroidCounter = 0;
 
 
 	public static void main(String args[]) {
@@ -99,14 +101,18 @@ public class Player {
                 if (gc.planet() == Planet.Mars) {
                     if (gc.asteroidPattern().hasAsteroid(gc.round())) {
                         AsteroidStrike aster = gc.asteroidPattern().asteroid(gc.round());
-                        for (int i = 0; i < gotoable.length; i++) {
-                            if (gotoable[i][aster.getLocation().getX()][aster.getLocation().getY()]) {
-                                MapLocation asteroid = aster.getLocation();
-                                if (!Worker.karbonitesLeft[i]) {
-                                    Worker.karbonitesLeft[i] = true;
+                        if (gotoable.length == 0) {
+                            asteroidsBeforeLand[asteroidCounter] = aster.getLocation();
+                            asteroidCounter++;
+                        } else {
+                            for (int i = 0; i < gotoable.length; i++) {
+                                if (gotoable[i][aster.getLocation().getX()][aster.getLocation().getY()]) {
+                                    MapLocation asteroid = aster.getLocation();
+                                    if (!Worker.karbonitesLeft[i]) {
+                                        Worker.karbonitesLeft[i] = true;
+                                    }
+                                    hasKarbonite[asteroid.getX()][asteroid.getY()] = true;
                                 }
-                                hasKarbonite[asteroid.getX()][asteroid.getY()] = true;
-                                Worker.numKarbsCounter[i]++;
                             }
                         }
                         
@@ -233,16 +239,19 @@ public class Player {
         enemyLocation = new MapLocation[numWorkers];
         Worker.karbonitesLeft = new boolean[numWorkers];
         Worker.numKarbsCounter = new int[numWorkers];
+        Worker.karbAmount = new int[numWorkers];
         startingLocation = new MapLocation[numWorkers];
-        System.out.println("Number of units:");
-        System.out.println(numWorkers);
-        if (numWorkers == 0) {
-            gotoableEmpty = true;
-        } else {
-            gotoableEmpty = false;
-        }
         hasKarbonite = new boolean[width][height];
         pathDistances = new int[width * 69 + height + 1][width][height];
+        map = new Unit[width][height];
+        passable = new boolean[width][height];
+
+        System.out.println("Number of units:");
+        System.out.println(numWorkers);
+
+        
+        
+        
         for (int i = 0; i < width * 69 + height + 1; i++) {
             for (int a = 0; a < width; a++) {
                 for (int j = 0; j < height; j++) {
@@ -252,8 +261,7 @@ public class Player {
         }
         gridX = width;
         gridY = height;
-        map = new Unit[width][height];
-        passable = new boolean[width][height];
+        
         Worker.karbonites = new MapLocation[2500];
 
         
@@ -322,12 +330,14 @@ public class Player {
         for (int i = 0; i < width; i++) {
             for (int a = 0; a < height; a++) {
                 MapLocation test = new MapLocation(gc.planet(), i, a);
-                if (planetMap.initialKarboniteAt(test) > 0) {
+                int amnt = (int) planetMap.initialKarboniteAt(test);
+                if (amnt > 0) {
                     //karbs[i][a] = true;
                     hasKarbonite[i][a] = true;
                     for (int j = 0; j < numWorkers; j++) {
                         if (gotoable[j][i][a]) {
                             Worker.numKarbsCounter[j]++;
+                            Worker.karbAmount[j] += amnt / 2;
                             if (!Worker.karbonitesLeft[j]) {
                                 Worker.karbonitesLeft[j] = true;
                             }
@@ -421,6 +431,23 @@ public class Player {
                 }
             }
             marsBfsDone = true;
+        }
+
+        if (gotoableEmpty) {
+            for (int i = 0; i < asteroidCounter; i++) {
+                MapLocation aster = asteroidsBeforeLand[i];
+                for (int a = 0; a < gotoable.length; a++) {
+                    if (!Worker.karbonitesLeft[a] && gotoable[a][aster.getX()][aster.getY()]) {
+                        Worker.karbonitesLeft[a] = true;
+                    }
+                    hasKarbonite[aster.getX()][aster.getY()] = true;
+                }
+            }
+        }
+        if (numWorkers == 0) {
+            gotoableEmpty = true;
+        } else {
+            gotoableEmpty = false;
         }
     }
 

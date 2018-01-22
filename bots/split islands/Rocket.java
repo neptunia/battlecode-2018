@@ -61,13 +61,13 @@ public class Rocket {
             }
             MapLocation curLoc = curUnit.location().mapLocation();
             if (!Player.parentWorker.containsKey(curUnit.id())) {
-            for (int i = 0; i < Player.gotoable.length; i++) {
-                if (Player.gotoable[i][curLoc.getX()][curLoc.getY()]) {
-                    Player.parentWorker.put(curUnit.id(), i);
-                    break;
+                for (int i = 0; i < Player.gotoable.length; i++) {
+                    if (Player.gotoable[i][curLoc.getX()][curLoc.getY()]) {
+                        Player.parentWorker.put(curUnit.id(), i);
+                        break;
+                    }
                 }
             }
-        }
             for (int i = 0; i < directions.length; i++) {
                 if (gc.canUnload(curUnit.id(), directions[i])) {
                     gc.unload(curUnit.id(), directions[i]);
