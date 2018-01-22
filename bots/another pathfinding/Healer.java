@@ -173,7 +173,7 @@ public class Healer {
         if (!gc.isOverchargeReady(curUnit.id())) {
             return;
         }
-        VecUnit nearbyUnits =  gc.senseNearbyUnitsByTeam(curUnit.location().mapLocation(), curUnit.abilityRange(), Player.myTeam);
+        VecUnit nearbyUnits = gc.senseNearbyUnitsByTeam(curUnit.location().mapLocation(), curUnit.abilityRange(), Player.myTeam);
         //long maxHp = -1;
         int id = -1;
         boolean rangerFound = false;
@@ -189,13 +189,14 @@ public class Healer {
                 rangerFound = true;
             }
             //now look for better candidates
-            if (unit.unitType() == UnitType.Ranger && Ranger.inCombat.get(unit)) {
+            if (unit.unitType() == UnitType.Ranger && Ranger.inCombat.get(unit.id())) {
                 //maxHp = unit.health();
                 id = unit.id();
             }
         }
-        if (id != -1 && gc.canOvercharge(curUnit, id)) {
+        if (id != -1 && gc.canOvercharge(curUnit.id(), id)) {
             gc.overcharge(curUnit.id(), id);
+            Ranger.run(gc, gc.unit(id));
         }
     }
 
@@ -289,7 +290,7 @@ public class Healer {
             if (Player.bfsMin(target, curLoc)) {
                 move(target);
             } else {
-                System.out.println("cant get there healer");
+                //System.out.println("cant get there healer");
             }
         }
         if (gc.isMoveReady(curUnit.id())) {

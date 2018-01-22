@@ -602,7 +602,7 @@ public class Worker {
             if (Player.bfsMin(target, curLoc)) {
             	move(target);
             } else {
-            	System.out.println("cant get there worker");
+            	//System.out.println("cant get there worker");
             }
         }
         if (gc.isMoveReady(curUnit.id())) {

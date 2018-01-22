@@ -24,6 +24,23 @@ public class Factory {
 			for (int a = 0; a < directions.length; a++) {
 				if (gc.canUnload(curUnit.id(), directions[a])) {
 					gc.unload(curUnit.id(), directions[a]);
+					Unit newUnit = gc.senseUnitAtLocation(curLoc.add(directions[a]));
+					switch (newUnit.unitType()) {
+						case Healer:
+							Healer.run(gc, newUnit);
+							break;
+						case Knight:
+							Knight.run(gc, newUnit);
+							break;
+						case Mage:
+							Mage.run(gc, newUnit);
+							break;
+						case Ranger:
+							Ranger.run(gc, newUnit);
+							break;
+						case Worker:
+							Worker.run(newUnit);
+					}
 					break;
 				}
 			}
