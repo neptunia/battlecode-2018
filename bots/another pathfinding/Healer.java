@@ -170,7 +170,7 @@ public class Healer {
     }
 
     public static void findOverchargeTarget() {
-        if (!isOverchargeReady(curUnit)) {
+        if (!gc.isOverchargeReady(curUnit)) {
             return;
         }
         VecUnit nearbyUnits =  gc.senseNearbyUnitsByTeam(curUnit.location().mapLocation(), curUnit.abilityRange(), Player.myTeam);
@@ -190,9 +190,8 @@ public class Healer {
             }
             //now look for better candidates
             if (unit.unitType() == UnitType.Ranger && Ranger.inCombat.get(unit)) {
-                    //maxHp = unit.health();
-                    id = unit.id();
-                }
+                //maxHp = unit.health();
+                id = unit.id();
             }
         }
         if (id != -1 && canOvercharge(curUnit, id)) {
