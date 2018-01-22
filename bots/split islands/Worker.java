@@ -81,7 +81,7 @@ public class Worker {
             } else {
             	move(Player.enemyLocation[Player.parentWorker.get(curUnit.id())]);
             }
-            if (gc.round() > 750) {
+            if (gc.round() > 750 || numWorkers < 6) {
             	for (int i = 0; i < directions.length; i++) {
 	                if (gc.canReplicate(curUnit.id(), directions[i])) {
 	                    gc.replicate(curUnit.id(), directions[i]);
@@ -644,7 +644,7 @@ public class Worker {
     }
 
     public static boolean moveCloser(MapLocation enemy) {
-        int best = distance(curUnit.location().mapLocation(), enemy);
+        int best = 99999999;
         Direction bestd = null;
         for (int i = 0; i < directions.length; i++) {
             MapLocation temp = curUnit.location().mapLocation().add(directions[i]);
