@@ -194,7 +194,7 @@ public class Healer {
                 id = unit.id();
             }
         }
-        if (id != -1 && canOvercharge(curUnit, id)) {
+        if (id != -1 && gc.canOvercharge(curUnit, id)) {
             gc.overcharge(curUnit.id(), id);
         }
     }
