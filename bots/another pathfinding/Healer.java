@@ -170,7 +170,7 @@ public class Healer {
     }
 
     public static void findOverchargeTarget() {
-        if (!gc.isOverchargeReady(curUnit)) {
+        if (!gc.isOverchargeReady(curUnit.id())) {
             return;
         }
         VecUnit nearbyUnits =  gc.senseNearbyUnitsByTeam(curUnit.location().mapLocation(), curUnit.abilityRange(), Player.myTeam);
