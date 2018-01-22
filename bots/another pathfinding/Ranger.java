@@ -11,11 +11,16 @@ public class Ranger {
     static MapLocation curLoc;
     static HashMap<Integer, HashSet<Integer>> visited = new HashMap<Integer, HashSet<Integer>>();
     static HashMap<Integer, Integer> prevLocation = new HashMap<Integer, Integer>();
+    static HashMap<Integer, Boolean> inCombat = new HashMap<Integer, Boolean>();
 
     public static void run(GameController gc, Unit curUnit) {
 
         Ranger.curUnit = curUnit;
         curPlanet = gc.planet();
+
+        if (!inCombat.containsKey(curUnit.id())) {
+            inCombat.put(curUnit.id(), false);
+        }
 
         if (curUnit.location().isInGarrison() || curUnit.location().isInSpace()) {
             return;
@@ -57,6 +62,7 @@ public class Ranger {
         MapLocation enemyLoc = gc.unit(enemyid).location().mapLocation();
         MapLocation myLoc = curUnit.location().mapLocation();
         int dist = distance(myLoc, enemyLoc);
+        inCombat.put(curUnit.id(), false);
         if (dist <= 10) {
             // too close!
             if (gc.isMoveReady(curUnit.id())) {
@@ -69,6 +75,7 @@ public class Ranger {
             // within attack range
             if (canAttack()) {
                 gc.attack(curUnit.id(), enemyid);
+                inCombat.put(curUnit.id(), true);
             }
             if (gc.isMoveReady(curUnit.id())) {
                 moveAway(enemyLoc);
@@ -80,6 +87,7 @@ public class Ranger {
             if (gc.isMoveReady(curUnit.id()) && canAttack() && moveCloser(enemyLoc) && gc.canAttack(curUnit.id(), enemyid)) {
                 // move was successful
                 gc.attack(curUnit.id(), enemyid);
+                inCombat.put(curUnit.id(), true);
             }
             return;
         }
@@ -172,6 +180,7 @@ public class Ranger {
             //if can attack this enemy unit
             if (unit.team() != gc.team() && gc.isAttackReady(curUnit.id()) && gc.canAttack(curUnit.id(), unit.id())) {
                 gc.attack(curUnit.id(), unit.id());
+                inCombat.put(curUnit.id(), true);
                 return;
             }
         }
