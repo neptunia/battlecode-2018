@@ -192,6 +192,7 @@ public class Healer {
             if (unit.unitType() == UnitType.Ranger && Ranger.inCombat.get(unit.id())) {
                 //maxHp = unit.health();
                 id = unit.id();
+                break;
             }
         }
         if (id != -1 && gc.canOvercharge(curUnit.id(), id)) {
