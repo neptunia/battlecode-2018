@@ -233,6 +233,7 @@ public class Player {
         enemyLocation = new MapLocation[numWorkers];
         Worker.karbonitesLeft = new boolean[numWorkers];
         Worker.numKarbsCounter = new int[numWorkers];
+        Worker.karbAmount = new int[numWorkers];
         startingLocation = new MapLocation[numWorkers];
         System.out.println("Number of units:");
         System.out.println(numWorkers);
@@ -322,12 +323,14 @@ public class Player {
         for (int i = 0; i < width; i++) {
             for (int a = 0; a < height; a++) {
                 MapLocation test = new MapLocation(gc.planet(), i, a);
-                if (planetMap.initialKarboniteAt(test) > 0) {
+                int amnt = (int) planetMap.initialKarboniteAt(test);
+                if (amnt > 0) {
                     //karbs[i][a] = true;
                     hasKarbonite[i][a] = true;
                     for (int j = 0; j < numWorkers; j++) {
                         if (gotoable[j][i][a]) {
                             Worker.numKarbsCounter[j]++;
+                            Worker.karbAmount[j] += amnt / 2;
                             if (!Worker.karbonitesLeft[j]) {
                                 Worker.karbonitesLeft[j] = true;
                             }

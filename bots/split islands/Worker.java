@@ -15,6 +15,7 @@ public class Worker {
 	static Planet curPlanet;
 	static boolean[] karbonitesLeft;
 	static int[] numKarbsCounter;
+	static int[] karbAmount;
 	static int numWorkers = -1;
 	static MapLocation[] karbonites;
 	static int factsQueued = 0;
@@ -61,8 +62,8 @@ public class Worker {
         //System.out.println(Player.parentWorker.get(curUnit.id()));
         //System.out.println(numKarbsCounter[Player.parentWorker.get(curUnit.id())]);
         //System.out.println(karbonitesLeft[Player.parentWorker.get(curUnit.id())]);
-		replicationLimit = (int) Math.max(Math.round(Math.sqrt(Math.sqrt((Player.gridX) * (Player.gridY)) * Math.sqrt(numKarbsCounter[Player.parentWorker.get(curUnit.id())]*3)) / Math.sqrt(gc.round())),Math.round(Math.sqrt((Player.gridY) * (Player.gridX)) / 1.5 / Math.sqrt(gc.round())));
-
+		//replicationLimit = (int) Math.max(Math.round(Math.sqrt(Math.sqrt((Player.gridX) * (Player.gridY)) * Math.sqrt(numKarbsCounter[Player.parentWorker.get(curUnit.id())]*3)) / Math.sqrt(gc.round())),Math.round(Math.sqrt((Player.gridY) * (Player.gridX)) / 1.5 / Math.sqrt(gc.round())));
+        replicationLimit = (int) karbAmount[Player.parentWorker.get(curUnit.id())] / 2 / 40;
 
 		if (!prevHealth.containsKey(curUnit.id())) {
 		    prevHealth.put(curUnit.id(), (int) curUnit.health());
@@ -77,16 +78,25 @@ public class Worker {
 		if (gc.planet() == Planet.Mars) {
 			if (Worker.karbonitesLeft[Player.parentWorker.get(curUnit.id())]) {
 			    goMine();
+            } else {
+            	move(Player.enemyLocation[Player.parentWorker.get(curUnit.id())]);
             }
-            for (int i = 0; i < directions.length; i++) {
-                if (gc.canReplicate(curUnit.id(), directions[i])) {
-                    gc.replicate(curUnit.id(), directions[i]);
-                    Player.parentWorker.put(gc.senseUnitAtLocation(curUnit.location().mapLocation().add(directions[i])).id(), Player.parentWorker.get(curUnit.id()));
-                    Player.workerCount++;
-                    break;
-                }
+            if (gc.round() > 750) {
+            	for (int i = 0; i < directions.length; i++) {
+	                if (gc.canReplicate(curUnit.id(), directions[i])) {
+	                    gc.replicate(curUnit.id(), directions[i]);
+	                    Player.parentWorker.put(gc.senseUnitAtLocation(curUnit.location().mapLocation().add(directions[i])).id(), Player.parentWorker.get(curUnit.id()));
+	                    break;
+	                }
+	            }
             }
+            
 			return;
+		}
+		//System.out.println("Repl limit: " + Integer.toString(replicationLimit));
+		//not enough workers - replicate
+		if ((numWorkers < 6 || numWorkers < replicationLimit)) {
+			replicateAnywhere();
 		}
 
 		//if i do have a target blueprint
@@ -97,7 +107,7 @@ public class Worker {
 			return;
 		}
 
-		if (gc.round() < 10 && distance(curLoc, selectKarbonite()) <= 4) {
+		if (gc.round() < 10 && karbonitesLeft[Player.parentWorker.get(curUnit.id())] && distance(curLoc, selectKarbonite()) <= 4) {
 			goMine();
 			//removeBuildStructureTarget();
 			replicateAnywhere();
@@ -109,11 +119,6 @@ public class Worker {
 			buildStructure(structureType.get(curUnit.id()));
 			//removeKarboniteTarget();
 			return;
-		}
-
-		//not enough workers - replicate
-		if ((numWorkers < 6 || numWorkers < replicationLimit)) {
-			replicateAnywhere();
 		}
 
 
@@ -344,6 +349,7 @@ public class Worker {
 			if (gc.canHarvest(curUnit.id(), directionToKarb)) {
 				//harvest karbonite
 				gc.harvest(curUnit.id(), directionToKarb);
+				karbAmount[Player.parentWorker.get(curUnit.id())] -= curUnit.workerHarvestAmount();
 				Player.currentIncome += curUnit.workerHarvestAmount();
 				return;
 			} else if (gc.karboniteAt(theKarb) == 0) {
