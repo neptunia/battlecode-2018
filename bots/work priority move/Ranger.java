@@ -205,7 +205,7 @@ public class Ranger {
                 }
                 if (unit.health() < weakest) {
                     best = unit.id();
-                    weakest = unit.health();
+                    weakest = (int) unit.health();
                 }
                 
             }
