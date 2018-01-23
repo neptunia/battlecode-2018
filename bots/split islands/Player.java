@@ -77,18 +77,7 @@ public class Player {
 
             initialize();
 
-
-            //do research
-            gc.queueResearch(UnitType.Worker);
-            gc.queueResearch(UnitType.Healer);
-            gc.queueResearch(UnitType.Healer);
-            gc.queueResearch(UnitType.Healer);
-            gc.queueResearch(UnitType.Rocket);
-            gc.queueResearch(UnitType.Ranger);
-            gc.queueResearch(UnitType.Ranger);
-            gc.queueResearch(UnitType.Worker);
-            gc.queueResearch(UnitType.Worker);
-            gc.queueResearch(UnitType.Rocket);
+            
 
 
             long startTime = 10000;
@@ -458,6 +447,7 @@ public class Player {
 
         VecUnit startingUnits = gc.startingMap(gc.planet()).getInitial_units();
         //find out if map is split for each worker on same island
+        boolean isSplit = false;
         for (int i = 0; i < numWorkers; i++) {
             if (useful.contains(i)) {
                 boolean spl = true;
@@ -473,9 +463,31 @@ public class Player {
                     }
                 }
                 split[i] = spl;
-                System.out.println("-----------------------");
-                System.out.println(spl);
+                isSplit = isSplit || spl;
             }
+        }
+        if (!isSplit) {
+            gc.queueResearch(UnitType.Worker);
+            gc.queueResearch(UnitType.Healer);
+            gc.queueResearch(UnitType.Healer);
+            gc.queueResearch(UnitType.Healer);
+            gc.queueResearch(UnitType.Rocket);
+            gc.queueResearch(UnitType.Ranger);
+            gc.queueResearch(UnitType.Ranger);
+            gc.queueResearch(UnitType.Worker);
+            gc.queueResearch(UnitType.Worker);
+            gc.queueResearch(UnitType.Rocket);
+        } else {
+            gc.queueResearch(UnitType.Worker);
+            gc.queueResearch(UnitType.Rocket);
+            gc.queueResearch(UnitType.Healer);
+            gc.queueResearch(UnitType.Healer);
+            gc.queueResearch(UnitType.Healer);
+            gc.queueResearch(UnitType.Ranger);
+            gc.queueResearch(UnitType.Ranger);
+            gc.queueResearch(UnitType.Worker);
+            gc.queueResearch(UnitType.Worker);
+            gc.queueResearch(UnitType.Rocket);
         }
     }
 

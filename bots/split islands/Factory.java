@@ -67,7 +67,7 @@ public class Factory {
 					around++;
 				}
 
-				if (around <= 5 && gc.karbonite() > 200) {
+				if (around <= 5 && gc.karbonite() > 50) {
 					if (Worker.numWorkers == 0) {
 	                	gc.produceRobot(curUnit.id(), UnitType.Worker);
 		            } else if (gc.researchInfo().getLevel(UnitType.Healer) >= 1 && Player.numRangers > 4*Player.numHealers) {
