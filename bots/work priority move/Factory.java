@@ -72,7 +72,7 @@ public class Factory {
 				}
 
 				if (around <= 5) {
-					if (Player.numRangers > 3*Player.numHealers) {
+					if (Player.numRangers > 3*Player.numHealers && gc.researchInfo().getLevel(UnitType.Healer) >= 1) {
 						gc.produceRobot(curUnit.id(), UnitType.Healer);
 						Player.numHealers++;
 					} else {
@@ -81,7 +81,7 @@ public class Factory {
 					}
 				}
 			} else {
-				if (Player.numRangers > 3*Player.numHealers) {
+				if (Player.numRangers > 3*Player.numHealers && gc.researchInfo().getLevel(UnitType.Healer) >= 1) {
 					gc.produceRobot(curUnit.id(), UnitType.Healer);
 					Player.numHealers++;
 				} else {
