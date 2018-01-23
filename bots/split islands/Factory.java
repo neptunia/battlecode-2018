@@ -50,7 +50,7 @@ public class Factory {
 
 		Player.currentIncome -= 4;
 		//produce unit if no rockets have been started AND rockets can be built
-		if (gc.canProduceRobot(curUnit.id(), UnitType.Ranger)) {
+		if (Player.prevBlocked < 15 && gc.canProduceRobot(curUnit.id(), UnitType.Ranger)) {
 			if (Player.split[Player.parentWorker.get(curUnit.id())]) {
 				int around = 0;
 				for (int i = 0; i < directions.length; i++) {

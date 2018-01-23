@@ -137,7 +137,6 @@ public class Worker {
 		} else {
 			//System.out.println("nothing to do");
 			//nothing to do
-			System.out.println(Player.startingLocation[Player.parentWorker.get(curUnit.id())]);
 			move(Player.startingLocation[Player.parentWorker.get(curUnit.id())]);
 		}
 	}
@@ -620,7 +619,6 @@ public class Worker {
 				
 			}
 		}
-		System.out.println(rocketLoc);
 		System.out.println("Rip not enough units to put into rocket");
 	}
 

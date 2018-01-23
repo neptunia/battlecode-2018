@@ -121,6 +121,7 @@ public class Player {
                         
                     }
                 }
+
                 
                 currentIncome = 10 - Math.max(gc.karbonite() / 40, 0);
                 long currentRound = gc.round();
@@ -525,6 +526,7 @@ public class Player {
     }
 
     public static MapLocation chooseClosestPoint(int parent) {
+        VecUnit startingUnits = gc.startingMap(gc.planet()).getInitial_units();
         double greatest = 9999999;
         int smallX = -1;
         int smallY = -1;
@@ -534,8 +536,12 @@ public class Player {
                     continue;
                 }
                 double tempDist = 0;
-                for (int j = 0; j < numUnitsThisRound; j++) {
-                    tempDist += distanceSq(i, a, unitLocations[j].getX(), unitLocations[j].getY());
+                for (int j = 0; j < startingUnits.size(); j++) {
+                    Unit tempUnit = startingUnits.get(j);
+                    if (tempUnit.team() == myTeam) {
+                        MapLocation temp = tempUnit.location().mapLocation();
+                        tempDist += distanceSq(i, a, temp.getX(), temp.getY());
+                    }
                 }
                 if (tempDist < greatest) {
                     greatest = tempDist;
