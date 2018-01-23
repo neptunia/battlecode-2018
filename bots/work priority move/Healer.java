@@ -26,7 +26,7 @@ public class Healer {
             MapLocation rocket = Player.priorityTarget.get(curUnit.id());
             if (gc.hasUnitAtLocation(rocket) && gc.senseUnitAtLocation(rocket).unitType() == UnitType.Rocket) {
                 //System.out.println("Going to rocket!");
-                move(Player.priorityTarget.get(curUnit.id()));
+                move2(Player.priorityTarget.get(curUnit.id()));
             } else {
                 Player.priorityTarget.remove(curUnit.id());
             }
@@ -314,6 +314,46 @@ public class Healer {
         if (gc.isMoveReady(curUnit.id())) {
             Player.blockedCount++;
             moveGreed(target);
+        }
+    }
+
+    public static void move2(MapLocation target) {
+        int targetHash = hash(target);
+        if (hash(curLoc) == targetHash || !gc.isMoveReady(curUnit.id())) {
+            return;
+        }
+        int x = curLoc.getX();
+        int y = curLoc.getY();
+        int currentDist = Player.pathDistances[targetHash][x][y];
+        if (currentDist != -1) {
+            if (x < Player.gridX - 1 && Player.pathDistances[targetHash][x + 1][y] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.East)) {
+                gc.moveRobot(curUnit.id(), Direction.East);
+            } else if (x > 0 && Player.pathDistances[targetHash][x - 1][y] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.West)) {
+                gc.moveRobot(curUnit.id(), Direction.West);
+            } else if (y < Player.gridY - 1 && Player.pathDistances[targetHash][x][y + 1] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.North)) {
+                gc.moveRobot(curUnit.id(), Direction.North);
+            } else if (y > 0 && Player.pathDistances[targetHash][x][y - 1] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.South)) {
+                gc.moveRobot(curUnit.id(), Direction.South);
+            } else if (y < Player.gridY - 1 && x < Player.gridX - 1 && Player.pathDistances[targetHash][x + 1][y + 1] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.Northeast)) {
+                gc.moveRobot(curUnit.id(), Direction.Northeast);
+            } else if (y > 0 && x < Player.gridX - 1 && Player.pathDistances[targetHash][x + 1][y - 1] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.Southeast)) {
+                gc.moveRobot(curUnit.id(), Direction.Southeast);
+            } else if (x > 0 && y < Player.gridY - 1 && Player.pathDistances[targetHash][x - 1][y + 1] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.Northwest)) {
+                gc.moveRobot(curUnit.id(), Direction.Northwest);
+            } else if (x > 0 && y > 0 && Player.pathDistances[targetHash][x - 1][y - 1] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.Southwest)) {
+                gc.moveRobot(curUnit.id(), Direction.Southwest);
+            }
+        } else {
+            //cant get there
+            if (Player.bfsMin(target, curLoc)) {
+                move(target);
+            } else {
+                //System.out.println("cant get there healer");
+            }
+        }
+        if (gc.isMoveReady(curUnit.id())) {
+            Player.blockedCount++;
+            moveCloser(target);
         }
     }
 
