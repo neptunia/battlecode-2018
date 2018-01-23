@@ -38,7 +38,7 @@ public class Worker {
 		curLoc = curUnit.location().mapLocation();
 		if (!Player.parentWorker.containsKey(curUnit.id())) {
 			for (int i = 0; i < Player.gotoable.length; i++) {
-				if (Player.gotoable[i][curLoc.getX()][curLoc.getY()]) {
+				if (Player.useful.contains(i) && Player.gotoable[i][curLoc.getX()][curLoc.getY()]) {
 					Player.parentWorker.put(curUnit.id(), i);
 					break;
 				}
@@ -410,7 +410,7 @@ public class Worker {
 		
 		while (!queue.isEmpty()) {
 			MapLocation current = queue.poll();
-			if (manDistance(curLoc, current) >= 30) {
+			if (manDistance(curLoc, current) >= 15) {
 				return best;
 			}
 			
