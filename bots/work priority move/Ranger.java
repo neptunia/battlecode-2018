@@ -200,7 +200,7 @@ public class Ranger {
             if (gc.isAttackReady(curUnit.id()) && gc.canAttack(curUnit.id(), unit.id())) {
                 // NOTE HARDCODED RANGER DAMAGE VALUE
                 if (unit.health() <= 30) {
-                    gc.attack(unit.id(), unit.id());
+                    gc.attack(curUnit.id(), unit.id());
                     return;
                 }
                 if (unit.health() < weakest) {
