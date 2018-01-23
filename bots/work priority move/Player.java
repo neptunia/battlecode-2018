@@ -469,16 +469,18 @@ public class Player {
             }
         }
         if (!isSplit) {
-            gc.queueResearch(UnitType.Healer);
+            gc.queueResearch(UnitType.Worker);
             gc.queueResearch(UnitType.Healer);
             gc.queueResearch(UnitType.Healer);
             gc.queueResearch(UnitType.Rocket);
+            gc.queueResearch(UnitType.Healer);
             gc.queueResearch(UnitType.Ranger);
             gc.queueResearch(UnitType.Ranger);
             gc.queueResearch(UnitType.Worker);
             gc.queueResearch(UnitType.Worker);
             gc.queueResearch(UnitType.Rocket);
         } else {
+            gc.queueResearch(UnitType.Worker);
             gc.queueResearch(UnitType.Healer);
             gc.queueResearch(UnitType.Rocket);
             gc.queueResearch(UnitType.Healer);

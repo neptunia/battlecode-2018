@@ -26,6 +26,7 @@ public class Worker {
 	static HashSet<Integer> structuresToBuild = new HashSet<Integer>();
 	static HashMap<Integer, UnitType> structureType = new HashMap<Integer, UnitType>();
 	static HashMap<Integer, Integer> prevHealth = new HashMap<Integer, Integer>();
+	static HashSet<Integer> encounteredEnemy = new HashSet<Integer>();
 
 	public static void run(Unit curUnit) {
 
@@ -73,10 +74,11 @@ public class Worker {
         } else {
 		    if (prevHealth.get(curUnit.id()) > curUnit.health()) {
 		        //run away!!!
-                move(Player.startingLocation[Player.parentWorker.get(curUnit.id())]);
+                encounteredEnemy.add(curUnit.id());
             }
             prevHealth.put(curUnit.id(), (int) curUnit.health());
         }
+
 		//TODO: if on mars temporary code
 		if (gc.planet() == Planet.Mars) {
 			if (Worker.karbonitesLeft[Player.parentWorker.get(curUnit.id())]) {
@@ -136,7 +138,7 @@ public class Worker {
 			buildStructure(UnitType.Rocket);
 			tryHarvest();
 			removeKarboniteTarget();
-		} else if (karbonitesLeft[Player.parentWorker.get(curUnit.id())]) {
+		} else if (karbonitesLeft[Player.parentWorker.get(curUnit.id())] && !encounteredEnemy.contains(curUnit.id())) {
 			goMine();
 			removeBuildStructureTarget();
 		} else {
@@ -776,18 +778,18 @@ public class Worker {
 	        	if (moveAway(toGo, cantGo)) {
 	        		gc.moveRobot(curUnit.id(), best);
 	        	} else {
-	        		moveCloser(target);
+	        		moveGreed(target);
 	        		//System.out.println("WOT THIS SHOULDN'T HAPPEN");
 	        	}
         	} else {
-        		moveCloser(target);
+        		moveGreed(target);
         	}
         	
         }
         curLoc = curUnit.location().mapLocation();
     }
 
-    public static boolean moveCloser(MapLocation enemy) {
+    public static boolean moveGreed(MapLocation enemy) {
         int best = 99999999;
         Direction bestd = null;
         for (int i = 0; i < directions.length; i++) {
