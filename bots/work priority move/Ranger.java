@@ -68,7 +68,7 @@ public class Ranger {
             if (gc.isMoveReady(curUnit.id())) {
                 moveAway(enemyLoc);
             }
-            attackWeakEnemies();
+            attackWeakEnemies((int)curUnit.attackRange());
             return;
         }
         if (dist <= 50) {
