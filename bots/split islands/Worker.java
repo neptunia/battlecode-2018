@@ -398,9 +398,14 @@ public class Worker {
 		MapLocation last = curLoc;
 		
 		visited.add(hash(curLoc));
+		int mostSquaresFree = -1;
+		MapLocation best = null;
 		
 		while (!queue.isEmpty()) {
 			MapLocation current = queue.poll();
+			if (manDistance(curLoc, current) >= 30) {
+				return best;
+			}
 			
 			for (int i = 0; i < directions.length; i++) {
 				MapLocation test = current.add(directions[i]);
@@ -413,9 +418,9 @@ public class Worker {
 			int around = 0;
 			for (int i = 0; i < directions.length; i++) {
 				MapLocation test = current.add(directions[i]);
-				if (onMap(test) && !Player.gotoable[Player.parentWorker.get(curUnit.id())][test.getX()][test.getY()]) {
+				boolean res = onMap(test);
+				if (!res || res && !Player.gotoable[Player.parentWorker.get(curUnit.id())][test.getX()][test.getY()]) {
 					around++;
-					break;
 				}
 			}
 
@@ -426,7 +431,6 @@ public class Worker {
 				//TODO maybe add unittype.rocket too
 				if (temp == UnitType.Factory || temp == UnitType.Rocket) {
 					around++;
-					break;
 				}
 			}
 			for (int i = 0; i < directions.length && around == 0; i++) {
@@ -438,12 +442,16 @@ public class Worker {
 			int tempX = current.getX();
 			int tempY = current.getY();
 			//on the map and gotoable and doesnt block off any spots
-			if (around == 0 && !structuresToBuild.contains(hash(current)) && (goAble(tempX - 1, tempY) || goAble(tempX + 1, tempY)) && (goAble(tempX, tempY - 1) || goAble(tempX, tempY + 1))) {
-				return current;
+			if (8 - around > mostSquaresFree && !structuresToBuild.contains(hash(current))) {
+				mostSquaresFree = 8 - around;
+				if (mostSquaresFree == 8) {
+					return current;
+				}
+				best = current;
 			}
 		}
 		//System.out.println("no good position found :(");
-		return null;
+		return best;
 	}
 
 	public static boolean goAble(int x, int y) {
