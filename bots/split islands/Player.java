@@ -454,7 +454,7 @@ public class Player {
         for (int i = 0; i < enemyLocation.length; i++) {
             enemyLocation[i] = null;
         }
-        chooseTarget();
+        //chooseTarget();
     }
 
     public static int hash(int x, int y) {
