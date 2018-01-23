@@ -11,6 +11,7 @@ public class Ranger {
     static MapLocation curLoc;
     static HashMap<Integer, HashSet<Integer>> visited = new HashMap<Integer, HashSet<Integer>>();
     static HashMap<Integer, Integer> prevLocation = new HashMap<Integer, Integer>();
+    static HashMap<Integer, Boolean> inCombat = new HashMap<Integer, Boolean>();
 
     public static void run(GameController gc, Unit curUnit) {
 
@@ -19,6 +20,10 @@ public class Ranger {
 
         if (curUnit.location().isInGarrison() || curUnit.location().isInSpace()) {
             return;
+        }
+
+        if (!inCombat.containsKey(curUnit.id())) {
+            inCombat.put(curUnit.id(), false);
         }
 
         curLoc = curUnit.location().mapLocation();

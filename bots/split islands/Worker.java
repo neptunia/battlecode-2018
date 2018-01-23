@@ -454,6 +454,13 @@ public class Worker {
 	public static void buildStructure(UnitType type) {
 		//System.out.println("build structure");
 		structureType.put(curUnit.id(), type);
+		if (type == UnitType.Factory && numFacts > 6) {
+			structuresToBuild.remove(hash(buildBlueprintLocation.get(curUnit.id())));
+			buildBlueprintLocation.remove(curUnit.id());
+			structureType.remove(curUnit.id());
+			Worker.run(curUnit);
+			return;
+		}
 		if (!buildBlueprintLocation.containsKey(curUnit.id())) {
 			MapLocation open = findBlueprintLocation();
 			if (open == null) {

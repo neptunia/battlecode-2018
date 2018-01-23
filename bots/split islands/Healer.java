@@ -52,6 +52,8 @@ public class Healer {
                 healNearbyAllies();
             }
 
+            findOverchargeTarget();
+
             return;
         }
 
@@ -63,6 +65,7 @@ public class Healer {
                 move(Player.enemyLocation[Player.parentWorker.get(curUnit.id())]);
             }
         }
+        findOverchargeTarget();
     }
 
 
@@ -166,6 +169,38 @@ public class Healer {
         return true;
     }
 
+    public static void findOverchargeTarget() {
+        if (!gc.isOverchargeReady(curUnit.id())) {
+            return;
+        }
+        VecUnit nearbyUnits = gc.senseNearbyUnitsByTeam(curUnit.location().mapLocation(), curUnit.abilityRange(), Player.myTeam);
+        //long maxHp = -1;
+        int id = -1;
+        boolean rangerFound = false;
+        for (int i = 0; i < nearbyUnits.size(); i++) {
+            Unit unit = nearbyUnits.get(i);
+            //just pick something
+            if (unit.team() == gc.team() && id == -1) {
+                id = unit.id();
+            }
+            // want a ranger
+            if (rangerFound == false && unit.unitType() == UnitType.Ranger) {
+                id = unit.id();
+                rangerFound = true;
+            }
+            //now look for better candidates
+            if (unit.unitType() == UnitType.Ranger && Ranger.inCombat.get(unit.id())) {
+                //maxHp = unit.health();
+                id = unit.id();
+                break;
+            }
+        }
+        if (id != -1 && gc.canOvercharge(curUnit.id(), id)) {
+            gc.overcharge(curUnit.id(), id);
+            Ranger.run(gc, gc.unit(id));
+        }
+    }
+
     public static void healNearbyAllies() {
         VecUnit nearbyUnits = getNearby(curUnit.location().mapLocation(), (int) curUnit.attackRange());
         long maxHp = -1;
@@ -233,7 +268,7 @@ public class Healer {
         int x = curLoc.getX();
         int y = curLoc.getY();
         int currentDist = Player.pathDistances[targetHash][x][y];
-        if (currentDist != 696969) {
+        if (currentDist != -1) {
             if (x < Player.gridX - 1 && Player.pathDistances[targetHash][x + 1][y] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.East)) {
                 gc.moveRobot(curUnit.id(), Direction.East);
             } else if (x > 0 && Player.pathDistances[targetHash][x - 1][y] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.West)) {
@@ -256,7 +291,7 @@ public class Healer {
             if (Player.bfsMin(target, curLoc)) {
                 move(target);
             } else {
-                System.out.println("cant get there healer");
+                //System.out.println("cant get there healer");
             }
         }
         if (gc.isMoveReady(curUnit.id())) {

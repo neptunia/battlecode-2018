@@ -81,6 +81,7 @@ public class Player {
             gc.queueResearch(UnitType.Worker);
             gc.queueResearch(UnitType.Healer);
             gc.queueResearch(UnitType.Healer);
+            gc.queueResearch(UnitType.Healer);
             gc.queueResearch(UnitType.Rocket);
             gc.queueResearch(UnitType.Ranger);
             gc.queueResearch(UnitType.Ranger);
