@@ -18,12 +18,12 @@ public class Ranger {
         Ranger.curUnit = curUnit;
         curPlanet = gc.planet();
 
-        if (curUnit.location().isInGarrison() || curUnit.location().isInSpace()) {
-            return;
-        }
-
         if (!inCombat.containsKey(curUnit.id())) {
             inCombat.put(curUnit.id(), false);
+        }
+
+        if (curUnit.location().isInGarrison() || curUnit.location().isInSpace()) {
+            return;
         }
 
         curLoc = curUnit.location().mapLocation();
