@@ -248,9 +248,6 @@ public class Player {
         map = new Unit[width][height];
         passable = new boolean[width][height];
 
-        System.out.println("Number of units:");
-        System.out.println(numWorkers);
-
         
         
         
@@ -469,7 +466,6 @@ public class Player {
                     enemyLocation[i] = chooseFarthestPoint(i);
                 } else {
                     if (gc.senseNearbyUnitsByTeam(enemyLocation[i], 0, myTeam).size() > 0) {
-                        System.out.println(enemyLocation[i]);
                         timesReachedTarget++;
                         enemyLocation[i] = chooseFarthestPoint(i);
                     }
