@@ -479,7 +479,7 @@ public class Worker {
 		if (!buildBlueprintLocation.containsKey(curUnit.id())) {
 			MapLocation open = findBlueprintLocation();
 			if (open == null) {
-				System.out.println("no good locatin found");
+				//System.out.println("no good locatin found");
 				return;
 			}
 			buildBlueprintLocation.put(curUnit.id(), open);
@@ -619,7 +619,7 @@ public class Worker {
 				
 			}
 		}
-		System.out.println("Rip not enough units to put into rocket");
+		//System.out.println("Rip not enough units to put into rocket");
 	}
 
 
@@ -657,7 +657,7 @@ public class Worker {
             if (Player.bfsMin(target, curLoc)) {
             	move(target);
             } else {
-            	System.out.println("cant get there worker");
+            	//System.out.println("cant get there worker");
             }
         }
         if (gc.isMoveReady(curUnit.id())) {
