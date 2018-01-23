@@ -68,14 +68,15 @@ public class Ranger {
             if (gc.isMoveReady(curUnit.id())) {
                 moveAway(enemyLoc);
             }
-            attackWeakEnemies((int)curUnit.attackRange());
+            attackNearbyEnemies();
+            //attackWeakEnemies((int)curUnit.attackRange());
             return;
         }
         if (dist <= 50) {
             // within attack range
             if (canAttack()) {
-                attackWeakEnemies(dist);
-                //gc.attack(curUnit.id(), enemyid);
+                //attackWeakEnemies(dist);
+                gc.attack(curUnit.id(), enemyid);
             }
             if (gc.isMoveReady(curUnit.id())) {
                 moveAway(enemyLoc);
@@ -86,8 +87,8 @@ public class Ranger {
             // within moveattack range
             if (gc.isMoveReady(curUnit.id()) && canAttack() && moveCloser(enemyLoc) && gc.canAttack(curUnit.id(), enemyid)) {
                 // move was successful
-                attackWeakEnemies(dist);
-                //gc.attack(curUnit.id(), enemyid);
+                //attackWeakEnemies(dist);
+                gc.attack(curUnit.id(), enemyid);
             }
             return;
         }
