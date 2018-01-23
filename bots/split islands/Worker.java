@@ -44,6 +44,9 @@ public class Worker {
 				}
 			}
 		}
+		//System.out.println("-------------------");
+        //System.out.println(Player.timesReachedTarget);
+        //System.out.println(Player.enemyLocation[Player.parentWorker.get(curUnit.id())]);
 		
 
 		if (Player.priorityTarget.containsKey(curUnit.id())) {
@@ -121,8 +124,8 @@ public class Worker {
 			return;
 		}
 
-
-		if (Player.prevBlocked < 10 && numFacts < 5 && gc.karbonite() >= 120 && Player.timesReachedTarget < 3) {
+		//System.out.println("Facts: " + Integer.toString(numFacts));
+		if (numFacts < 5 && gc.karbonite() >= 120 && Player.timesReachedTarget < 3) {
 			buildStructure(UnitType.Factory);
 			//removeKarboniteTarget();
 		} else if (gc.karbonite() >= 75 && gc.researchInfo().getLevel(UnitType.Rocket) > 0) {
@@ -178,7 +181,7 @@ public class Worker {
 		}
 
 		//already done working on
-		if (toWorkOn.health() == toWorkOn.maxHealth()) {
+		if (toWorkOn.structureIsBuilt() != 0) {
 			target.remove(curUnit.id());
 			if (toWorkOn.unitType() == UnitType.Rocket && !Rocket.assignedUnits.contains(targetBlueprint)) {
 				assignUnits(blueprintLoc);

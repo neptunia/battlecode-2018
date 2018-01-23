@@ -57,7 +57,6 @@ public class Rocket {
             //on mars, unload units
             if (Player.gotoableEmpty) {
                 Player.initialize();
-                Player.chooseTarget();
             }
             MapLocation curLoc = curUnit.location().mapLocation();
             if (!Player.parentWorker.containsKey(curUnit.id())) {

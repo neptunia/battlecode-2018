@@ -36,6 +36,7 @@ public class Player {
     static HashMap<Integer, Integer> parentWorker = new HashMap<Integer, Integer>();
     static MapLocation[] asteroidsBeforeLand = new MapLocation[2500];
     static int asteroidCounter = 0;
+    static HashSet<Integer> useful = new HashSet<Integer>();
 
 
 	public static void main(String args[]) {
@@ -282,7 +283,6 @@ public class Player {
         //bfs to find which spaces can be traveled to
         
         
-
         for (int i = 0; i < numWorkers; i++) {
             Unit tempUnit = myUnits.get(i);
             if (tempUnit.location().isInGarrison()) {
@@ -294,7 +294,7 @@ public class Player {
             if (tempUnit.unitType() == UnitType.Worker && gc.planet() == Planet.Earth) {
                 boolean visitedBefore = false;
                 for (int a = 0; a < i; a++) {
-                    if (gotoable[a][curLoc.getX()][curLoc.getY()]) {
+                    if (gotoable[a][curLoc.getX()][curLoc.getY()] && useful.contains(a)) {
                         visitedBefore = true;
                         parentWorker.put(tempUnit.id(), a);
                         break;
@@ -303,11 +303,13 @@ public class Player {
                 if (!visitedBefore) {
                     queue.add(curLoc);
                     parentWorker.put(tempUnit.id(), i);
+                    useful.add(i);
                     visited.add(hash(curLoc));
                 }
             } else if (tempUnit.unitType() == UnitType.Rocket) {
                 queue.add(curLoc);
                 parentWorker.put(tempUnit.id(), i);
+                useful.add(i);
                 visited.add(hash(curLoc));
             }
             while (!queue.isEmpty()) {
@@ -449,6 +451,10 @@ public class Player {
         } else {
             gotoableEmpty = false;
         }
+        for (int i = 0; i < enemyLocation.length; i++) {
+            enemyLocation[i] = null;
+        }
+        chooseTarget();
     }
 
     public static int hash(int x, int y) {
@@ -457,21 +463,25 @@ public class Player {
 
     public static void chooseTarget() {
         for (int i = 0; i < enemyLocation.length; i++) {
-            if (enemyLocation[i] == null) {
-                enemyLocation[i] = chooseFarthestPoint(i);
-            } else {
-                if (gc.senseNearbyUnitsByTeam(enemyLocation[i], 0, myTeam).size() > 0) {
-                    timesReachedTarget++;
+            if (useful.contains(i)) {
+                if (enemyLocation[i] == null) {
                     enemyLocation[i] = chooseFarthestPoint(i);
+                } else {
+                    if (gc.senseNearbyUnitsByTeam(enemyLocation[i], 0, myTeam).size() > 0) {
+                        System.out.println(enemyLocation[i]);
+                        timesReachedTarget++;
+                        enemyLocation[i] = chooseFarthestPoint(i);
+                    }
                 }
             }
+            
         }
     }
 
     public static MapLocation chooseFarthestPoint(int parent) {
         double greatest = -1;
-        int smallX = 0;
-        int smallY = 0;
+        int smallX = -1;
+        int smallY = -1;
         for (int i = 0; i < gridX; i++) {
             for (int a = 0; a < gridY; a++) {
                 if (!gotoable[parent][i][a]) {
