@@ -410,7 +410,7 @@ public class Worker {
 		
 		while (!queue.isEmpty()) {
 			MapLocation current = queue.poll();
-			if (manDistance(curLoc, current) >= 15) {
+			if (manDistance(curLoc, current) >= 30) {
 				return best;
 			}
 			
