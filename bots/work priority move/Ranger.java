@@ -68,13 +68,14 @@ public class Ranger {
             if (gc.isMoveReady(curUnit.id())) {
                 moveAway(enemyLoc);
             }
-            attackNearbyEnemies();
+            attackWeakEnemies();
             return;
         }
         if (dist <= 50) {
             // within attack range
             if (canAttack()) {
-                gc.attack(curUnit.id(), enemyid);
+                attackWeakEnemies();
+                //gc.attack(curUnit.id(), enemyid);
             }
             if (gc.isMoveReady(curUnit.id())) {
                 moveAway(enemyLoc);
@@ -85,7 +86,8 @@ public class Ranger {
             // within moveattack range
             if (gc.isMoveReady(curUnit.id()) && canAttack() && moveCloser(enemyLoc) && gc.canAttack(curUnit.id(), enemyid)) {
                 // move was successful
-                gc.attack(curUnit.id(), enemyid);
+                attackWeakEnemies();
+                //gc.attack(curUnit.id(), enemyid);
             }
             return;
         }
@@ -186,6 +188,33 @@ public class Ranger {
 
     public static boolean canAttack() {
         return curUnit.attackHeat() < 10;
+    }
+
+    public static void attackWeakEnemies() {
+        VecUnit nearby = gc.senseNearbyUnitsByTeam(curUnit.location().mapLocation(), curUnit.visionRange(), Player.enemyTeam);
+        int best = -1;
+        int weakest = 99999;
+        for (int i = 0; i < nearbyUnits.size(); i++) {
+            Unit unit = nearbyUnits.get(i);
+            //if can attack this enemy unit
+            if (gc.isAttackReady(curUnit.id()) && gc.canAttack(curUnit.id(), unit.id())) {
+                // NOTE HARDCODED RANGER DAMAGE VALUE
+                if (unit.health() <= 30) {
+                    gc.attack(unit.id(), unit.id());
+                    return;
+                }
+                if (unit.health() < weakest) {
+                    best = unit.id();
+                    weakest = unit.health();
+                }
+                
+            }
+        }
+        if (best != -1 && gc.isAttackReady(curUnit.id()) && gc.canAttack(curUnit.id(), best)) {
+            gc.attack(curUnit.id(), best);
+            return;
+        }
+
     }
 
     public static void attackNearbyEnemies() {
