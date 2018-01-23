@@ -179,15 +179,15 @@ public class Player {
                                 Worker.run(curUnit);
                         }
                     } catch (Exception e) {
-                        System.out.println("unit died");
-                        e.printStackTrace();
+                        //System.out.println("unit died");
+                        //e.printStackTrace();
                     }
                 }
                 try {
                     chooseTarget();
                 } catch (Exception e) {
-                    System.out.println("choose target borked");
-                    e.printStackTrace();
+                    //System.out.println("choose target borked");
+                    //e.printStackTrace();
                 }
                 //System.out.println(blockedCount);
                 prevBlocked = blockedCount;
@@ -222,13 +222,13 @@ public class Player {
                     //System.out.println("Round: " + Long.toString(gc.round()));
                     startTime = endTime;
                 } catch (Exception e) {
-                    System.out.println("time borked");
-                    e.printStackTrace();
+                    //System.out.println("time borked");
+                    //e.printStackTrace();
                 }
                 gc.nextTurn();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             //System.out.println("even worse");
         }
     }
@@ -473,8 +473,8 @@ public class Player {
                     }
                 }
                 split[i] = spl;
-                System.out.println("-----------------------");
-                System.out.println(spl);
+                //System.out.println("-----------------------");
+                //System.out.println(spl);
             }
         }
     }
