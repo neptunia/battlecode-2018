@@ -180,6 +180,13 @@ public class Worker {
 			Worker.run(curUnit);
 		}
 
+		UnitType blueType = toWorkOn.unitType();
+		if (blueType != UnitType.Factory && blueType != UnitType.Rocket) {
+			target.remove(curUnit.id());
+			Worker.run(curUnit);
+			return;
+		}
+
 		//already done working on
 		if (toWorkOn.structureIsBuilt() != 0) {
 			target.remove(curUnit.id());
