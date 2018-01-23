@@ -74,7 +74,7 @@ public class Ranger {
         if (dist <= 50) {
             // within attack range
             if (canAttack()) {
-                attackWeakEnemies();
+                attackWeakEnemies(dist);
                 //gc.attack(curUnit.id(), enemyid);
             }
             if (gc.isMoveReady(curUnit.id())) {
@@ -86,8 +86,8 @@ public class Ranger {
             // within moveattack range
             if (gc.isMoveReady(curUnit.id()) && canAttack() && moveCloser(enemyLoc) && gc.canAttack(curUnit.id(), enemyid)) {
                 // move was successful
-                //attackWeakEnemies();
-                gc.attack(curUnit.id(), enemyid);
+                attackWeakEnemies(dist);
+                //gc.attack(curUnit.id(), enemyid);
             }
             return;
         }
@@ -190,8 +190,8 @@ public class Ranger {
         return curUnit.attackHeat() < 10;
     }
 
-    public static void attackWeakEnemies() {
-        VecUnit nearby = gc.senseNearbyUnitsByTeam(curUnit.location().mapLocation(), curUnit.visionRange(), Player.enemyTeam);
+    public static void attackWeakEnemies(int distance) {
+        VecUnit nearby = gc.senseNearbyUnitsByTeam(curUnit.location().mapLocation(), distance, Player.enemyTeam);
         int best = -1;
         int weakest = 99999;
         for (int i = 0; i < nearby.size(); i++) {
