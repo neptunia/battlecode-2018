@@ -50,7 +50,7 @@ public class Factory {
 
 		Player.currentIncome -= 4;
 		//produce unit if no rockets have been started AND rockets can be built
-		if (Player.prevBlocked < 15 && gc.canProduceRobot(curUnit.id(), UnitType.Ranger)) {
+		if (Player.prevBlocked < 15 && gc.canProduceRobot(curUnit.id(), UnitType.Ranger) && gc.karbonite() > 40) {
 			if (Player.split[Player.parentWorker.get(curUnit.id())]) {
 				int around = 0;
 				for (int i = 0; i < directions.length; i++) {
@@ -67,7 +67,7 @@ public class Factory {
 					around++;
 				}
 
-				if (around <= 5 && gc.karbonite() > 50) {
+				if (around <= 5) {
 					if (Worker.numWorkers == 0) {
 	                	gc.produceRobot(curUnit.id(), UnitType.Worker);
 		            } else if (gc.researchInfo().getLevel(UnitType.Healer) >= 1 && Player.numRangers > 4*Player.numHealers) {
