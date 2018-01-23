@@ -240,7 +240,9 @@ public class Worker {
                                 Player.parentWorker.put(newId, Player.parentWorker.get(curUnit.id()));
                                 numWorkers++;
                                 int tempid = curUnit.id();
-                                Player.newWorkers.add(newUnit);
+                                Worker.run(newUnit);
+                                curUnit = gc.unit(tempid);
+                                curLoc = curUnit.location().mapLocation();
                                 break;
 							}
 						}
@@ -350,7 +352,9 @@ public class Worker {
                 Unit newUnit = gc.senseUnitAtLocation(curUnit.location().mapLocation().add(directions[i]));
                 Player.parentWorker.put(newUnit.id(), Player.parentWorker.get(curUnit.id()));
                 numWorkers++;
-                Player.newWorkers.add(newUnit);
+                Worker.run(newUnit);
+                curUnit = gc.unit(tempid);
+                curLoc = curUnit.location().mapLocation();
 				return;
 			}
 		}

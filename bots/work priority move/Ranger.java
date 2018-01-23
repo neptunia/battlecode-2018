@@ -194,8 +194,8 @@ public class Ranger {
         VecUnit nearby = gc.senseNearbyUnitsByTeam(curUnit.location().mapLocation(), curUnit.visionRange(), Player.enemyTeam);
         int best = -1;
         int weakest = 99999;
-        for (int i = 0; i < nearbyUnits.size(); i++) {
-            Unit unit = nearbyUnits.get(i);
+        for (int i = 0; i < nearby.size(); i++) {
+            Unit unit = nearby.get(i);
             //if can attack this enemy unit
             if (gc.isAttackReady(curUnit.id()) && gc.canAttack(curUnit.id(), unit.id())) {
                 // NOTE HARDCODED RANGER DAMAGE VALUE
