@@ -145,6 +145,11 @@ public class Worker {
 			//System.out.println("nothing to do");
 			//nothing to do
 			move(Player.startingLocation[Player.parentWorker.get(curUnit.id())]);
+			if (manDistance(curUnit.location().mapLocation(), Player.startingLocation[Player.parentWorker.get(curUnit.id())]) <= 3) {
+				if (encounteredEnemy.contains(curUnit.id())) {
+					encounteredEnemy.remove(curUnit.id());
+				}
+			}
 		}
 	}
 
@@ -235,9 +240,7 @@ public class Worker {
                                 Player.parentWorker.put(newId, Player.parentWorker.get(curUnit.id()));
                                 numWorkers++;
                                 int tempid = curUnit.id();
-                                Worker.run(newUnit);
-                                curUnit = gc.unit(tempid);
-                                curLoc = curUnit.location().mapLocation();
+                                Player.newWorkers.add(newUnit);
                                 break;
 							}
 						}
@@ -347,9 +350,7 @@ public class Worker {
                 Unit newUnit = gc.senseUnitAtLocation(curUnit.location().mapLocation().add(directions[i]));
                 Player.parentWorker.put(newUnit.id(), Player.parentWorker.get(curUnit.id()));
                 numWorkers++;
-                Worker.run(newUnit);
-                curUnit = gc.unit(tempid);
-                curLoc = curUnit.location().mapLocation();
+                Player.newWorkers.add(newUnit);
 				return;
 			}
 		}

@@ -38,6 +38,7 @@ public class Player {
     static MapLocation[] asteroidsBeforeLand = new MapLocation[2500];
     static int asteroidCounter = 0;
     static HashSet<Integer> useful = new HashSet<Integer>();
+    static ArrayList<Unit> newWorkers = new ArrayList<Unit>();
 
 
 	public static void main(String args[]) {
@@ -172,6 +173,37 @@ public class Player {
                         //e.printStackTrace();
                     }
                 }
+
+                for (Unit curUnit : newWorkers) {
+                    try {
+                        switch (curUnit.unitType()) {
+                            case Factory:
+                                Factory.run(curUnit);
+                                break;
+                            case Healer:
+                                Healer.run(gc, curUnit);
+                                break;
+                            case Knight:
+                                Knight.run(gc, curUnit);
+                                break;
+                            case Mage:
+                                Mage.run(gc, curUnit);
+                                break;
+                            case Ranger:
+                                Ranger.run(gc, curUnit);
+                                break;
+                            case Rocket:
+                                Rocket.run(gc, curUnit);
+                                break;
+                            case Worker:
+                                Worker.run(curUnit);
+                        }
+                    } catch (Exception e) {
+                        //System.out.println("unit died");
+                        //e.printStackTrace();
+                    }
+                }
+                newWorkers.clear();
                 try {
                     chooseTarget();
                 } catch (Exception e) {
