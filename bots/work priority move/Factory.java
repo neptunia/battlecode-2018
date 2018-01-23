@@ -48,7 +48,7 @@ public class Factory {
 			}
 		}
 
-		if (Worker.numWorkers < 5 && gc.canProduceRobot(curUnit.id(), UnitType.Worker)) {
+		if (Worker.numWorkers < 1 && gc.canProduceRobot(curUnit.id(), UnitType.Worker)) {
 			gc.produceRobot(curUnit.id(), UnitType.Worker);
 			Worker.numWorkers++;
 		}
