@@ -16,6 +16,7 @@ public class Player {
     static long currentIncome;
     static boolean[][][] gotoable;
     static boolean[][] hasKarbonite;
+    static boolean[] split;
     static int blockedCount;
     static int prevBlocked;
     static int numRangers = 0, numHealers = 0;
@@ -247,8 +248,7 @@ public class Player {
         pathDistances = new int[width * 69 + height + 1][width][height];
         map = new Unit[width][height];
         passable = new boolean[width][height];
-
-        
+        split = new boolean[numWorkers];
         
         
         for (int i = 0; i < width * 69 + height + 1; i++) {
@@ -323,7 +323,9 @@ public class Player {
                     }
                 }
             }
-            startingLocation[i] = chooseClosestPoint(i);
+            if (useful.contains(i)) {
+                startingLocation[i] = chooseClosestPoint(i);
+            }
         }
 
 
@@ -452,7 +454,28 @@ public class Player {
         for (int i = 0; i < enemyLocation.length; i++) {
             enemyLocation[i] = null;
         }
-        //chooseTarget();
+
+        VecUnit startingUnits = gc.startingMap(gc.planet()).getInitial_units();
+        //find out if map is split for each worker on same island
+        for (int i = 0; i < numWorkers; i++) {
+            if (useful.contains(i)) {
+                boolean spl = true;
+                for (int a = 0; a < startingUnits.size(); a++) {
+                    Unit unit = startingUnits.get(a);
+                    if (unit.team() != myTeam) {
+                        //enemy worker
+                        MapLocation enemyLoc = unit.location().mapLocation();
+                        if (gotoable[i][enemyLoc.getX()][enemyLoc.getY()]) {
+                            spl = false;
+                            break;
+                        }
+                    }
+                }
+                split[i] = spl;
+                System.out.println("-----------------------");
+                System.out.println(spl);
+            }
+        }
     }
 
     public static int hash(int x, int y) {
@@ -503,8 +526,8 @@ public class Player {
 
     public static MapLocation chooseClosestPoint(int parent) {
         double greatest = 9999999;
-        int smallX = 0;
-        int smallY = 0;
+        int smallX = -1;
+        int smallY = -1;
         for (int i = 0; i < gridX; i++) {
             for (int a = 0; a < gridY; a++) {
                 if (!gotoable[parent][i][a]) {

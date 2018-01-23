@@ -50,15 +50,44 @@ public class Factory {
 
 		Player.currentIncome -= 4;
 		//produce unit if no rockets have been started AND rockets can be built
-		if (Player.prevBlocked < 10 && gc.canProduceRobot(curUnit.id(), UnitType.Ranger)) {
-			if (Worker.numWorkers == 0 && gc.karbonite() >= 25) {
-                gc.produceRobot(curUnit.id(), UnitType.Worker);
-            } else if (gc.researchInfo().getLevel(UnitType.Healer) >= 1 && Player.numRangers > 4*Player.numHealers) {
-				gc.produceRobot(curUnit.id(), UnitType.Healer);
-				Player.numHealers++;
+		if (gc.canProduceRobot(curUnit.id(), UnitType.Ranger)) {
+			if (Player.split[Player.parentWorker.get(curUnit.id())]) {
+				int around = 0;
+				for (int i = 0; i < directions.length; i++) {
+					MapLocation test = curLoc;
+					boolean res = onMap(test);
+					if (!res || res && !Player.gotoable[Player.parentWorker.get(curUnit.id())][test.getX()][test.getY()]) {
+						around++;
+					}
+				}
+
+				VecUnit nearby = gc.senseNearbyUnitsByTeam(curLoc, 2, Player.myTeam);
+				for (int i = 0; i < nearby.size(); i++) {
+					UnitType temp = nearby.get(i).unitType();
+					around++;
+				}
+
+				if (around <= 5 && gc.karbonite() > 200) {
+					if (Worker.numWorkers == 0) {
+	                	gc.produceRobot(curUnit.id(), UnitType.Worker);
+		            } else if (gc.researchInfo().getLevel(UnitType.Healer) >= 1 && Player.numRangers > 4*Player.numHealers) {
+						gc.produceRobot(curUnit.id(), UnitType.Healer);
+						Player.numHealers++;
+					} else {
+						gc.produceRobot(curUnit.id(), UnitType.Ranger);
+						Player.numRangers++;
+					}
+				}
 			} else {
-				gc.produceRobot(curUnit.id(), UnitType.Ranger);
-				Player.numRangers++;
+				if (Worker.numWorkers == 0 && gc.karbonite() >= 25) {
+	                gc.produceRobot(curUnit.id(), UnitType.Worker);
+	            } else if (gc.researchInfo().getLevel(UnitType.Healer) >= 1 && Player.numRangers > 4*Player.numHealers) {
+					gc.produceRobot(curUnit.id(), UnitType.Healer);
+					Player.numHealers++;
+				} else {
+					gc.produceRobot(curUnit.id(), UnitType.Ranger);
+					Player.numRangers++;
+				}
 			}
 		}
 
@@ -68,4 +97,10 @@ public class Factory {
 	public static int hash(MapLocation loc) {
 		return 69 * loc.getX() + loc.getY();
 	}
+
+	public static boolean onMap(MapLocation test) {
+        int x = test.getX();
+        int y = test.getY();
+        return x >= 0 && y >= 0 && x < Player.gridX && y < Player.gridY;
+    }
 }

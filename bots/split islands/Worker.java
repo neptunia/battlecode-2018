@@ -125,7 +125,7 @@ public class Worker {
 		}
 
 		//System.out.println("Facts: " + Integer.toString(numFacts));
-		if (numFacts < 5 && gc.karbonite() >= 120 && Player.timesReachedTarget < 3) {
+		if (numFacts < (Player.split[Player.parentWorker.get(curUnit.id())] ? 2 : 5) && gc.karbonite() >= 120 && Player.timesReachedTarget < 3) {
 			buildStructure(UnitType.Factory);
 			//removeKarboniteTarget();
 		} else if (gc.karbonite() >= 75 && gc.researchInfo().getLevel(UnitType.Rocket) > 0) {
@@ -135,9 +135,10 @@ public class Worker {
 			goMine();
 			//removeBuildStructureTarget();
 		} else {
-			System.out.println("nothing to do");
+			//System.out.println("nothing to do");
 			//nothing to do
-			moveAnywhere();
+			System.out.println(Player.startingLocation[Player.parentWorker.get(curUnit.id())]);
+			move(Player.startingLocation[Player.parentWorker.get(curUnit.id())]);
 		}
 	}
 
@@ -469,7 +470,7 @@ public class Worker {
 	public static void buildStructure(UnitType type) {
 		//System.out.println("build structure");
 		structureType.put(curUnit.id(), type);
-		if (type == UnitType.Factory && numFacts > 6) {
+		if (type == UnitType.Factory && numFacts > (Player.split[Player.parentWorker.get(curUnit.id())] ? 2 : 6)) {
 			structuresToBuild.remove(hash(buildBlueprintLocation.get(curUnit.id())));
 			buildBlueprintLocation.remove(curUnit.id());
 			structureType.remove(curUnit.id());
