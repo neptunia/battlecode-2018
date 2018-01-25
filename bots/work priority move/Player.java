@@ -503,7 +503,11 @@ public class Player {
             }
         }
         if (!isSplit) {
-            gc.queueResearch(UnitType.Worker);
+            if (Player.gridX*Player.gridY <= 625) {
+                gc.queueResearch(UnitType.Knight);
+            } else {
+                gc.queueResearch(UnitType.Worker);
+            }
             gc.queueResearch(UnitType.Healer);
             gc.queueResearch(UnitType.Healer);
             gc.queueResearch(UnitType.Rocket);

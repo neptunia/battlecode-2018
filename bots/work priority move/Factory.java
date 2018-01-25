@@ -8,6 +8,7 @@ public class Factory {
 	static GameController gc;
 	static HashSet<Integer> workers = new HashSet<Integer>();
 	static Direction[] directions = Direction.values();
+	static int knightsProduced = 0;
 
 	public static void run(Unit curUnit) {
 
@@ -81,7 +82,10 @@ public class Factory {
 					}
 				}
 			} else {
-				if (Player.numRangers > 3*Player.numHealers && gc.researchInfo().getLevel(UnitType.Healer) >= 1) {
+				if (knightsProduced <= 5 && gc.round() <= 80 && gc.senseNearbyUnitsByTeam(curLoc, 50, Player.enemyTeam).size() != 0 && Player.gridX*Player.gridY <= 625) {
+					gc.produceRobot(curUnit.id(), UnitType.Knight);
+					knightsProduced++;
+				} else if (Player.numRangers > 3*Player.numHealers && gc.researchInfo().getLevel(UnitType.Healer) >= 1) {
 					gc.produceRobot(curUnit.id(), UnitType.Healer);
 					Player.numHealers++;
 				} else {

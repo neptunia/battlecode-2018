@@ -8,6 +8,7 @@ public class Knight {
 	static Direction[] directions = Direction.values();
 	static HashMap<Integer, HashSet<Integer>> visited = new HashMap<Integer, HashSet<Integer>>();
 	static HashMap<Integer, Integer> targets = new HashMap<Integer, Integer>();
+	static MapLocation curLoc;
 
 	public static void run(GameController gc, Unit curUnit) {
 
@@ -17,6 +18,8 @@ public class Knight {
 		if (curUnit.location().isInGarrison()) {
 			return;
 		}
+
+		Knight.curLoc = curUnit.location().mapLocation();
 
 		Pair nearbyInfo = null;
 
@@ -46,18 +49,14 @@ public class Knight {
 			Player.sawEnemy = true;
 			MapLocation targetLoc = gc.unit(targets.get(curUnit.id())).location().mapLocation();
 			//move towards them if my army is stronger
-			if (nearbyInfo.friendly >= nearbyInfo.enemy) {
+			if (canMove()) {
+				move(targetLoc);
 				if (canMove()) {
 					moveAttack(targetLoc);
 				}
-				if (canAttack()) {
-					tryAttack(targets.get(curUnit.id()));
-				}
-			} else {
-				//otherwise move away from
-				if (canMove()) {
-					moveAway(targetLoc);
-				}
+			}
+			if (canAttack()) {
+				tryAttack(targets.get(curUnit.id()));
 			}
 		} else {
 			//otherwise explore
@@ -98,20 +97,18 @@ public class Knight {
 
 	public static Pair findTarget() {
 		Pair ret = new Pair();
-		VecUnit nearby = gc.senseNearbyUnits(curUnit.location().mapLocation(), curUnit.visionRange());
+		VecUnit nearby = gc.senseNearbyUnitsByTeam(curUnit.location().mapLocation(), curUnit.visionRange(), Player.enemyTeam);
 		int tempTarget = -1;
 		int smallest = 9999999;
 		//find nearest target
 		for (int i = 0; i < nearby.size(); i++) {
 			Unit temp3 = nearby.get(i);
-			if (temp3.team() != gc.team()) {
-				ret.enemy++;
-				MapLocation temp2 = temp3.location().mapLocation();
-				int temp = distance(curUnit.location().mapLocation(), temp2);
-				if (temp < smallest) {
-					smallest = temp;
-					tempTarget = temp3.id();
-				}
+			ret.enemy++;
+			MapLocation temp2 = temp3.location().mapLocation();
+			int temp = distance(curUnit.location().mapLocation(), temp2);
+			if (temp < smallest) {
+				smallest = temp;
+				tempTarget = temp3.id();
 			}
 		}
 		//if found a target, set that as target for units around me
@@ -209,138 +206,61 @@ public class Knight {
 	//pathing
 	//move towards target location
 	public static void move(MapLocation target) {
-		MapLocation curLoc = curUnit.location().mapLocation();
-		int startHash = hash(curLoc);
-		int goal = hash(target);
-        if (!gc.isMoveReady(curUnit.id()) || startHash == goal) {
-            return;
-        }
-        //a*
-        int movingTo = doubleHash(curLoc, target);
-        if (!Player.paths.containsKey(movingTo)) {
-            HashSet<Integer> closedList = new HashSet<Integer>();
-            HashMap<Integer, Integer> gScore = new HashMap<Integer, Integer>();
-            HashMap<Integer, Integer> fScore = new HashMap<Integer, Integer>();
-            HashMap<Integer, Integer> fromMap = new HashMap<Integer, Integer>();
-            PriorityQueue<Integer> openList = new PriorityQueue<Integer>(11, new Comparator<Integer>() {
-            public int compare(Integer nodeA, Integer nodeB) {
-                return Integer.compare(fScore.get(nodeA), fScore.get(nodeB));
-            }
-        });
+		int targetHash = hash(target);
+		if (hash(curLoc) == targetHash || !gc.isMoveReady(curUnit.id())) {
+			return;
+		}
+		int x = curLoc.getX();
+		int y = curLoc.getY();
+		int currentDist = Player.pathDistances[targetHash][x][y];
+		if (currentDist != 696969) {
+			if (x < Player.gridX - 1 && Player.pathDistances[targetHash][x + 1][y] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.East)) {
+				gc.moveRobot(curUnit.id(), Direction.East);
+			} else if (x > 0 && Player.pathDistances[targetHash][x - 1][y] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.West)) {
+				gc.moveRobot(curUnit.id(), Direction.West);
+			} else if (y < Player.gridY - 1 && Player.pathDistances[targetHash][x][y + 1] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.North)) {
+				gc.moveRobot(curUnit.id(), Direction.North);
+			} else if (y > 0 && Player.pathDistances[targetHash][x][y - 1] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.South)) {
+				gc.moveRobot(curUnit.id(), Direction.South);
+			} else if (y < Player.gridY - 1 && x < Player.gridX - 1 && Player.pathDistances[targetHash][x + 1][y + 1] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.Northeast)) {
+				gc.moveRobot(curUnit.id(), Direction.Northeast);
+			} else if (y > 0 && x < Player.gridX - 1 && Player.pathDistances[targetHash][x + 1][y - 1] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.Southeast)) {
+				gc.moveRobot(curUnit.id(), Direction.Southeast);
+			} else if (x > 0 && y < Player.gridY - 1 && Player.pathDistances[targetHash][x - 1][y + 1] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.Northwest)) {
+				gc.moveRobot(curUnit.id(), Direction.Northwest);
+			} else if (x > 0 && y > 0 && Player.pathDistances[targetHash][x - 1][y - 1] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.Southwest)) {
+				gc.moveRobot(curUnit.id(), Direction.Southwest);
+			}
+		} else {
+			//cant get there
+			if (Player.bfsMin(target, curLoc)) {
+				move(target);
+			} else {
+				System.out.println("cant get there ranger");
+			}
+		}
+		if (gc.isMoveReady(curUnit.id())) {
+			Player.blockedCount++;
+			moveGreed(target);
+		}
+	}
 
-            
-
-            gScore.put(startHash, 0);
-            fScore.put(startHash, manDistance(curLoc, target));
-            openList.offer(startHash);
-            while (!openList.isEmpty()) {
-                int current = openList.poll();
-
-                int remainingPath = doubleHash(current, goal);
-                if (Player.paths.containsKey(remainingPath)) {
-                    //TODO: optimization once the killed has been fixed
-                    //completes the path
-                    int tempCur = current;
-                    while (tempCur != goal) {
-                        int tempHash = doubleHash(tempCur, goal);
-                        int nextNode = Player.paths.get(tempHash);
-                        fromMap.put(nextNode, tempCur);
-                        tempCur = nextNode;
-                    }
-                    current = goal;
-                }
-
-                if (current == goal) {
-                    HashMap<Integer, Integer> path = new HashMap<Integer, Integer>();
-                    HashMap<Integer, Integer> path2 = new HashMap<Integer, Integer>();
-                    int next = goal;
-
-                    int prev = -1;
-                    ArrayList<Integer> before = new ArrayList<Integer>();
-                    before.add(next);
-                    while (fromMap.containsKey(next)) {
-                        //System.out.println(print(next));
-                        //path.put(next, prev);
-                        prev = next;
-                        next = fromMap.get(prev);
-                        before.add(next);
-                        //Player.paths.put(doubleHash(prev, next), path);
-                        //Player.paths.put(doubleHash(next, prev), path);
-                        //TODO put in between Player.paths... a b c d e needs bc, bd, cd 
-                        path.put(next, prev);
-                        path2.put(prev, next);
-                    }
-                    int temp = before.size();
-                    for (int j = 0; j < temp; j++) {
-                        for (int a = 0; a < j; a++) {
-                            Player.paths.put(doubleHash(before.get(j), before.get(a)), path.get(before.get(j)));
-                            Player.paths.put(doubleHash(before.get(a), before.get(j)), path2.get(before.get(a)));
-                        }
-                    }
-                    
-                    break;
-                }
-
-                int tempY = current % 69;
-                int tempX = (current - tempY) / 69;
-                curLoc = new MapLocation(gc.planet(), tempX, tempY);
-                
-                //System.out.println("Node im on " + print(current));
-
-                closedList.add(current);
-
-                //iterate through neighbors
-                for (int i = 0; i < directions.length; i++) {
-                    int neighbor = hash(curLoc.add(directions[i]));
-                    //if a path is already computed for this node to the goal then dont needa compute more
-                    
-                    if (checkPassable(curLoc.add(directions[i]))) {
-                        if (closedList.contains(neighbor)) {
-                            continue;
-                        }
-
-                        int tentG = gScore.get(current) + 1;
-
-                        boolean contains = openList.contains(neighbor);
-                        if (!contains || tentG < gScore.get(neighbor)) {
-                            gScore.put(neighbor, tentG);
-                            fScore.put(neighbor, tentG + manDistance(neighbor, hash(target.getX(), target.getY())));
-
-                            if (contains) {
-                                openList.remove(neighbor);
-                            }
-
-                            openList.offer(neighbor);
-                            //System.out.println("Add: " + print(neighbor));
-                            fromMap.put(neighbor, current);
-                        }
-                    }
-                }
-            }
-        }
-        //System.out.println(hash(curUnit.location().mapLocation()));
-        //System.out.println(Arrays.asList(Player.paths.get(movingTo)));
-        //System.out.println(Player.paths.get(movingTo).containsKey(hash(curUnit.location().mapLocation())));
-
-        int toMove = Player.paths.get(movingTo);
-
-        int y = toMove % 69;
-        int x = (toMove - y) / 69;
-        
-        MapLocation next = new MapLocation(gc.planet(), x, y);
-        Direction temp = curUnit.location().mapLocation().directionTo(next);
-        if (gc.canMove(curUnit.id(), temp)) {
-            gc.moveRobot(curUnit.id(), temp);
-        } else {
-            //blocked by something
-            MapLocation tryToGoTo = curUnit.location().mapLocation().add(temp);
-            Unit blockedBy = gc.senseUnitAtLocation(tryToGoTo);
-            if (blockedBy.unitType() == UnitType.Factory || blockedBy.unitType() == UnitType.Rocket || blockedBy.unitType() == UnitType.Worker) {
-                //if im not blocked by an attacking unit, then move aside
-                moveAttack(next);
-            }
-        }
-    }
+	public static boolean moveGreed(MapLocation enemy) {
+		int best = 999999999;
+		Direction bestd = null;
+		for (int i = 0; i < directions.length; i++) {
+			MapLocation temp = curUnit.location().mapLocation().add(directions[i]);
+			if (gc.canMove(curUnit.id(), directions[i]) && distance(temp, enemy) < best) {
+				best = distance(temp, enemy);
+				bestd = directions[i];
+			}
+		}
+		if (bestd != null) {
+			gc.moveRobot(curUnit.id(), bestd);
+			return true;
+		}
+		return false;
+	}
 
 	public static String print(int hash) {
 		int asdf = hash % 69;

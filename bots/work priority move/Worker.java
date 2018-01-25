@@ -67,7 +67,7 @@ public class Worker {
         //System.out.println(numKarbsCounter[Player.parentWorker.get(curUnit.id())]);
         //System.out.println(karbonitesLeft[Player.parentWorker.get(curUnit.id())]);
 		//replicationLimit = (int) Math.max(Math.round(Math.sqrt(Math.sqrt((Player.gridX) * (Player.gridY)) * Math.sqrt(numKarbsCounter[Player.parentWorker.get(curUnit.id())]*3)) / Math.sqrt(gc.round())),Math.round(Math.sqrt((Player.gridY) * (Player.gridX)) / 1.5 / Math.sqrt(gc.round())));
-        replicationLimit = Math.max((int)Math.round(Math.sqrt((Player.gridY) * (Player.gridX)) / 1.5 / Math.sqrt(gc.round())), (int) karbAmount[Player.parentWorker.get(curUnit.id())] / 2 / 40);
+        replicationLimit = Math.max((int)Math.round(Math.sqrt((Player.gridY) * (Player.gridX)) / 1.5 / Math.sqrt(gc.round())), karbAmount[Player.parentWorker.get(curUnit.id())] / 2 / 40);
 
 		if (!prevHealth.containsKey(curUnit.id())) {
 		    prevHealth.put(curUnit.id(), (int) curUnit.health());
