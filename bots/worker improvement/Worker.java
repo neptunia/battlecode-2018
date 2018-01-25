@@ -102,7 +102,7 @@ public class Worker {
 
             }*/
             int distanceToBlueprint = manDistance(curLoc, toBuild.loc);
-            if (distanceToBlueprint <= 1) {
+            if (distanceToBlueprint == 1) {
                 if (!gc.canBlueprint(curUnit.id(), toBuild.type, curLoc.directionTo(toBuild.loc))) {
                     HashSet<Integer> temp = new HashSet<Integer>();
                     temp.add(hash(curLoc));
@@ -118,6 +118,8 @@ public class Worker {
                     System.out.println("Couldn't place down blueprint??");
                 }
                 
+            } else if (distanceToBlueprint == 0) {
+                moveAnywhere();
             } else {
                 move(toBuild.loc);
                 harvestAroundMe();
