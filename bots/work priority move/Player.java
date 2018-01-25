@@ -433,26 +433,28 @@ public class Player {
                 //System.out.println("fix mars initialization");
             }
 
-            int max = -1;
-            int best = 0;
-            //decide landing points
-            //land all rockets in biggest section
-            for (int i : sizeOfSection.keySet()) {
-                if (sizeOfSection.get(i) > max) {
-                    max = sizeOfSection.get(i);
-                    best = i;
+            Integer[] bestSwaths = sizeOfSection.keySet().toArray(new Integer[sizeOfSection.keySet().size()]);
+            Arrays.sort(bestSwaths, new Comparator<Integer>() {
+                @Override
+                public int compare(Integer o1, Integer o2) {
+                    return sizeOfSection.get(o1).compareTo(sizeOfSection.get(o2));
                 }
-            }
+            });
+
             c = 0;
-            for (int i = 0; i < startingmap.getWidth(); i += 3) {
-                for (int j = 0; j < startingmap.getHeight(); j += 3) {
-                    //adding by two ensures that landing spots will never be adjacent
-                    //inb4 they cuck us and give us only tiny pockets
-                    if (map[i][j] == best && c < 100) {
-                        gc.writeTeamArray(c, hash(i,j));
-                        c++;
+            int swathIndex = bestSwaths.length - 1;
+            while (c < 100 && swathIndex >= 0) {
+                for (int i = 0; i < startingmap.getWidth(); i += 3) {
+                    for (int j = 0; j < startingmap.getHeight(); j += 3) {
+                        //adding by two ensures that landing spots will never be adjacent
+                        //inb4 they cuck us and give us only tiny pockets
+                        if (map[i][j] == bestSwaths[swathIndex] && c < 100) {
+                            gc.writeTeamArray(c, hash(i,j));
+                            c++;
+                        }
                     }
                 }
+                swathIndex--;
             }
             marsBfsDone = true;
         }
