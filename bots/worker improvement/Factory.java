@@ -42,10 +42,10 @@ public class Factory {
 
 		if (Player.prevBlocked < 15 && Player.timesReachedTarget < 3) {
 			if (Player.numRanger > 3 * Player.numHealer && gc.researchInfo().getLevel(UnitType.Healer) >= 1 && gc.canProduceRobot(curUnit.id(), UnitType.Healer)) {
-				//gc.produceRobot(curUnit.id(), UnitType.Healer);
+				gc.produceRobot(curUnit.id(), UnitType.Healer);
 				Player.numHealer++;
 			} else if (gc.canProduceRobot(curUnit.id(), UnitType.Ranger)) {
-				//gc.produceRobot(curUnit.id(), UnitType.Ranger);
+				gc.produceRobot(curUnit.id(), UnitType.Ranger);
 				Player.numRanger++;
 			}
 		}
