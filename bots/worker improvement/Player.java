@@ -93,14 +93,14 @@ public class Player {
                 Unit curUnit = myUnits.get(i);
                 
                 //perform unit task based on unit type
-                //try {
+                try {
                     switch (curUnit.unitType()) {
                         case Factory:
                             Factory.run(curUnit);
                             break;
-                            /*
+                            
                         
-                        
+                        /*
                         case Mage:
                             Mage.run(gc, curUnit);
                             break;
@@ -121,21 +121,22 @@ public class Player {
                             Worker.run(curUnit);
                             break;
                     }
-                    /*
+                    
                 } catch (Exception e) {
                     System.out.println("unit died");
+                }
             }
             prevBlocked = blockedCount;
             for (int i = 0; i < newUnits.size(); i++) {
                 Unit curUnit = newUnits.get(i);
-                //try {
+                try {
                     switch (curUnit.unitType()) {
                         case Factory:
                             Factory.run(curUnit);
                             break;
-                            /*
+                            
                         
-                        
+                        /*
                         case Mage:
                             Mage.run(gc, curUnit);
                             break;
@@ -156,9 +157,10 @@ public class Player {
                             Worker.run(curUnit);
                             break;
                     }
-                /*
+                
                 } catch (Exception e) {
                     System.out.println("unit died");
+                }
             }
             newUnits.clear();
             chooseTarget();
