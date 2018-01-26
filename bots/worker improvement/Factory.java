@@ -35,9 +35,7 @@ public class Factory {
 			}
 		}
 
-		if (Player.numWorker < 1 && gc.canProduc
-
-			eRobot(curUnit.id(), UnitType.Worker)) {
+		if (Player.numWorker < 1 && gc.canProduceRobot(curUnit.id(), UnitType.Worker)) {
 			gc.produceRobot(curUnit.id(), UnitType.Worker);
 			Player.numWorker++;
 		}
