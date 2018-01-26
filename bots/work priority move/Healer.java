@@ -193,6 +193,9 @@ public class Healer {
         if (!gc.isOverchargeReady(curUnit.id())) {
             return;
         }
+        if (gc.round() % 10 != 0) {
+            return;
+        }
         VecUnit nearbyUnits = gc.senseNearbyUnitsByTeam(curUnit.location().mapLocation(), curUnit.abilityRange(), Player.myTeam);
         //long maxHp = -1;
         int id = -1;
