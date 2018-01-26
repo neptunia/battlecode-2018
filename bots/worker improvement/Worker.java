@@ -57,7 +57,7 @@ public class Worker {
             return;
         }
         ///&& Player.numFactory + structuresToBuild.size() < 4 
-        if (Player.prevBlocked < 15 && gc.karbonite() + Player.karboniteGonnaUse >= 200 && gc.round() != 1 && Player.numFactory + structuresToBuild.size() < 6) {
+        if (Player.prevBlocked < 10 && gc.karbonite() + Player.karboniteGonnaUse >= 200 && gc.round() != 1 && Player.numFactory + structuresToBuild.size() < 6) {
             startStructure(UnitType.Factory);
             Worker.run(curUnit);
         } else if (gc.karbonite() + Player.karboniteGonnaUse >= 150 && gc.researchInfo().getLevel(UnitType.Rocket) > 0) {
@@ -158,7 +158,7 @@ public class Worker {
                     if (toBuild.type == UnitType.Factory) {
                         Player.karboniteGonnaUse += 200;
                     } else {
-                        Player.karboniteGonnaUse += 130;
+                        Player.karboniteGonnaUse += 150;
                     }
                     //placedAlready.add(hash(toBuild.loc));
                 } else {
@@ -179,7 +179,7 @@ public class Worker {
         if (type == UnitType.Factory) {
             Player.karboniteGonnaUse -= 200;
         } else {
-            Player.karboniteGonnaUse -= 130;
+            Player.karboniteGonnaUse -= 150;
         }
         
         structuresToBuild.add(hash(blueprintLocation));
