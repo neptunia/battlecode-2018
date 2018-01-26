@@ -106,7 +106,7 @@ public class Player {
                             Worker.run(curUnit);
                             break;
                     }
-                catch (Exception e) {
+                } catch (Exception e) {
                     System.out.println("unit died");
                 }
             }
@@ -140,7 +140,7 @@ public class Player {
                             Worker.run(curUnit);
                             break;
                     }
-                catch (Exception e) {
+                } catch (Exception e) {
                     System.out.println("unit died");
                 }
             }
