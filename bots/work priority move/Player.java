@@ -173,7 +173,7 @@ public class Player {
                         }
                     } catch (Exception e) {
                         //System.out.println("unit died");
-                        //e.printStackTrace();
+                        e.printStackTrace();
                     }
                 }
 
@@ -203,7 +203,7 @@ public class Player {
                         }
                     } catch (Exception e) {
                         //System.out.println("unit died");
-                        //e.printStackTrace();
+                        e.printStackTrace();
                     }
                 }
                 newWorkers.clear();

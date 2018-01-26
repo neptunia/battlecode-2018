@@ -20,12 +20,12 @@ public class Mage {
             return;
         }
 
+        curLoc = curUnit.location().mapLocation();
+
         if (gc.researchInfo().getLevel(UnitType.Mage) == 4 && gc.researchInfo().getLevel(UnitType.Healer) == 3) {
             mageNuke();
             return;
         }
-
-        curLoc = curUnit.location().mapLocation();
 
         Pair bestunit = findBestUnit();
         if (bestunit.unit2 == -1) {
@@ -97,7 +97,7 @@ public class Mage {
             //moves away if there is an adjacent unit, else do nothing
             MapLocation enemyLoc = gc.unit(bestunit.unit1).location().mapLocation();
             int dst = distance(curLoc, enemyLoc);
-            if (dst < 30) {
+            if (dst <= 30) {
                 // attack
                 gc.attack(curUnit.id(), bestunit.unit1);
                 // move backwards
@@ -109,25 +109,26 @@ public class Mage {
             }
 
             // moveattack
-            if (canMove()) {
+            if (gc.isMoveReady(curUnit.id())) {
                 moveCloser(enemyLoc);
             }
             if (distance(curLoc, enemyLoc) > 30) {
                 // rip move failed
                 blinkIntoRange(enemyLoc);
             }
-            if (distance(curLoc, enemyLoc) > 30 && canMove()) {
+            if (distance(curLoc, enemyLoc) > 30 && gc.isMoveReady(curUnit.id())) {
                 // rip move failed
                 moveCloser(enemyLoc);
             }
 
             // now attempt attack
-            if (distance(curLoc, enemyLoc) <= 30) {
-                gc.attack(curUnit.id(), bestunit.unit1);
+            int toAttack = findUnits(30).unit1;
+            if (toAttack != -1) {
+                gc.attack(curUnit.id(), toAttack);
             }
 
             // now attempt retreat
-            if (canMove()) {
+            if (canMove() && gc.isMoveReady(curUnit.id())) {
                 moveAway(enemyLoc);
             }
             blinkAway(enemyLoc);
@@ -179,6 +180,7 @@ public class Mage {
         if (best != null) {
             if (curUnit.abilityHeat() < 10 && gc.canBlink(curUnit.id(), best)) {
                 gc.blink(curUnit.id(), best);
+                curLoc = curUnit.location().mapLocation();
             }
         }
 
@@ -213,6 +215,7 @@ public class Mage {
         if (best != null) {
             if (curUnit.abilityHeat() < 10 && gc.canBlink(curUnit.id(), best)) {
                 gc.blink(curUnit.id(), best);
+                curLoc = curUnit.location().mapLocation();
             }
         }
 
@@ -257,6 +260,7 @@ public class Mage {
         if (best != null) {
             if (curUnit.abilityHeat() < 10 && gc.canBlink(curUnit.id(), best)) {
                 gc.blink(curUnit.id(), best);
+                curLoc = curUnit.location().mapLocation();
             }
         }
 
@@ -423,7 +427,7 @@ public class Mage {
     public static Pair findUnits(int searchRange) {
         Pair ret = new Pair();
         // 48 is attackmove range
-        VecUnit nearby = gc.senseNearbyUnitsByTeam(curUnit.location().mapLocation(), searchRange, Player.enemyTeam);
+        VecUnit nearby = gc.senseNearbyUnitsByTeam(curLoc, searchRange, Player.enemyTeam);
         if (nearby.size() == 0) {
             return ret;
         }
@@ -480,7 +484,6 @@ public class Mage {
         int smallest = 999999;
         Direction d = null;
         int curDist = distance(curUnit.location().mapLocation(), target);
-        MapLocation curLoc = curUnit.location().mapLocation();
         int hash = hash(curLoc.getX(), curLoc.getY());
         if (!visited.containsKey(curUnit.id())) {
             HashSet<Integer> temp = new HashSet<Integer>();

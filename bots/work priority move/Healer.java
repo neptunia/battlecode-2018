@@ -97,6 +97,7 @@ public class Healer {
         }
         if (bestd != null) {
             gc.moveRobot(curUnit.id(), bestd);
+            curLoc = curUnit.location().mapLocation();
             return true;
         }
         return false;
@@ -114,6 +115,7 @@ public class Healer {
         }
         if (bestd != null) {
             gc.moveRobot(curUnit.id(), bestd);
+            curLoc = curUnit.location().mapLocation();
             return true;
         }
         return false;
@@ -132,6 +134,7 @@ public class Healer {
         }
         if (bestd != null) {
             gc.moveRobot(curUnit.id(), bestd);
+            curLoc = curUnit.location().mapLocation();
             return true;
         }
         return false;
@@ -303,20 +306,28 @@ public class Healer {
         if (currentDist != -1) {
             if (x < Player.gridX - 1 && Player.pathDistances[targetHash][x + 1][y] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.East)) {
                 gc.moveRobot(curUnit.id(), Direction.East);
+                curLoc = curUnit.location().mapLocation();
             } else if (x > 0 && Player.pathDistances[targetHash][x - 1][y] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.West)) {
                 gc.moveRobot(curUnit.id(), Direction.West);
+                curLoc = curUnit.location().mapLocation();
             } else if (y < Player.gridY - 1 && Player.pathDistances[targetHash][x][y + 1] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.North)) {
                 gc.moveRobot(curUnit.id(), Direction.North);
+                curLoc = curUnit.location().mapLocation();
             } else if (y > 0 && Player.pathDistances[targetHash][x][y - 1] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.South)) {
                 gc.moveRobot(curUnit.id(), Direction.South);
+                curLoc = curUnit.location().mapLocation();
             } else if (y < Player.gridY - 1 && x < Player.gridX - 1 && Player.pathDistances[targetHash][x + 1][y + 1] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.Northeast)) {
                 gc.moveRobot(curUnit.id(), Direction.Northeast);
+                curLoc = curUnit.location().mapLocation();
             } else if (y > 0 && x < Player.gridX - 1 && Player.pathDistances[targetHash][x + 1][y - 1] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.Southeast)) {
                 gc.moveRobot(curUnit.id(), Direction.Southeast);
+                curLoc = curUnit.location().mapLocation();
             } else if (x > 0 && y < Player.gridY - 1 && Player.pathDistances[targetHash][x - 1][y + 1] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.Northwest)) {
                 gc.moveRobot(curUnit.id(), Direction.Northwest);
+                curLoc = curUnit.location().mapLocation();
             } else if (x > 0 && y > 0 && Player.pathDistances[targetHash][x - 1][y - 1] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.Southwest)) {
                 gc.moveRobot(curUnit.id(), Direction.Southwest);
+                curLoc = curUnit.location().mapLocation();
             }
         } else {
             //cant get there
@@ -343,20 +354,28 @@ public class Healer {
         if (currentDist != -1) {
             if (x < Player.gridX - 1 && Player.pathDistances[targetHash][x + 1][y] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.East)) {
                 gc.moveRobot(curUnit.id(), Direction.East);
+                curLoc = curUnit.location().mapLocation();
             } else if (x > 0 && Player.pathDistances[targetHash][x - 1][y] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.West)) {
                 gc.moveRobot(curUnit.id(), Direction.West);
+                curLoc = curUnit.location().mapLocation();
             } else if (y < Player.gridY - 1 && Player.pathDistances[targetHash][x][y + 1] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.North)) {
                 gc.moveRobot(curUnit.id(), Direction.North);
+                curLoc = curUnit.location().mapLocation();
             } else if (y > 0 && Player.pathDistances[targetHash][x][y - 1] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.South)) {
                 gc.moveRobot(curUnit.id(), Direction.South);
+                curLoc = curUnit.location().mapLocation();
             } else if (y < Player.gridY - 1 && x < Player.gridX - 1 && Player.pathDistances[targetHash][x + 1][y + 1] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.Northeast)) {
                 gc.moveRobot(curUnit.id(), Direction.Northeast);
+                curLoc = curUnit.location().mapLocation();
             } else if (y > 0 && x < Player.gridX - 1 && Player.pathDistances[targetHash][x + 1][y - 1] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.Southeast)) {
                 gc.moveRobot(curUnit.id(), Direction.Southeast);
+                curLoc = curUnit.location().mapLocation();
             } else if (x > 0 && y < Player.gridY - 1 && Player.pathDistances[targetHash][x - 1][y + 1] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.Northwest)) {
                 gc.moveRobot(curUnit.id(), Direction.Northwest);
+                curLoc = curUnit.location().mapLocation();
             } else if (x > 0 && y > 0 && Player.pathDistances[targetHash][x - 1][y - 1] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.Southwest)) {
                 gc.moveRobot(curUnit.id(), Direction.Southwest);
+                curLoc = curUnit.location().mapLocation();
             }
         } else {
             //cant get there
@@ -401,7 +420,6 @@ public class Healer {
         //greedy pathfinding
         int smallest = 999999;
         Direction d = null;
-        MapLocation curLoc = curUnit.location().mapLocation();
         int hash = hash(curLoc.getX(), curLoc.getY());
         if (!visited.containsKey(curUnit.id())) {
             HashSet<Integer> temp = new HashSet<Integer>();
@@ -425,6 +443,7 @@ public class Healer {
             return false;
         }
         gc.moveRobot(curUnit.id(), d);
+        curLoc = curUnit.location().mapLocation();
         return true;
     }
 
