@@ -39,13 +39,17 @@ public class Player {
 
         initialize();
 
+        gc.queueResearch(UnitType.Worker);
         gc.queueResearch(UnitType.Healer);
         gc.queueResearch(UnitType.Healer);
+        gc.queueResearch(UnitType.Rocket);
+        gc.queueResearch(UnitType.Healer);
+        gc.queueResearch(UnitType.Ranger);
+        gc.queueResearch(UnitType.Ranger);
         gc.queueResearch(UnitType.Rocket);
 
         while (true) {
             VecUnit myUnits = gc.myUnits();
-            effectiveKarbonite = gc.karbonite() + karboniteGonnaUse;
 
             //count units
             numFactory = 0;
@@ -75,60 +79,69 @@ public class Player {
                 Unit curUnit = myUnits.get(i);
                 
                 //perform unit task based on unit type
-                switch (curUnit.unitType()) {
-                    case Factory:
-                        Factory.run(curUnit);
-                        break;
-                        /*
-                    
-                    case Knight:
-                        Knight.run(gc, curUnit);
-                        break;
-                    case Mage:
-                        Mage.run(gc, curUnit);
-                        break;
-                    */
-                    case Rocket:
-                        Rocket.run(curUnit);
-                        break;
-                    case Healer:
-                        Healer.run(curUnit);
-                        break;
-                    case Ranger:
-                        Ranger.run(curUnit);
-                        break;
-                    case Worker:
-                        Worker.run(curUnit);
-                        break;
+                try {
+                    switch (curUnit.unitType()) {
+                        case Factory:
+                            Factory.run(curUnit);
+                            break;
+                            /*
+                        
+                        case Knight:
+                            Knight.run(gc, curUnit);
+                            break;
+                        case Mage:
+                            Mage.run(gc, curUnit);
+                            break;
+                        */
+                        case Rocket:
+                            Rocket.run(curUnit);
+                            break;
+                        case Healer:
+                            Healer.run(curUnit);
+                            break;
+                        case Ranger:
+                            Ranger.run(curUnit);
+                            break;
+                        case Worker:
+                            Worker.run(curUnit);
+                            break;
+                    }
+                catch (Exception e) {
+                    System.out.println("unit died");
                 }
             }
             prevBlocked = blockedCount;
             for (int i = 0; i < newUnits.size(); i++) {
                 Unit curUnit = newUnits.get(i);
-                switch (curUnit.unitType()) {
-                    case Factory:
-                        Factory.run(curUnit);
-                        break;
-                        /*
-                    case Knight:
-                        Knight.run(gc, curUnit);
-                        break;
-                    case Mage:
-                        Mage.run(gc, curUnit);
-                        break;
-                    */
-                    case Rocket:
-                        Rocket.run(curUnit);
-                        break;
-                    case Healer:
-                        Healer.run(curUnit);
-                        break;
-                    case Ranger:
-                        Ranger.run(curUnit);
-                        break;
-                    case Worker:
-                        Worker.run(curUnit);
-                        break;
+                try {
+                    switch (curUnit.unitType()) {
+                        case Factory:
+                            Factory.run(curUnit);
+                            break;
+                            /*
+                        
+                        case Knight:
+                            Knight.run(gc, curUnit);
+                            break;
+                        case Mage:
+                            Mage.run(gc, curUnit);
+                            break;
+                        */
+                        case Rocket:
+                            Rocket.run(curUnit);
+                            break;
+                        case Healer:
+                            Healer.run(curUnit);
+                            break;
+                        case Ranger:
+                            Ranger.run(curUnit);
+                            break;
+                        case Worker:
+                            Worker.run(curUnit);
+                            break;
+                    }
+                catch (Exception e) {
+                    System.out.println("unit died");
                 }
             }
             newUnits.clear();
@@ -177,6 +190,7 @@ public class Player {
         }
         
         boolean[][] good = new boolean[width][height];
+        int[][] sums = new int[width][height];
 
         
         for (int i = 0; i < width; i++) {
@@ -189,7 +203,8 @@ public class Player {
                         sum += karbonite[test2.getX()][test2.getY()];
                     }
                 }
-                if (sum > 50) {
+                sums[i][a] = sum;
+                if (sum >= 25) {
                     good[i][a] = true;
                 }
             }
@@ -200,7 +215,7 @@ public class Player {
         for (int i = 0; i < width; i++) {
             for (int a = 0; a < height; a++) {
                 MapLocation test = new MapLocation(gc.planet(), i, a);
-                if (good[i][a] && onMap(test) && passable[test.getX()][test.getY()]) {
+                if (good[i][a] && passable[test.getX()][test.getY()]) {
                     spots[i][a] = true;
                     count++;
                     for (int j = 0; j < directions.length; j++) {
@@ -263,7 +278,7 @@ public class Player {
                     gotoable[c][current.getX()][current.getY()] = true;
                     if (spots[current.getX()][current.getY()]) {// && manDistance(current, myStartLocation) >= manDistance(current, enemyStartLocation)) {
                         //ret[c][c2] = current;
-                        if (manDistance(current, myStartLocation) >= manDistance(current, enemyStartLocation)) {
+                        if (manDistance(current, myStartLocation) >= manDistance(current, enemyStartLocation) && sums[current.getX()][current.getY()] >= 50) {
                             workerLimit++;
                         }
                         c2++;

@@ -42,7 +42,7 @@ public class Worker {
             return;
         }
 
-        if (Player.prevBlocked < 15 && gc.karbonite() + Player.karboniteGonnaUse >= 200 && Player.numFactory + structuresToBuild.size() < 5 && gc.round() != 1) {
+        if (Player.prevBlocked < 15 && gc.karbonite() + Player.karboniteGonnaUse >= 200 && Player.numFactory + structuresToBuild.size() < 4 && gc.round() != 1) {
             startStructure(UnitType.Factory);
             Worker.run(curUnit);
         } else if (gc.karbonite() + Player.karboniteGonnaUse >= 130 && gc.researchInfo().getLevel(UnitType.Rocket) > 0) {
@@ -537,12 +537,25 @@ public class Worker {
             //Player.bfsMin(target, curLoc);
             if (Player.bfsMin(target, curLoc)) {
             	move(target);
+                return;
             } else {
             	//System.out.println("cant get there worker");
             }
         }
         if (gc.isMoveReady(curUnit.id())) {
             moveCloser(target);
+        }
+        if (gc.isMoveReady(curUnit.id())) {
+            MapLocation toMove = curLoc.add(best);
+            HashSet<Integer> temp = new HashSet<Integer>();
+            temp.add(hash(toMove));
+            moveAway(toMove, temp);
+            if (gc.canMove(curUnit.id(), best)) {
+                gc.moveRobot(curUnit.id(), best);
+                curLoc = curLoc.add(best);
+            } else {
+                System.out.println("priority move didn't work");
+            }
         }
 
     }
