@@ -20,6 +20,10 @@ public class Factory {
 		}
 		myId = Worker.id.get(curUnit.id());
 
+		if (curUnit.health() != curUnit.maxHealth()) {
+			findWorkersToHealMe();
+		}
+
 		VecUnitID garrison = curUnit.structureGarrison();
 		for (int i = 0; i < garrison.size(); i++) {
 			//unload units
@@ -54,6 +58,49 @@ public class Factory {
 		}
 
 	}
+
+	public static void findWorkersToHealMe() {
+		LinkedList<MapLocation> queue = new LinkedList<MapLocation>();
+		HashSet<Integer> visited = new HashSet<Integer>();
+		queue.add(curLoc);
+		visited.add(hash(curLoc));
+		int workerFound = 0;
+		while (!queue.isEmpty()) {
+			MapLocation current = queue.poll();
+			if (manDistance(current, curLoc) > 2 && workerFound >= 2) {
+				return;
+			}
+			if (gc.hasUnitAtLocation(current)) {
+				Unit theUnit = gc.senseUnitAtLocation(current);
+				//if its' a worker on my team and he's not building/healing anything
+				if (theUnit.team() == Player.myTeam && theUnit.unitType() == UnitType.Worker && !Worker.structures.containsKey(theUnit.id()) && !Worker.healFactory.containsKey(theUnit.id())) {
+					workerFound++;
+					Worker.healFactory.put(theUnit.id(), curLoc);
+				}
+			}
+			for (int i = 0; i < directions.length; i++) {
+				MapLocation test = current.add(directions[i]);
+				if (!visited.contains(hash(test)) && checkPassable(test)) {
+					queue.add(test);
+					visited.add(hash(test));
+				}
+			}
+		}
+	}
+
+	public static int manDistance(MapLocation first, MapLocation second) {
+        int x1 = first.getX(), y1 = first.getY(), x2 = second.getX(), y2 = second.getY();
+        return Math.max(Math.abs(x1 - x2), Math.abs(y1 - y2));
+    }
+
+	public static boolean checkPassable(MapLocation test) {
+        int x = test.getX();
+        int y = test.getY();
+        if (x >= Player.gridX || y >= Player.gridY || x < 0 || y < 0) {
+            return false;
+        }
+        return Player.gotoable[myId][x][y];// && !allyThere;
+    }
 
 	public static int hash(MapLocation loc) {
 		return 69 * loc.getX() + loc.getY();

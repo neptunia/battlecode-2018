@@ -19,6 +19,7 @@ public class Worker {
     static HashMap<Integer, Blueprint> structures = new HashMap<Integer, Blueprint>();
     static HashMap<Integer, Integer> numberWorkersAssigned = new HashMap<Integer, Integer>();
     static HashMap<Integer, Boolean> split = new HashMap<Integer, Boolean>();
+    static HashMap<Integer, MapLocation> healFactory = new HashMap<Integer, MapLocation>();
     static boolean[][] karbonitePatches;
     static HashSet<Integer> patchesOccupied = new HashSet<Integer>();
     //static HashSet<Integer> placedAlready = new HashSet<Integer>();
@@ -54,6 +55,10 @@ public class Worker {
 
         if (structures.containsKey(curUnit.id())) {
             buildStructure();
+            return;
+        }
+        if (healFactory.containsKey(curUnit.id())) {
+            healFactory();
             return;
         }
         ///&& Player.numFactory + structuresToBuild.size() < 4 
@@ -100,7 +105,8 @@ public class Worker {
                         }
                     }
                 }
-            } else if (manDistance(curLoc, toBuild.loc) == 1) {
+            }
+            if (manDistance(curLoc, toBuild.loc) == 1) {
                 //TODO: replicate around it if factory doesnt already have 8 workers
                 if (numberWorkersAssigned.get(hash(toBuild.loc)) < 8 && Player.numWorker < 6 && curUnit.abilityHeat() < 10) {
                     MapLocation temp = null;
@@ -131,7 +137,8 @@ public class Worker {
                 }
                 
                 
-            } else {
+            }
+            if (manDistance(curLoc, toBuild.loc) > 2) {
                 move(toBuild.loc);
                 harvestAroundMe();
             }
@@ -167,10 +174,53 @@ public class Worker {
                 
             } else if (distanceToBlueprint == 0) {
                 moveAnywhere();
+                harvestAroundMe();
             } else {
                 move(toBuild.loc);
                 harvestAroundMe();
             }
+        }
+    }
+
+    public static void healFactory() {
+        MapLocation factory = healFactory.get(curUnit.id());
+        //factory ded
+        if (!gc.hasUnitAtLocation(factory)) {
+            return;
+        }
+        Unit theFact = gc.senseUnitAtLocation(factory);
+        if (theFact.unitType() != UnitType.Factory || theFact.health() == theFact.maxHealth()) {
+            healFactory.remove(curUnit.id());
+            Worker.run(curUnit);
+            return;
+        }
+        int distance = manDistance(curLoc, factory);
+        if (distance == 2 && gc.isMoveReady(curUnit.id())) {
+            //one step away from it
+            MapLocation temp = null;
+            for (int i = 0; i < directions.length; i++) {
+                temp = curLoc.add(directions[i]);
+                if (manDistance(temp, factory) == 1) {
+                    HashSet<Integer> cantGo = new HashSet<Integer>();
+                    cantGo.add(hash(curLoc));
+                    if (makeWay(temp, cantGo, factory) && gc.canMove(curUnit.id(), directions[i])) {
+                        gc.moveRobot(curUnit.id(), directions[i]);
+                        curLoc = curLoc.add(directions[i]);
+                        break;
+                    }
+                }
+            }
+        }
+        if (distance == 1) {
+            if (gc.canRepair(curUnit.id(), theFact.id())) {
+                gc.repair(curUnit.id(), theFact.id());
+            } else {
+                harvestAroundMe();
+            }
+        }
+        if (distance > 2) {
+            move(factory);
+            harvestAroundMe();
         }
     }
 
