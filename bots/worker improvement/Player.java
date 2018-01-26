@@ -437,7 +437,6 @@ public class Player {
     public static void chooseTarget() {
         for (int i = 0; i < enemyLocation.length; i++) {
             if (enemyLocation[i] != null) {
-                System.out.println("Target: " + Integer.toString(i));
                 if (gc.senseNearbyUnitsByTeam(enemyLocation[i], 0, myTeam).size() > 0) {
                     timesReachedTarget++;
                     enemyLocation[i] = chooseFarthestPoint(i);
