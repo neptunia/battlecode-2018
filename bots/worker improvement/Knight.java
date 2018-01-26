@@ -50,9 +50,9 @@ public class Knight {
 			Player.timesReachedTarget = 0;
 			MapLocation targetLoc = gc.unit(targets.get(curUnit.id())).location().mapLocation();
 			//move towards them if my army is stronger
-			if (canMove()) {
+			if (gc.isMoveReady(curUnit.id())) {
 				move(targetLoc);
-				if (canMove()) {
+				if (gc.isMoveReady(curUnit.id())) {
 					moveAttack(targetLoc);
 				}
 			}

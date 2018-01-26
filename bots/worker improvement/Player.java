@@ -41,11 +41,8 @@ public class Player {
 
         initialize();
 
-        if (Player.gridX*Player.gridY <= 625) {
-            gc.queueResearch(UnitType.Knight);
-        } else {
-            gc.queueResearch(UnitType.Worker);
-        }
+        gc.queueResearch(UnitType.Worker);
+        gc.queueResearch(UnitType.Knight);
         gc.queueResearch(UnitType.Healer);
         gc.queueResearch(UnitType.Healer);
         gc.queueResearch(UnitType.Rocket);
