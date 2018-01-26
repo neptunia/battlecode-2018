@@ -22,7 +22,7 @@ public class Mage {
 
         curLoc = curUnit.location().mapLocation();
 
-        if (gc.researchInfo().getLevel(UnitType.Mage) == 4 && gc.researchInfo().getLevel(UnitType.Healer) == 3) {
+        if (gc.researchInfo().getLevel(UnitType.Mage) == 4 && gc.researchInfo().getLevel(UnitType.Healer) == 3 && gc.round() % 10 == 0) {
             mageNuke();
             return;
         }
