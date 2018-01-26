@@ -15,6 +15,7 @@ public class Player {
     static HashMap<Integer, MapLocation> initialWorkerStartingLocation = new HashMap<Integer, MapLocation>();
     static MapLocation[] enemyLocation;
     static long effectiveKarbonite;
+    static long karboniteGonnaUse = 0;
     static int numFactory, numRanger, numHealer, numWorker;
     static int timesReachedTarget = 0;
     static int blockedCount, prevBlocked = 0;
@@ -44,7 +45,7 @@ public class Player {
 
         while (true) {
             VecUnit myUnits = gc.myUnits();
-            effectiveKarbonite = gc.karbonite();
+            effectiveKarbonite = gc.karbonite() + karboniteGonnaUse;
 
             //count units
             numFactory = 0;
@@ -136,6 +137,7 @@ public class Player {
             if (gc.round() % 10 == 0) {
                 System.gc();
             }
+            System.out.println(gc.getTimeLeftMs());
             gc.nextTurn();
         }
     }
@@ -223,7 +225,7 @@ public class Player {
 
         gotoable = new boolean[(int) startingUnits.size() / 2][width][height];
         enemyLocation = new MapLocation[(int) startingUnits.size() / 2];
-        MapLocation[][] ret = new MapLocation[(int) startingUnits.size() / 2][count];
+        //MapLocation[][] ret = new MapLocation[(int) startingUnits.size() / 2][count];
         Worker.replicationLimit = new int[(int) startingUnits.size() / 2];
         Worker.counter = new int[(int) startingUnits.size() / 2];
         int c = 0;
@@ -260,7 +262,7 @@ public class Player {
                     MapLocation current = queue.poll();
                     gotoable[c][current.getX()][current.getY()] = true;
                     if (spots[current.getX()][current.getY()]) {// && manDistance(current, myStartLocation) >= manDistance(current, enemyStartLocation)) {
-                        ret[c][c2] = current;
+                        //ret[c][c2] = current;
                         if (manDistance(current, myStartLocation) >= manDistance(current, enemyStartLocation)) {
                             workerLimit++;
                         }
@@ -274,26 +276,27 @@ public class Player {
                         }
                     }
                 }
-                enemyLocation[c] = chooseFarthestPoint(c);//new MapLocation(gc.planet(), gridX - startLoc.getX(), gridY - startLoc.getY());
+                enemyLocation[c] = chooseFarthestPoint(c);
                 Worker.replicationLimit[c] = Math.max(workerLimit, 6);
                 c++;
             }
         }
-        Worker.spots = ret;
+        //Worker.spots = ret;
+        Worker.karbonitePatches = spots;
 
         //precompute landing spots for Mars.
         if (gc.planet() == Planet.Mars && !marsBfsDone) {
             c = 1;
             //first, do bfs and set values of map
             PlanetMap startingmap = gc.startingMap(Planet.Mars);
-            int[][] map = new int[(int)startingmap.getWidth()][(int)startingmap.getHeight()];
+            int[][] map = new int[width][height];
             HashSet<Integer> visitedmars = new HashSet<Integer>();
             for (int i = 0; i < startingmap.getWidth(); i++) {
                 for (int j = 0; j < startingmap.getHeight(); j++) {
                     //first, mark all unpassable tiles as visited
                     if (!visitedmars.contains(hash(i,j))) {
                         visitedmars.add(hash(i,j));
-                        if (startingmap.isPassableTerrainAt(new MapLocation(Planet.Mars, i, j)) == 0) {
+                        if (!passable[i][j]) {
                             //unpassable
                             map[i][j] = -1;
                         } else {
@@ -308,7 +311,7 @@ public class Player {
                                 map[nextpoint.getX()][nextpoint.getY()] = c;
                                 for (int k = 0; k < directions.length-1; k++) {
                                     MapLocation toAdd = nextpoint.add(directions[k]);
-                                    if (!visitedmars.contains(hash(toAdd.getX(), toAdd.getY())) && startingmap.onMap(toAdd) && startingmap.isPassableTerrainAt(toAdd) != 0) {
+                                    if (!visitedmars.contains(hash(toAdd.getX(), toAdd.getY())) && onMap(toAdd) && passable[toAdd.getX()][toAdd.getY()]) {
                                         visitedmars.add(hash(toAdd));
                                         marsbfs.add(toAdd);
                                     }

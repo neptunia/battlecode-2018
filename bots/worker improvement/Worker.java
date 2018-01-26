@@ -10,12 +10,15 @@ public class Worker {
 	static Direction[] directions = Direction.values();
 	static int[] counter;
 	static int myId;
+    static boolean noMoreKarbonite = false;
 	static HashMap<Integer, Integer> id = new HashMap<Integer, Integer>();
 	static HashMap<Integer, MapLocation> target = new HashMap<Integer, MapLocation>();
 	static HashSet<Integer> spotsTaken = new HashSet<Integer>();
     static HashSet<Integer> structuresToBuild = new HashSet<Integer>();
     static HashMap<Integer, Blueprint> structures = new HashMap<Integer, Blueprint>();
     static HashMap<Integer, Integer> numberWorkersAssigned = new HashMap<Integer, Integer>();
+    static boolean[][] karbonitePatches;
+    static HashSet<Integer> patchesOccupied = new HashSet<Integer>();
     //static HashSet<Integer> placedAlready = new HashSet<Integer>();
     static int[] replicationLimit;
 
@@ -39,10 +42,10 @@ public class Worker {
             return;
         }
 
-        if (Player.prevBlocked < 15 && Player.effectiveKarbonite >= 120 && Player.numFactory + structuresToBuild.size() < 5 && gc.round() != 1) {
+        if (Player.prevBlocked < 15 && gc.karbonite() + Player.karboniteGonnaUse >= 200 && Player.numFactory + structuresToBuild.size() < 5 && gc.round() != 1) {
             startStructure(UnitType.Factory);
             Worker.run(curUnit);
-        } else if (Player.effectiveKarbonite >= 65 && gc.researchInfo().getLevel(UnitType.Rocket) > 0) {
+        } else if (gc.karbonite() + Player.karboniteGonnaUse >= 130 && gc.researchInfo().getLevel(UnitType.Rocket) > 0) {
             startStructure(UnitType.Rocket);
             Worker.run(curUnit);
         } else {
@@ -77,27 +80,18 @@ public class Worker {
                         cantGo.add(hash(curLoc));
                         if (makeWay(temp, cantGo, toBuild.loc) && gc.canMove(curUnit.id(), directions[i])) {
                             gc.moveRobot(curUnit.id(), directions[i]);
-                            curLoc = curUnit.location().mapLocation();
+                            curLoc = curLoc.add(directions[i]);
                             break;
                         }
                     }
                 }
-            }
-            if (manDistance(curLoc, toBuild.loc) <= 1) {
-                //im next to it, work on it
-                int blueprintId = gc.senseUnitAtLocation(toBuild.loc).id();
-                if (gc.canBuild(curUnit.id(), blueprintId)) {
-                    gc.build(curUnit.id(), blueprintId);
-                } else {
-                    //System.out.println("Couldn't work on blueprint :(");
-                }
-                
+            } else if (manDistance(curLoc, toBuild.loc) == 1) {
                 //TODO: replicate around it if factory doesnt already have 8 workers
-                if (numberWorkersAssigned.get(hash(toBuild.loc)) < 8 && Player.numWorker < replicationLimit[myId]) {
+                if (numberWorkersAssigned.get(hash(toBuild.loc)) < 8 && Player.numWorker < 6 && curUnit.abilityHeat() < 10) {
                     MapLocation temp = null;
                     for (int i = 0; i < directions.length; i++) {
                         temp = curLoc.add(directions[i]);
-                        if (manDistance(temp, toBuild.loc) <= 1) {
+                        if (manDistance(temp, toBuild.loc) == 1) {
                             HashSet<Integer> cantGo = new HashSet<Integer>();
                             cantGo.add(hash(curLoc));
                             if (makeWay(temp, cantGo, toBuild.loc) && gc.canReplicate(curUnit.id(), directions[i])) {
@@ -107,11 +101,21 @@ public class Worker {
                                 id.put(newUnit.id(), myId);
                                 structures.put(newUnit.id(), toBuild);
                                 Player.newUnits.add(newUnit);
-                                break;
+                                //numberWorkersAssigned.put(hash(toBuild.loc), numberWorkersAssigned.get(hash(toBuild.loc)) + 1);
+                                return;
                             }
                         }
                     }
+                } else {
+                    int blueprintId = gc.senseUnitAtLocation(toBuild.loc).id();
+                    if (gc.canBuild(curUnit.id(), blueprintId)) {
+                        gc.build(curUnit.id(), blueprintId);
+                    } else {
+                        //System.out.println("Couldn't work on blueprint :(");
+                    }
                 }
+                
+                
             } else {
                 move(toBuild.loc);
                 harvestAroundMe();
@@ -126,7 +130,7 @@ public class Worker {
             }*/
             int distanceToBlueprint = manDistance(curLoc, toBuild.loc);
             if (distanceToBlueprint == 1) {
-                if (!gc.canBlueprint(curUnit.id(), toBuild.type, curLoc.directionTo(toBuild.loc))) {
+                if (gc.hasUnitAtLocation(toBuild.loc)) {
                     HashSet<Integer> temp = new HashSet<Integer>();
                     temp.add(hash(curLoc));
                     moveAway(toBuild.loc, temp);
@@ -136,6 +140,11 @@ public class Worker {
                     gc.blueprint(curUnit.id(), toBuild.type, curLoc.directionTo(toBuild.loc));
                     int newId = gc.senseUnitAtLocation(toBuild.loc).id(); 
                     id.put(newId, myId);
+                    if (toBuild.type == UnitType.Factory) {
+                        Player.karboniteGonnaUse += 200;
+                    } else {
+                        Player.karboniteGonnaUse += 130;
+                    }
                     //placedAlready.add(hash(toBuild.loc));
                 } else {
                     System.out.println("Couldn't place down blueprint??");
@@ -152,7 +161,12 @@ public class Worker {
 
     public static void startStructure(UnitType type) {
         MapLocation blueprintLocation = findBlueprintLocation();
-        Player.effectiveKarbonite -= 100;
+        if (type == UnitType.Factory) {
+            Player.karboniteGonnaUse -= 200;
+        } else {
+            Player.karboniteGonnaUse -= 130;
+        }
+        
         structuresToBuild.add(hash(blueprintLocation));
         Blueprint theBlueprint = new Blueprint(blueprintLocation, type);
         //assign workers to it
@@ -186,8 +200,14 @@ public class Worker {
     }
 
 	public static void goMine() {
-		if (!target.containsKey(curUnit.id())) {
-			findKarboniteSpot();
+		if (!target.containsKey(curUnit.id()) && !noMoreKarbonite) {
+			MapLocation temp = findKarboniteSpot();
+            if (temp != null) {
+                target.put(curUnit.id(), temp);
+                patchesOccupied.add(hash(temp));
+            } else {
+                noMoreKarbonite = true;
+            }
 		}
 
         if (target.containsKey(curUnit.id())) {
@@ -197,24 +217,36 @@ public class Worker {
         }
 		
         harvestAroundMe();
-        while (counter[myId] < spots[myId].length && (spots[myId][counter[myId]] == null || spotsTaken.contains(hash(spots[myId][counter[myId]])))) {
-            counter[myId]++;
-        }
-        if (counter[myId] < spots[myId].length && counter[myId] < replicationLimit[myId]) {
-            replicateNearestTo(spots[myId][counter[myId]]);
+        if (Player.numWorker < replicationLimit[myId] && patchesOccupied.size() < replicationLimit[myId]) {
+            //replicate
+            //TODO: optimize
+            MapLocation spot = findKarboniteSpot();
+            if (spot != null) {
+                replicateNearestTo(spot);
+            }
         }
 	}
 
-    public static void findKarboniteSpot() {
-        while (counter[myId] < spots[myId].length && (spots[myId][counter[myId]] == null || spotsTaken.contains(hash(spots[myId][counter[myId]])))) {
-            counter[myId]++;
+    public static MapLocation findKarboniteSpot() {
+        LinkedList<MapLocation> queue = new LinkedList<MapLocation>();
+        HashSet<Integer> visited = new HashSet<Integer>();
+        queue.add(curLoc);
+        visited.add(hash(curLoc));
+        while (!queue.isEmpty()) {
+            MapLocation current = queue.poll();
+            if (karbonitePatches[current.getX()][current.getY()] && !patchesOccupied.contains(hash(current))) {
+                //found the nearest karbonite patch
+                return current;
+            }
+            for (int i = 0; i < directions.length; i++) {
+                MapLocation test = current.add(directions[i]);
+                if (!visited.contains(hash(test)) && checkPassable(test)) {
+                    queue.add(test);
+                    visited.add(hash(test));
+                }
+            }
         }
-        //ran out of spaces
-        if (counter[myId] >= spots[myId].length) {
-            return;
-        }
-        target.put(curUnit.id(), spots[myId][counter[myId]]);
-        spotsTaken.add(hash(spots[myId][counter[myId]]));
+        return null;
     }
 
     public static void harvestAroundMe() {
@@ -238,7 +270,7 @@ public class Worker {
         if (most == 0 && target.containsKey(curUnit.id()) && hash(target.get(curUnit.id())) == hash(curLoc)) {
             //no more karbonite at this spot
             target.remove(curUnit.id());
-            findKarboniteSpot();
+            //TODO: maybe another actions
         } else if (gc.canHarvest(curUnit.id(), mostDir)) {
             gc.harvest(curUnit.id(), mostDir);
         }
@@ -391,25 +423,24 @@ public class Worker {
     }
 
     public static boolean makeWay(MapLocation toGo, HashSet<Integer> cantGo, MapLocation blueprintLoc) {
-        try {
+        if (gc.hasUnitAtLocation(toGo)) {
             Unit unit = gc.senseUnitAtLocation(toGo);
             if (!gc.isMoveReady(unit.id())) {
                 return false;
             }
             for (int i = 0; i < directions.length; i++) {
                 MapLocation temp = toGo.add(directions[i]);
-                if (!cantGo.contains(hash(toGo)) && onMap(temp) && Player.gotoable[myId][temp.getX()][temp.getY()] && distance(temp, blueprintLoc) <= 2) {
+                if (!cantGo.contains(hash(toGo)) && checkPassable(temp) && manDistance(temp, blueprintLoc) <= 1 && unit.unitType() != UnitType.Factory && unit.unitType() != UnitType.Rocket) {
                     HashSet<Integer> tempCantGo = new HashSet<Integer>();
                     tempCantGo.addAll(cantGo);
                     tempCantGo.add(hash(toGo));
                     if (makeWay(temp, tempCantGo, blueprintLoc)) {
                         gc.moveRobot(unit.id(), directions[i]);
-                        curLoc = curUnit.location().mapLocation();
                         return true;
                     }
                 }
             }
-        } catch (Exception e) {
+        } else {
             //e.printStackTrace();
             return true;
         }
@@ -430,7 +461,6 @@ public class Worker {
                     tempCantGo.add(hash(toGo));
                     if (moveAway(temp, tempCantGo)) {
                         gc.moveRobot(unit.id(), directions[i]);
-                        curLoc = curUnit.location().mapLocation();
                         return true;
                     }
                 }
