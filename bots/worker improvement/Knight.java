@@ -118,7 +118,7 @@ public class Knight {
 						smallest = temp;
 						tempTarget = temp3.id();
 					}
-				} else if (temp < smallest) {
+				} else if (!foundFactory && temp < smallest) {
 					smallest = temp;
 					tempTarget = temp3.id();
 				}

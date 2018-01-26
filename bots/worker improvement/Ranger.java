@@ -63,7 +63,7 @@ public class Ranger {
         MapLocation enemyLoc = gc.unit(enemyid).location().mapLocation();
         MapLocation myLoc = curUnit.location().mapLocation();
         int dist = distance(myLoc, enemyLoc);
-        if (dist <= 10) {
+        if (dist <= 10 || curUnit.health() <= 100) {
             // too close!
             if (gc.isMoveReady(curUnit.id())) {
                 moveAway(enemyLoc);
