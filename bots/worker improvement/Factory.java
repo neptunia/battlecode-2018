@@ -40,7 +40,10 @@ public class Factory {
 			Player.numWorker++;
 		}
 
-		if (Player.prevBlocked < 15 && Player.timesReachedTarget < 3) {
+		if (Player.numKnight <= 5 && gc.round() <= 80 && gc.senseNearbyUnitsByTeam(curLoc, 50, Player.enemyTeam).size() != 0 && Player.gridX*Player.gridY <= 625) {
+			gc.produceRobot(curUnit.id(), UnitType.Knight);
+			Player.numKnight++;
+		} else if (Player.prevBlocked < 15 && Player.timesReachedTarget < 3) {
 			if (Player.numRanger > 3 * Player.numHealer && gc.researchInfo().getLevel(UnitType.Healer) >= 1 && gc.canProduceRobot(curUnit.id(), UnitType.Healer)) {
 				gc.produceRobot(curUnit.id(), UnitType.Healer);
 				Player.numHealer++;

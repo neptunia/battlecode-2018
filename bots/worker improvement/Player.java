@@ -16,7 +16,7 @@ public class Player {
     static MapLocation[] enemyLocation;
     static long effectiveKarbonite;
     static long karboniteGonnaUse = 0;
-    static int numFactory, numRanger, numHealer, numWorker;
+    static int numFactory, numRanger, numHealer, numWorker, numKnight;
     static int timesReachedTarget = 0;
     static int blockedCount, prevBlocked = 0;
     static boolean marsBfsDone = false;
@@ -33,6 +33,7 @@ public class Player {
         Ranger.gc = gc;
         Healer.gc = gc;
         Rocket.gc = gc;
+        Knight.gc = gc;
 
         myTeam = gc.team();
         enemyTeam = (myTeam == Team.Red ? Team.Blue : Team.Red);
@@ -66,18 +67,22 @@ public class Player {
             numRanger = 0;
             numHealer = 0;
             numWorker = 0;
+            numKnight = 0;
             blockedCount = 0;
             unitLocationCounter = 0;
             for (int i = 0; i < myUnits.size(); i++) {
                 Unit curUnit = myUnits.get(i);
-                if (curUnit.unitType() == UnitType.Factory) {
+                UnitType type = curUnit.unitType();
+                if (type == UnitType.Factory) {
                     numFactory++;
-                } else if (curUnit.unitType() == UnitType.Ranger) {
+                } else if (type == UnitType.Ranger) {
                     numRanger++;
-                } else if (curUnit.unitType() == UnitType.Healer) {
+                } else if (type == UnitType.Healer) {
                     numHealer++;
-                } else if (curUnit.unitType() == UnitType.Worker) {
+                } else if (type == UnitType.Worker) {
                     numWorker++;
+                } else if (type == UnitType.Knight) {
+                    numKnight++;
                 }
                 if (!curUnit.location().isInGarrison()) {
                     unitLocations[unitLocationCounter] = curUnit.location().mapLocation();
@@ -96,13 +101,14 @@ public class Player {
                             break;
                             /*
                         
-                        case Knight:
-                            Knight.run(gc, curUnit);
-                            break;
+                        
                         case Mage:
                             Mage.run(gc, curUnit);
                             break;
                         */
+                        case Knight:
+                            Knight.run(curUnit);
+                            break;
                         case Rocket:
                             Rocket.run(curUnit);
                             break;
@@ -130,13 +136,14 @@ public class Player {
                             break;
                             /*
                         
-                        case Knight:
-                            Knight.run(gc, curUnit);
-                            break;
+                        
                         case Mage:
                             Mage.run(gc, curUnit);
                             break;
                         */
+                        case Knight:
+                            Knight.run(curUnit);
+                            break;
                         case Rocket:
                             Rocket.run(curUnit);
                             break;
