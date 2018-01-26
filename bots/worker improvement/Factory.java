@@ -40,18 +40,19 @@ public class Factory {
 			Player.numWorker++;
 		}
 
-		if (gc.canProduceRobot(curUnit.id(), UnitType.Knight) && Player.knightsProduced <= 5 && gc.round() <= 100 && gc.senseNearbyUnitsByTeam(curLoc, 50, Player.enemyTeam).size() != 0) {
-			gc.produceRobot(curUnit.id(), UnitType.Knight);
-			Player.knightsProduced++;
-		} else if (Player.prevBlocked < 15 && Player.timesReachedTarget < 3) {
-			if (Player.numRanger > 3 * Player.numHealer && gc.researchInfo().getLevel(UnitType.Healer) >= 1 && gc.canProduceRobot(curUnit.id(), UnitType.Healer)) {
+		if (Player.prevBlocked < 15 && Player.timesReachedTarget < 3) {
+			if (Player.numRanger + Player.numKnight > 3 * Player.numHealer && gc.researchInfo().getLevel(UnitType.Healer) >= 1 && gc.canProduceRobot(curUnit.id(), UnitType.Healer)) {
 				gc.produceRobot(curUnit.id(), UnitType.Healer);
 				Player.numHealer++;
+			} else if (gc.canProduceRobot(curUnit.id(), UnitType.Healer) && gc.senseNearbyUnitsByTeam(curLoc, 50, Player.enemyTeam).size() != 0) {
+				gc.produceRobot(curUnit.id(), UnitType.Knight);
+				Player.numKnight++;
 			} else if (gc.canProduceRobot(curUnit.id(), UnitType.Ranger)) {
 				gc.produceRobot(curUnit.id(), UnitType.Ranger);
 				Player.numRanger++;
 			}
 		}
+
 	}
 
 	public static int hash(MapLocation loc) {

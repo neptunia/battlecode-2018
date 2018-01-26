@@ -16,8 +16,7 @@ public class Player {
     static MapLocation[] enemyLocation;
     static long effectiveKarbonite;
     static long karboniteGonnaUse = 0;
-    static int numFactory, numRanger, numHealer, numWorker;
-    static int knightsProduced = 0;
+    static int numFactory, numRanger, numHealer, numWorker, numKnight;
     static int timesReachedTarget = 0;
     static int blockedCount, prevBlocked = 0;
     static boolean marsBfsDone = false;
@@ -69,6 +68,7 @@ public class Player {
             numRanger = 0;
             numHealer = 0;
             numWorker = 0;
+            numKnight = 0;
             blockedCount = 0;
             unitLocationCounter = 0;
             for (int i = 0; i < myUnits.size(); i++) {
@@ -82,6 +82,8 @@ public class Player {
                     numHealer++;
                 } else if (type == UnitType.Worker) {
                     numWorker++;
+                } else if (type == UnitType.Knight) {
+                    numKnight++;
                 }
                 if (!curUnit.location().isInGarrison()) {
                     unitLocations[unitLocationCounter] = curUnit.location().mapLocation();
