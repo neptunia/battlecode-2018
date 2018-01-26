@@ -18,6 +18,7 @@ public class Worker {
     static HashSet<Integer> structuresToBuild = new HashSet<Integer>();
     static HashMap<Integer, Blueprint> structures = new HashMap<Integer, Blueprint>();
     static HashMap<Integer, Integer> numberWorkersAssigned = new HashMap<Integer, Integer>();
+    static HashMap<Integer, Boolean> split = new HashMap<Integer, Boolean>();
     static boolean[][] karbonitePatches;
     static HashSet<Integer> patchesOccupied = new HashSet<Integer>();
     //static HashSet<Integer> placedAlready = new HashSet<Integer>();
@@ -55,8 +56,8 @@ public class Worker {
             buildStructure();
             return;
         }
-
-        if (Player.prevBlocked < 15 && gc.karbonite() + Player.karboniteGonnaUse >= 200 && Player.numFactory + structuresToBuild.size() < 4 && gc.round() != 1) {
+        ///&& Player.numFactory + structuresToBuild.size() < 4 
+        if (Player.prevBlocked < 15 && gc.karbonite() + Player.karboniteGonnaUse >= 200 && gc.round() != 1) {
             startStructure(UnitType.Factory);
             Worker.run(curUnit);
         } else if (gc.karbonite() + Player.karboniteGonnaUse >= 130 && gc.researchInfo().getLevel(UnitType.Rocket) > 0) {
