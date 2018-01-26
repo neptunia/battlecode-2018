@@ -11,6 +11,7 @@ public class Worker {
 	static int[] counter;
 	static int myId;
     static boolean noMoreKarbonite = false;
+    static boolean fullyReplicated = false;
 	static HashMap<Integer, Integer> id = new HashMap<Integer, Integer>();
 	static HashMap<Integer, MapLocation> target = new HashMap<Integer, MapLocation>();
 	static HashSet<Integer> spotsTaken = new HashSet<Integer>();
@@ -34,11 +35,7 @@ public class Worker {
 		curLoc = curUnit.location().mapLocation();
 
         if (gc.planet() == Planet.Mars) {
-            if (!noMoreKarbonite) {
-                marsMine();
-            } else {
-                move(Player.enemyLocation[myId]);
-            }
+            marsMine();
             if (gc.round() > 750 || Player.numWorker < 6) {
                 for (int i = 0; i < directions.length; i++) {
                     if (gc.canReplicate(curUnit.id(), directions[i])) {
@@ -119,11 +116,11 @@ public class Worker {
                                 structures.put(newUnit.id(), toBuild);
                                 Player.newUnits.add(newUnit);
                                 //numberWorkersAssigned.put(hash(toBuild.loc), numberWorkersAssigned.get(hash(toBuild.loc)) + 1);
-                                return;
                             }
                         }
                     }
-                } else {
+                }
+                if (curUnit.workerHasActed() == 0) {
                     int blueprintId = gc.senseUnitAtLocation(toBuild.loc).id();
                     if (gc.canBuild(curUnit.id(), blueprintId)) {
                         gc.build(curUnit.id(), blueprintId);
@@ -234,12 +231,23 @@ public class Worker {
         }
 		
         harvestAroundMe();
+        if (fullyReplicated && Player.numWorker <= (int) replicationLimit[myId] / 4.0) {
+            //too many workers dying, stop replication
+            noMoreKarbonite = true;
+            target.clear();
+            System.out.println("RUN AWAY!!!");
+            fullyReplicated = false;
+            return;
+        }
         if (Player.numWorker < replicationLimit[myId] && patchesOccupied.size() < replicationLimit[myId]) {
             //replicate
             //TODO: optimize
             MapLocation spot = findKarboniteSpot();
             if (spot != null) {
                 replicateNearestTo(spot);
+            }
+            if (Player.numWorker > (int) replicationLimit[myId] / 4.0) {
+                fullyReplicated = true;
             }
         }
 	}
@@ -363,6 +371,23 @@ public class Worker {
 
     public static void marsMine() {
         //TODO: mining karbonite on mars
+        if (!target.containsKey(curUnit.id()) && !noMoreKarbonite) {
+            MapLocation temp = findKarboniteSpot();
+            if (temp != null) {
+                target.put(curUnit.id(), temp);
+                patchesOccupied.add(hash(temp));
+            } else {
+                noMoreKarbonite = true;
+            }
+        }
+
+        if (target.containsKey(curUnit.id())) {
+            move(target.get(curUnit.id()));
+        } else {
+            move(Player.enemyLocation[myId]);
+        }
+        
+        harvestAroundMe();
     }
 
     public static MapLocation findBlueprintLocation() {

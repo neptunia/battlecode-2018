@@ -92,7 +92,7 @@ public class Player {
                 Unit curUnit = myUnits.get(i);
                 
                 //perform unit task based on unit type
-                try {
+                //try {
                     switch (curUnit.unitType()) {
                         case Factory:
                             Factory.run(curUnit);
@@ -120,14 +120,15 @@ public class Player {
                             Worker.run(curUnit);
                             break;
                     }
+                    /*
                 } catch (Exception e) {
                     System.out.println("unit died");
-                }
+                }*/
             }
             prevBlocked = blockedCount;
             for (int i = 0; i < newUnits.size(); i++) {
                 Unit curUnit = newUnits.get(i);
-                try {
+                //try {
                     switch (curUnit.unitType()) {
                         case Factory:
                             Factory.run(curUnit);
@@ -155,9 +156,10 @@ public class Player {
                             Worker.run(curUnit);
                             break;
                     }
+                /*
                 } catch (Exception e) {
                     System.out.println("unit died");
-                }
+                }*/
             }
             newUnits.clear();
             chooseTarget();
@@ -165,7 +167,7 @@ public class Player {
             if (gc.round() % 10 == 0) {
                 System.gc();
             }
-            System.out.println(gc.getTimeLeftMs());
+            //System.out.println(gc.getTimeLeftMs());
             gc.nextTurn();
         }
     }
@@ -293,7 +295,7 @@ public class Player {
                     gotoable[c][current.getX()][current.getY()] = true;
                     if (spots[current.getX()][current.getY()]) {// && manDistance(current, myStartLocation) >= manDistance(current, enemyStartLocation)) {
                         //ret[c][c2] = current;
-                        if (manDistance(current, myStartLocation) >= manDistance(current, enemyStartLocation) && sums[current.getX()][current.getY()] >= 50) {
+                        if (manDistance(current, myStartLocation) >= manDistance(current, enemyStartLocation) && sums[current.getX()][current.getY()] >= 40) {
                             workerLimit++;
                         }
                         c2++;
@@ -307,7 +309,7 @@ public class Player {
                     }
                 }
                 enemyLocation[c] = chooseFarthestPoint(c);
-                Worker.replicationLimit[c] = Math.min(Math.max(workerLimit, 6), 30);
+                Worker.replicationLimit[c] = Math.min(Math.max(workerLimit, 6), (int) Math.sqrt(width * height));
                 c++;
             }
         }
