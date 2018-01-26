@@ -50,9 +50,9 @@ public class Knight {
 			Player.timesReachedTarget = 0;
 			MapLocation targetLoc = gc.unit(targets.get(curUnit.id())).location().mapLocation();
 			//move towards them if my army is stronger
-			if (canMove()) {
+			if (gc.isMoveReady(curUnit.id())) {
 				move(targetLoc);
-				if (canMove()) {
+				if (gc.isMoveReady(curUnit.id())) {
 					moveAttack(targetLoc);
 				}
 			}
@@ -98,18 +98,30 @@ public class Knight {
 
 	public static Pair findTarget() {
 		Pair ret = new Pair();
-		VecUnit nearby = gc.senseNearbyUnitsByTeam(curUnit.location().mapLocation(), curUnit.visionRange(), Player.enemyTeam);
+		VecUnit nearby = gc.senseNearbyUnits(curUnit.location().mapLocation(), curUnit.visionRange());
 		int tempTarget = -1;
 		int smallest = 9999999;
+		boolean foundFactory = false;
 		//find nearest target
 		for (int i = 0; i < nearby.size(); i++) {
 			Unit temp3 = nearby.get(i);
 			ret.enemy++;
 			MapLocation temp2 = temp3.location().mapLocation();
 			int temp = distance(curUnit.location().mapLocation(), temp2);
-			if (temp < smallest) {
-				smallest = temp;
-				tempTarget = temp3.id();
+			if (temp3.team() == Player.enemyTeam) {
+				if (!foundFactory && temp3.unitType() == UnitType.Factory) {
+					smallest = temp;
+					tempTarget = temp3.id();
+					foundFactory = true;
+				} else if (temp3.unitType() == UnitType.Factory) {
+					if (temp < smallest) {
+						smallest = temp;
+						tempTarget = temp3.id();
+					}
+				} else if (temp < smallest) {
+					smallest = temp;
+					tempTarget = temp3.id();
+				}
 			}
 		}
 		//if found a target, set that as target for units around me

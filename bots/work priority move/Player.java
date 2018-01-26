@@ -19,7 +19,7 @@ public class Player {
     static boolean[] split;
     static int blockedCount;
     static int prevBlocked;
-    static int numRangers = 0, numHealers = 0;
+    static int numRangers = 0, numHealers = 0, numMages = 0;
     //static UnitType[][] units;
     static boolean gotoableEmpty;
     static MapLocation[] unitLocations;
@@ -122,6 +122,7 @@ public class Player {
                 blockedCount = 0;
                 numRangers = 0;
                 numHealers = 0;
+                numMages = 0;
                 for (int i = 0; i < myUnits.size(); i++) {
                     Unit curUnit = myUnits.get(i);
                     try {
@@ -138,6 +139,8 @@ public class Player {
                             numRangers++;
                         } else if (tempType == UnitType.Healer) {
                             numHealers++;
+                        } else if (tempType == UnitType.Mage) {
+                            numMages++;
                         }
                     } catch (Exception e) {};
                 }
@@ -170,7 +173,7 @@ public class Player {
                         }
                     } catch (Exception e) {
                         //System.out.println("unit died");
-                        //e.printStackTrace();
+                        e.printStackTrace();
                     }
                 }
 
@@ -200,7 +203,7 @@ public class Player {
                         }
                     } catch (Exception e) {
                         //System.out.println("unit died");
-                        //e.printStackTrace();
+                        e.printStackTrace();
                     }
                 }
                 newWorkers.clear();
@@ -512,22 +515,24 @@ public class Player {
             gc.queueResearch(UnitType.Healer);
             gc.queueResearch(UnitType.Rocket);
             gc.queueResearch(UnitType.Healer);
+            gc.queueResearch(UnitType.Mage);
+            gc.queueResearch(UnitType.Mage);
+            gc.queueResearch(UnitType.Mage);
+            gc.queueResearch(UnitType.Mage);
             gc.queueResearch(UnitType.Ranger);
             gc.queueResearch(UnitType.Ranger);
-            gc.queueResearch(UnitType.Worker);
-            gc.queueResearch(UnitType.Worker);
-            gc.queueResearch(UnitType.Rocket);
         } else {
             gc.queueResearch(UnitType.Worker);
             gc.queueResearch(UnitType.Healer);
             gc.queueResearch(UnitType.Rocket);
             gc.queueResearch(UnitType.Healer);
             gc.queueResearch(UnitType.Healer);
+            gc.queueResearch(UnitType.Mage);
+            gc.queueResearch(UnitType.Mage);
+            gc.queueResearch(UnitType.Mage);
+            gc.queueResearch(UnitType.Mage);
             gc.queueResearch(UnitType.Ranger);
             gc.queueResearch(UnitType.Ranger);
-            gc.queueResearch(UnitType.Worker);
-            gc.queueResearch(UnitType.Worker);
-            gc.queueResearch(UnitType.Rocket);
         }
     }
 

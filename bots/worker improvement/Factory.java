@@ -40,7 +40,7 @@ public class Factory {
 			Player.numWorker++;
 		}
 
-		if (Player.knightsProduced <= 5 && gc.round() <= 80 && gc.senseNearbyUnitsByTeam(curLoc, 50, Player.enemyTeam).size() != 0 && Player.gridX*Player.gridY <= 625 && gc.canProduceRobot(curUnit.id(), UnitType.Knight)) {
+		if (gc.canProduceRobot(curUnit.id(), UnitType.Knight) && Player.knightsProduced <= 5 && gc.round() <= 100 && gc.senseNearbyUnitsByTeam(curLoc, 50, Player.enemyTeam).size() != 0) {
 			gc.produceRobot(curUnit.id(), UnitType.Knight);
 			Player.knightsProduced++;
 		} else if (Player.prevBlocked < 15 && Player.timesReachedTarget < 3) {

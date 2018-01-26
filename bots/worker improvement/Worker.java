@@ -60,7 +60,7 @@ public class Worker {
         if (Player.prevBlocked < 15 && gc.karbonite() + Player.karboniteGonnaUse >= 200 && gc.round() != 1) {
             startStructure(UnitType.Factory);
             Worker.run(curUnit);
-        } else if (gc.karbonite() + Player.karboniteGonnaUse >= 130 && gc.researchInfo().getLevel(UnitType.Rocket) > 0) {
+        } else if (gc.karbonite() + Player.karboniteGonnaUse >= 150 && gc.researchInfo().getLevel(UnitType.Rocket) > 0) {
             startStructure(UnitType.Rocket);
             Worker.run(curUnit);
         } else {
