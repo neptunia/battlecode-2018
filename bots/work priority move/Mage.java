@@ -80,7 +80,7 @@ public class Mage {
 
     public static void mageNuke() {
         // should only ever be called if overcharge and blink are researched!
-        Pair nearby = findUnits(70)
+        Pair bestunit = findUnits(70);
         if (bestunit.unit2 == -1) {
             //no visible units
             if (canMove()) {
@@ -96,10 +96,10 @@ public class Mage {
             //good attack opportunity
             //moves away if there is an adjacent unit, else do nothing
             MapLocation enemyLoc = gc.unit(bestunit.unit1).location().mapLocation();
-            int dst = distance(myLoc, enemyLoc);
+            int dst = distance(curLoc, enemyLoc);
             if (dst < 30) {
                 // attack
-                gc.attack(curUnit.id, bestunit.unit1);
+                gc.attack(curUnit.id(), bestunit.unit1);
                 // move backwards
                 if (canMove()) {
                     moveAway(enemyLoc);
@@ -112,18 +112,18 @@ public class Mage {
             if (canMove()) {
                 moveCloser(enemyLoc);
             }
-            if (distance(myLoc, enemyLoc) > 30) {
+            if (distance(curLoc, enemyLoc) > 30) {
                 // rip move failed
                 blinkIntoRange(enemyLoc);
             }
-            if (distance(myLoc, enemyLoc) > 30 && canMove()) {
+            if (distance(curLoc, enemyLoc) > 30 && canMove()) {
                 // rip move failed
                 moveCloser(enemyLoc);
             }
 
             // now attempt attack
-            if (distance(myLoc, enemyLoc) <= 30) {
-                gc.attack(curUnit.id, bestunit.unit1);
+            if (distance(curLoc, enemyLoc) <= 30) {
+                gc.attack(curUnit.id(), bestunit.unit1);
             }
 
             // now attempt retreat
@@ -337,6 +337,7 @@ public class Mage {
         }
         if (bestd != null) {
             gc.moveRobot(curUnit.id(), bestd);
+            curLoc = curUnit.location().mapLocation();
             return true;
         }
         return false;
@@ -355,6 +356,7 @@ public class Mage {
         }
         if (bestd != null) {
             gc.moveRobot(curUnit.id(), bestd);
+            curLoc = curUnit.location().mapLocation();
             return true;
         }
         return false;
@@ -502,6 +504,7 @@ public class Mage {
             return false;
         }
         gc.moveRobot(curUnit.id(), d);
+        curLoc = curUnit.location().mapLocation();
         return true;
     }
 
@@ -518,20 +521,28 @@ public class Mage {
         if (currentDist != -1) {
             if (x < Player.gridX - 1 && Player.pathDistances[targetHash][x + 1][y] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.East)) {
                 gc.moveRobot(curUnit.id(), Direction.East);
+                curLoc = curUnit.location().mapLocation();
             } else if (x > 0 && Player.pathDistances[targetHash][x - 1][y] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.West)) {
                 gc.moveRobot(curUnit.id(), Direction.West);
+                curLoc = curUnit.location().mapLocation();
             } else if (y < Player.gridY - 1 && Player.pathDistances[targetHash][x][y + 1] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.North)) {
                 gc.moveRobot(curUnit.id(), Direction.North);
+                curLoc = curUnit.location().mapLocation();
             } else if (y > 0 && Player.pathDistances[targetHash][x][y - 1] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.South)) {
                 gc.moveRobot(curUnit.id(), Direction.South);
+                curLoc = curUnit.location().mapLocation();
             } else if (y < Player.gridY - 1 && x < Player.gridX - 1 && Player.pathDistances[targetHash][x + 1][y + 1] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.Northeast)) {
                 gc.moveRobot(curUnit.id(), Direction.Northeast);
+                curLoc = curUnit.location().mapLocation();
             } else if (y > 0 && x < Player.gridX - 1 && Player.pathDistances[targetHash][x + 1][y - 1] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.Southeast)) {
                 gc.moveRobot(curUnit.id(), Direction.Southeast);
+                curLoc = curUnit.location().mapLocation();
             } else if (x > 0 && y < Player.gridY - 1 && Player.pathDistances[targetHash][x - 1][y + 1] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.Northwest)) {
                 gc.moveRobot(curUnit.id(), Direction.Northwest);
+                curLoc = curUnit.location().mapLocation();
             } else if (x > 0 && y > 0 && Player.pathDistances[targetHash][x - 1][y - 1] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.Southwest)) {
                 gc.moveRobot(curUnit.id(), Direction.Southwest);
+                curLoc = curUnit.location().mapLocation();
             }
         } else {
             //bfs hasnt been run yet

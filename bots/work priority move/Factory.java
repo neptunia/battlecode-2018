@@ -85,6 +85,9 @@ public class Factory {
 				if (knightsProduced <= 5 && gc.round() <= 80 && gc.senseNearbyUnitsByTeam(curLoc, 50, Player.enemyTeam).size() != 0 && Player.gridX*Player.gridY <= 625) {
 					gc.produceRobot(curUnit.id(), UnitType.Knight);
 					knightsProduced++;
+				} else if (gc.researchInfo().getLevel(UnitType.Mage) == 4 && Player.numRangers < Player.numMages * 5) {
+					gc.produceRobot(curUnit.id(), UnitType.Mage);
+					Player.numMages++;
 				} else if (Player.numRangers > 3*Player.numHealers && gc.researchInfo().getLevel(UnitType.Healer) >= 1) {
 					gc.produceRobot(curUnit.id(), UnitType.Healer);
 					Player.numHealers++;
