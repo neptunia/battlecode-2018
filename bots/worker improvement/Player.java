@@ -312,7 +312,6 @@ public class Player {
                         }
                     }
                 }
-                enemyLocation[c] = chooseFarthestPoint(c);
                 Worker.replicationLimit[c] = Math.min(Math.max(workerLimit, 6), (int) Math.sqrt(width * height));
                 //split stuff
                 boolean spl = true;
@@ -459,6 +458,8 @@ public class Player {
                     timesReachedTarget++;
                     enemyLocation[i] = chooseFarthestPoint(i);
                 }
+            } else {
+                enemyLocation[i] = chooseFarthestPoint(i);
             }
             
         }
