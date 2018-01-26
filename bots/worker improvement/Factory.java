@@ -9,6 +9,7 @@ public class Factory {
 	static int myId;
 	static HashSet<Integer> workers = new HashSet<Integer>();
 	static Direction[] directions = Direction.values();
+	static HashSet<Integer> sentHealSignal = new HashSet<Integer>();
 
 	public static void run(Unit curUnit) {
 
@@ -22,6 +23,9 @@ public class Factory {
 
 		if (curUnit.health() != curUnit.maxHealth()) {
 			findWorkersToHealMe();
+			sentHealSignal.add(curUnit.id());
+		} else if (sentHealSignal.contains(curUnit.id)) {
+			sentHealSignal.remove(curUnit.id());
 		}
 
 		VecUnitID garrison = curUnit.structureGarrison();
