@@ -15,6 +15,7 @@ public class Worker {
 	static HashSet<Integer> spotsTaken = new HashSet<Integer>();
     static HashSet<Integer> structuresToBuild = new HashSet<Integer>();
     static HashMap<Integer, Blueprint> structures = new HashMap<Integer, Blueprint>();
+    static HashMap<Integer, Integer> numberWorkersAssigned = new HashMap<Integer, Integer>();
     //static HashSet<Integer> placedAlready = new HashSet<Integer>();
     static int[] replicationLimit;
 
@@ -56,6 +57,7 @@ public class Worker {
             Unit theBlueprint = gc.senseUnitAtLocation(toBuild.loc);
             if (theBlueprint.structureIsBuilt() != 0) {
                 //finished building it
+                numberWorkersAssigned.remove(hash(toBuild.loc));
                 structures.remove(curUnit.id());
                 structuresToBuild.remove(hash(toBuild.loc));
                 if (toBuild.type == UnitType.Rocket && !Rocket.assignedUnits.contains(theBlueprint.id())) {
@@ -88,6 +90,27 @@ public class Worker {
                     gc.build(curUnit.id(), blueprintId);
                 } else {
                     //System.out.println("Couldn't work on blueprint :(");
+                }
+                
+                //TODO: replicate around it if factory doesnt already have 8 workers
+                if (numberWorkersAssigned.get(hash(toBuild.loc)) < 8 && Player.numWorker < replicationLimit[myId]) {
+                    MapLocation temp = null;
+                    for (int i = 0; i < directions.length; i++) {
+                        temp = curLoc.add(directions[i]);
+                        if (manDistance(temp, toBuild.loc) <= 1) {
+                            HashSet<Integer> cantGo = new HashSet<Integer>();
+                            cantGo.add(hash(curLoc));
+                            if (makeWay(temp, cantGo, toBuild.loc) && gc.canReplicate(curUnit.id(), directions[i])) {
+                                gc.replicate(curUnit.id(), directions[i]);
+                                Unit newUnit = gc.senseUnitAtLocation(curLoc.add(directions[i]));
+                                Player.numWorker++;
+                                id.put(newUnit.id(), myId);
+                                structures.put(newUnit.id(), toBuild);
+                                Player.newUnits.add(newUnit);
+                                break;
+                            }
+                        }
+                    }
                 }
             } else {
                 move(toBuild.loc);
@@ -141,6 +164,7 @@ public class Worker {
         while (!queue.isEmpty()) {
             MapLocation current = queue.poll();
             if ((manDistance(blueprintLocation, current) > 6 || workerCount == 8) && workerCount > 2) {
+                numberWorkersAssigned.put(hash(blueprintLocation), workerCount);
                 return;
             }
             if (gc.hasUnitAtLocation(current)) {
@@ -158,8 +182,7 @@ public class Worker {
                 }
             }
         }
-        
-        
+        numberWorkersAssigned.put(hash(blueprintLocation), workerCount);
     }
 
 	public static void goMine() {

@@ -275,7 +275,7 @@ public class Player {
                     }
                 }
                 enemyLocation[c] = chooseFarthestPoint(c);//new MapLocation(gc.planet(), gridX - startLoc.getX(), gridY - startLoc.getY());
-                Worker.replicationLimit[c] = workerLimit;
+                Worker.replicationLimit[c] = Math.max(workerLimit, 6);
                 c++;
             }
         }

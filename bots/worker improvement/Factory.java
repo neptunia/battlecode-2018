@@ -20,10 +20,6 @@ public class Factory {
 		}
 		myId = Worker.id.get(curUnit.id());
 
-		if (Player.timesReachedTarget >= 3) {
-            return;
-        }
-
 		VecUnitID garrison = curUnit.structureGarrison();
 		for (int i = 0; i < garrison.size(); i++) {
 			//unload units
