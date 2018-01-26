@@ -34,6 +34,23 @@ public class Worker {
 		curLoc = curUnit.location().mapLocation();
 
         if (gc.planet() == Planet.Mars) {
+            if (!noMoreKarbonite) {
+                marsMine();
+            } else {
+                move(Player.enemyLocation[myId]);
+            }
+            if (gc.round() > 750 || Player.numWorker < 6) {
+                for (int i = 0; i < directions.length; i++) {
+                    if (gc.canReplicate(curUnit.id(), directions[i])) {
+                        gc.replicate(curUnit.id(), directions[i]);
+                        Player.numWorker++;
+                        Unit newUnit = gc.senseUnitAtLocation(curLoc.add(directions[i]));
+                        id.put(newUnit.id(), myId);
+                        Player.newUnits.add(newUnit);
+                        break;
+                    }
+                }
+            }
             return;
         }
 
@@ -342,6 +359,10 @@ public class Worker {
             }
         }
         System.out.println("Rip not enough units to put into rocket");
+    }
+
+    public static void marsMine() {
+        //TODO: mining karbonite on mars
     }
 
     public static MapLocation findBlueprintLocation() {

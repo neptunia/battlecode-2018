@@ -49,6 +49,16 @@ public class Player {
         gc.queueResearch(UnitType.Rocket);
 
         while (true) {
+
+            if (gc.planet() == Planet.Mars) {
+                if (gc.asteroidPattern().hasAsteroid(gc.round())) {
+                    AsteroidStrike aster = gc.asteroidPattern().asteroid(gc.round());
+                    MapLocation asteroid = aster.getLocation();
+                    Worker.karbonitePatches[asteroid.getX()][asteroid.getY()] = true;
+                    Worker.noMoreKarbonite = false;
+                }
+            }
+
             VecUnit myUnits = gc.myUnits();
 
             //count units
@@ -292,7 +302,7 @@ public class Player {
                     }
                 }
                 enemyLocation[c] = chooseFarthestPoint(c);
-                Worker.replicationLimit[c] = Math.max(workerLimit, 6);
+                Worker.replicationLimit[c] = Math.min(Math.max(workerLimit, 6), 30);
                 c++;
             }
         }
