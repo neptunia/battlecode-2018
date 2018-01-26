@@ -33,8 +33,12 @@ public class Healer {
         }
 
         myId = Worker.id.get(curUnit.id());
-
         curLoc = curUnit.location().mapLocation();
+
+        if (Player.timesReachedTarget >= 3 && gc.planet() == Planet.Earth) {
+            move(Player.initialWorkerStartingLocation.get(myId));
+            return;
+        }
 
         healerMicro();
 

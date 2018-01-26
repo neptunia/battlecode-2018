@@ -44,6 +44,7 @@ public class Ranger {
 
         Pair target = findNearestEnemy();
         if (Player.timesReachedTarget >= 3 && target.enemyClosest == -1 && gc.planet() == Planet.Earth) {
+            move(Player.initialWorkerStartingLocation.get(myId));
             return;
         }
         if (target.enemyClosest != -1) {
