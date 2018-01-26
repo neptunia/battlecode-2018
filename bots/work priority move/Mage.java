@@ -20,6 +20,11 @@ public class Mage {
             return;
         }
 
+        if (gc.researchInfo().getLevel(UnitType.Mage) == 4 && gc.researchInfo().getLevel(UnitType.Healer) == 3) {
+            mageNuke();
+            return;
+        }
+
         curLoc = curUnit.location().mapLocation();
 
         Pair bestunit = findBestUnit();
@@ -71,6 +76,190 @@ public class Mage {
         } else {
             return myDamage > gc.unit(enemyid).health();
         }
+    }
+
+    public static void mageNuke() {
+        // should only ever be called if overcharge and blink are researched!
+        Pair nearby = findUnits(70)
+        if (bestunit.unit2 == -1) {
+            //no visible units
+            if (canMove()) {
+                move(Player.enemyLocation[Player.parentWorker.get(curUnit.id())]);
+            }
+        } else if (bestunit.unit1 == -1) {
+            //no good attacks
+            //moves away if there is an adjacent unit, else do nothing
+            if (canMove()) {
+                moveIfNeeded(gc.unit(bestunit.unit2).location().mapLocation());
+            }
+        } else {
+            //good attack opportunity
+            //moves away if there is an adjacent unit, else do nothing
+            MapLocation enemyLoc = gc.unit(bestunit.unit1).location().mapLocation();
+            int dst = distance(myLoc, enemyLoc);
+            if (dst < 30) {
+                // attack
+                gc.attack(curUnit.id, bestunit.unit1);
+                // move backwards
+                if (canMove()) {
+                    moveAway(enemyLoc);
+                }
+                blinkAway(enemyLoc);
+                return;
+            }
+
+            // moveattack
+            if (canMove()) {
+                moveCloser(enemyLoc);
+            }
+            if (distance(myLoc, enemyLoc) > 30) {
+                // rip move failed
+                blinkIntoRange(enemyLoc);
+            }
+            if (distance(myLoc, enemyLoc) > 30 && canMove()) {
+                // rip move failed
+                moveCloser(enemyLoc);
+            }
+
+            // now attempt attack
+            if (distance(myLoc, enemyLoc) <= 30) {
+                gc.attack(curUnit.id, bestunit.unit1);
+            }
+
+            // now attempt retreat
+            if (canMove()) {
+                moveAway(enemyLoc);
+            }
+            blinkAway(enemyLoc);
+            return;
+            
+
+
+            /*
+            if (canAttack() && gc.canAttack(curUnit.id(), bestunit.unit1)) {
+                gc.attack(curUnit.id(), bestunit.unit1);
+            }
+            try {
+                if (canMove()) {
+                    moveIfNeeded(gc.unit(bestunit.unit2).location().mapLocation());
+                }
+            } catch (Exception e) {
+                //do nothing
+            }
+            */
+        }
+    }
+
+    // flash towards a location.
+    public static void blinkCloser(MapLocation location) {
+        MapLocation myLoc = curUnit.location().mapLocation();
+        int myX = myLoc.getX();
+        int myY = myLoc.getY();
+        Planet myPlanet = myLoc.getPlanet();
+        MapLocation test;
+        MapLocation best = null;
+        int closestDist = distance(myLoc, location);
+        for (int i = -2; i <= 2; i++) {
+            for (int j = -2; j <= 2; j++) {
+                if (i == 0 && j == 0) {
+                    continue;
+                }
+                test = new MapLocation(myPlanet, myX + i, myY + j);
+                if (checkPassable(test)) {
+                    int dist = distance(location, test);
+                    if (dist < closestDist) {
+                        closestDist = dist;
+                        best = test;
+                    }
+                }
+
+            }
+        }
+        // now blink there
+        if (best != null) {
+            if (curUnit.abilityHeat() < 10 && gc.canBlink(curUnit.id(), best)) {
+                gc.blink(curUnit.id(), best);
+            }
+        }
+
+
+    }
+
+    public static void blinkAway(MapLocation location) {
+        MapLocation myLoc = curUnit.location().mapLocation();
+        int myX = myLoc.getX();
+        int myY = myLoc.getY();
+        Planet myPlanet = myLoc.getPlanet();
+        MapLocation test;
+        MapLocation best = null;
+        int closestDist = distance(myLoc, location);
+        for (int i = -2; i <= 2; i++) {
+            for (int j = -2; j <= 2; j++) {
+                if (i == 0 && j == 0) {
+                    continue;
+                }
+                test = new MapLocation(myPlanet, myX + i, myY + j);
+                if (checkPassable(test)) {
+                    int dist = distance(location, test);
+                    if (dist > closestDist) {
+                        closestDist = dist;
+                        best = test;
+                    }
+                }
+
+            }
+        }
+        // now blink there
+        if (best != null) {
+            if (curUnit.abilityHeat() < 10 && gc.canBlink(curUnit.id(), best)) {
+                gc.blink(curUnit.id(), best);
+            }
+        }
+
+
+    }
+
+    // get as close as possible until within range (try for exactly 30 range. don't want to overextend)
+    public static void blinkIntoRange(MapLocation location) {
+        MapLocation myLoc = curUnit.location().mapLocation();
+        int myX = myLoc.getX();
+        int myY = myLoc.getY();
+        Planet myPlanet = myLoc.getPlanet();
+        MapLocation test;
+        MapLocation best = null;
+        int closestDist = distance(myLoc, location);
+        if (closestDist == 30) {
+            return;
+        }
+        for (int i = -2; i <= 2; i++) {
+            for (int j = -2; j <= 2; j++) {
+                if (i == 0 && j == 0) {
+                    continue;
+                }
+                test = new MapLocation(myPlanet, myX + i, myY + j);
+                if (checkPassable(test)) {
+                    int dist = distance(location, test);
+                    if (closestDist <= 30 && dist <= 30 && dist < closestDist) {
+                        // if i can get within range, pick the best spot
+                        closestDist = dist;
+                        best = test;
+                    } else if (closestDist > 30 && dist < closestDist) {
+                        // if im currently outside range and i just want to get as close as possible
+                        // yes i get that these two conditions can be merged but its too long then and harder to follow
+                        closestDist = dist;
+                        best = test;
+                    }
+                }
+
+            }
+        }
+        // now blink there
+        if (best != null) {
+            if (curUnit.abilityHeat() < 10 && gc.canBlink(curUnit.id(), best)) {
+                gc.blink(curUnit.id(), best);
+            }
+        }
+
     }
 
     public static void mageMicro(int enemyid, int closestenemy) {
@@ -186,6 +375,53 @@ public class Mage {
         Pair ret = new Pair();
         // 48 is attackmove range
         VecUnit nearby = gc.senseNearbyUnitsByTeam(curUnit.location().mapLocation(), 48, Player.enemyTeam);
+        if (nearby.size() == 0) {
+            return ret;
+        }
+        int net = 0;
+        int total = 0;
+        int smallest = 9999999;
+        for (int i = 0; i < nearby.size(); i++) {
+            int tempnet = 0;
+            int temptotal = 0;
+            MapLocation point = nearby.get(i).location().mapLocation();
+            if (nearby.get(i).team() == gc.team()) {
+                tempnet -= curUnit.damage();
+            } else {
+                tempnet += curUnit.damage();
+                temptotal += curUnit.damage();
+                int tempdist = distance(point, curUnit.location().mapLocation());
+                if (tempdist < smallest) {
+                    smallest = tempdist;
+                    ret.unit2 = nearby.get(i).id();
+                }
+            }
+            for (int j = 0; j < directions.length; j++) {
+                try {
+                    Unit temp = gc.senseUnitAtLocation(point.add(directions[j]));
+                    if (temp.team() == gc.team()) {
+                        tempnet -= curUnit.damage();
+                    } else {
+                        tempnet += curUnit.damage();
+                        temptotal += curUnit.damage();
+                    }
+                } catch (Exception e) {
+                    continue;
+                }
+            }
+            if (tempnet > net || (tempnet == net && temptotal > total)) {
+                net = tempnet;
+                total = temptotal;
+                ret.unit1 = nearby.get(i).id();
+            }
+        }
+        return ret;
+    }
+
+    public static Pair findUnits(int searchRange) {
+        Pair ret = new Pair();
+        // 48 is attackmove range
+        VecUnit nearby = gc.senseNearbyUnitsByTeam(curUnit.location().mapLocation(), searchRange, Player.enemyTeam);
         if (nearby.size() == 0) {
             return ret;
         }

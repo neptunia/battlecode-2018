@@ -194,6 +194,7 @@ public class Healer {
         //long maxHp = -1;
         int id = -1;
         boolean rangerFound = false;
+        boolean mageFound = false;
         for (int i = 0; i < nearbyUnits.size(); i++) {
             Unit unit = nearbyUnits.get(i);
             //just pick something
@@ -201,18 +202,31 @@ public class Healer {
                 id = unit.id();
             }
             // want a ranger
-            if (rangerFound == false && unit.unitType() == UnitType.Ranger) {
+            if (rangerFound == false && mageFound == false && unit.unitType() == UnitType.Ranger) {
                 id = unit.id();
                 rangerFound = true;
             }
+            // even more, want a mage
+            if (mageFound == false && unit.unitType() == UnitType.Mage) {
+                id = unit.id();
+                mageFound = true;
+                // TODO: add incombat flag for mages
+                break;
+            }
             //now look for better candidates
-            if (unit.unitType() == UnitType.Ranger && Ranger.inCombat.get(unit.id())) {
+            if (mageFound == false && unit.unitType() == UnitType.Ranger && Ranger.inCombat.get(unit.id())) {
                 //maxHp = unit.health();
                 id = unit.id();
                 break;
             }
         }
         if (id != -1 && gc.canOvercharge(curUnit.id(), id)) {
+            if (mageFound) {
+                Mage.run(gc, gc.unit(id));
+                gc.overcharge(curUnit.id(), id);
+                Mage.run(gc, gc.unit(id));
+                return;
+            }
             Ranger.run(gc, gc.unit(id));
             gc.overcharge(curUnit.id(), id);
             Ranger.run(gc, gc.unit(id));
