@@ -41,7 +41,11 @@ public class Player {
 
         initialize();
 
-        gc.queueResearch(UnitType.Worker);
+        if (Player.gridX*Player.gridY <= 625) {
+            gc.queueResearch(UnitType.Knight);
+        } else {
+            gc.queueResearch(UnitType.Worker);
+        }
         gc.queueResearch(UnitType.Healer);
         gc.queueResearch(UnitType.Healer);
         gc.queueResearch(UnitType.Rocket);
@@ -122,6 +126,7 @@ public class Player {
                     }
                 } catch (Exception e) {
                     System.out.println("unit died");
+                    e.printStackTrace();
                 }
             }
             prevBlocked = blockedCount;
@@ -157,6 +162,7 @@ public class Player {
                     }
                 } catch (Exception e) {
                     System.out.println("unit died");
+                    e.printStackTrace();
                 }
             }
             newUnits.clear();
