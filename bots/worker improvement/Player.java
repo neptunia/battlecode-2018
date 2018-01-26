@@ -38,6 +38,15 @@ public class Player {
         myTeam = gc.team();
         enemyTeam = (myTeam == Team.Red ? Team.Blue : Team.Red);
 
+        VecUnit myUnits = gc.myUnits();
+
+        for (int i = 0; i < myUnits.size(); i++) {
+            Unit curUnit = myUnits.get(i);
+            UnitType type = curUnit.unitType();
+            unitLocations[unitLocationCounter] = curUnit.location().mapLocation();
+            unitLocationCounter++;
+        }
+
         initialize();
 
         gc.queueResearch(UnitType.Worker);
@@ -61,7 +70,7 @@ public class Player {
                 }
             }
 
-            VecUnit myUnits = gc.myUnits();
+            myUnits = gc.myUnits();
 
             //count units
             numFactory = 0;
@@ -312,6 +321,7 @@ public class Player {
                         }
                     }
                 }
+                enemyLocation[c] = chooseFarthestPoint(c);
                 Worker.replicationLimit[c] = Math.min(Math.max(workerLimit, 6), (int) Math.sqrt(width * height));
                 //split stuff
                 boolean spl = true;
@@ -458,8 +468,6 @@ public class Player {
                     timesReachedTarget++;
                     enemyLocation[i] = chooseFarthestPoint(i);
                 }
-            } else {
-                enemyLocation[i] = chooseFarthestPoint(i);
             }
             
         }
