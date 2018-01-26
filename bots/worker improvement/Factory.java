@@ -29,23 +29,7 @@ public class Factory {
 					Unit newUnit = gc.senseUnitAtLocation(curLoc.add(directions[a]));
 					int newId = newUnit.id();
 					Worker.id.put(newId, myId);
-						/*
-					switch (newUnit.unitType()) {
-						case Healer:
-							Healer.run(gc, newUnit);
-							break;
-						case Knight:
-							Knight.run(gc, newUnit);
-							break;
-						case Mage:
-							Mage.run(gc, newUnit);
-							break;
-						case Ranger:
-							Ranger.run(gc, newUnit);
-							break;
-						case Worker:
-							Worker.run(newUnit);
-					}*/
+					Player.newUnits.add(newUnit);
 					break;
 				}
 			}
