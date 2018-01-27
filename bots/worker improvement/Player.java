@@ -75,6 +75,9 @@ public class Player {
             for (int i = 0; i < myUnits.size(); i++) {
                 Unit curUnit = myUnits.get(i);
                 UnitType type = curUnit.unitType();
+                if (curUnit.location().isInGarrison()) {
+                    continue;
+                }
                 if (type == UnitType.Factory) {
                     numFactory++;
                 } else if (type == UnitType.Ranger) {
@@ -87,10 +90,9 @@ public class Player {
                 } else if (type == UnitType.Knight) {
                     numKnight++;
                 }
-                if (!curUnit.location().isInGarrison()) {
-                    unitLocations[unitLocationCounter] = curUnit.location().mapLocation();
-                    unitLocationCounter++;
-                }
+                
+                unitLocations[unitLocationCounter] = curUnit.location().mapLocation();
+                unitLocationCounter++;
             }
             
             for (int i = 0; i < myUnits.size(); i++) {
