@@ -37,6 +37,9 @@ public class Healer {
 
         if (Player.timesReachedTarget >= 3 && gc.planet() == Planet.Earth) {
             move(Player.initialWorkerStartingLocation.get(myId));
+            if (canHeal()) {
+                healNearbyAllies();
+            }
             return;
         }
 
