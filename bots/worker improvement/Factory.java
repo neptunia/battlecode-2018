@@ -57,7 +57,7 @@ public class Factory {
 				gc.produceRobot(curUnit.id(), UnitType.Healer);
 				Player.numHealer++;
 			} else if (gc.canProduceRobot(curUnit.id(), UnitType.Healer) && gc.senseNearbyUnitsByTeam(curLoc, 50, Player.enemyTeam).size() != 0) {
-				if (thingsProduced.get(curUnit.id()) % 2 == 0) {
+				if (thingsProduced.get(curUnit.id()) % 2 == 0 && gc.round() < 200) {
 					gc.produceRobot(curUnit.id(), UnitType.Knight);
 					Player.numKnight++;
 				} else {
