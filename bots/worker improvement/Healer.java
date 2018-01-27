@@ -174,7 +174,7 @@ public class Healer {
             Unit unit = nearbyUnits.get(i);
             //if can attack this enemy unit
             if (unit.team() == gc.team() && gc.isHealReady(curUnit.id()) && unit.unitType() != UnitType.Rocket && unit.unitType() != UnitType.Factory) {
-                if (unit.health() < maxHp) {
+                if (unit.health() < maxHp && unit.health() != unit.maxHealth()) {
                     maxHp = unit.health();
                     id = unit.id();
                 }
@@ -255,7 +255,7 @@ public class Healer {
             Unit unit = nearbyUnits.get(i);
             //if can attack this enemy unit
             if (unit.team() == gc.team() && gc.isHealReady(curUnit.id()) && gc.canHeal(curUnit.id(), unit.id())) {
-                if (unit.health() < minHp) {
+                if (unit.health() < minHp && unit.health() != unit.maxHealth()) {
                     minHp = unit.health();
                     id = unit.id();
                 }
