@@ -14,7 +14,6 @@ public class Player {
     static ArrayList<Unit> newUnits = new ArrayList<Unit>();
     static HashMap<Integer, MapLocation> initialWorkerStartingLocation = new HashMap<Integer, MapLocation>();
     static MapLocation[] enemyLocation;
-    static long effectiveKarbonite;
     static long karboniteGonnaUse = 0;
     static int numFactory, numRanger, numHealer, numWorker, numKnight;
     static int timesReachedTarget = 0;
@@ -22,6 +21,8 @@ public class Player {
     static boolean marsBfsDone = false;
     static MapLocation[] unitLocations = new MapLocation[2500];
     static int unitLocationCounter;
+    static boolean someoneTriedBuilding;
+    static HashSet<Integer> workerIds = new HashSet<Integer>();
     static HashMap<Integer, MapLocation> priorityTarget = new HashMap<Integer, MapLocation>();
 
 
@@ -50,6 +51,7 @@ public class Player {
 
         initialize();
         while (true) {
+            someoneTriedBuilding = false;
 
             if (gc.planet() == Planet.Mars) {
                 if (gc.asteroidPattern().hasAsteroid(gc.round())) {
@@ -80,6 +82,7 @@ public class Player {
                 } else if (type == UnitType.Healer) {
                     numHealer++;
                 } else if (type == UnitType.Worker) {
+                    workerIds.add(curUnit.id());
                     numWorker++;
                 } else if (type == UnitType.Knight) {
                     numKnight++;
@@ -156,8 +159,10 @@ public class Player {
                     e.printStackTrace();
                 }
             }
+            if (!someoneTriedBuilding) {
+                karboniteGonnaUse = 0;
+            }
             prevBlocked = blockedCount;
-            System.out.println(prevBlocked);
             newUnits.clear();
             chooseTarget();
 

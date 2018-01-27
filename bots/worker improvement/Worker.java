@@ -55,6 +55,8 @@ public class Worker {
         }
 
         if (structures.containsKey(curUnit.id())) {
+            System.out.println("SOMEONE TREID BUILDING");
+            Player.someoneTriedBuilding = true;
             buildStructure();
             return;
         }
@@ -63,6 +65,18 @@ public class Worker {
             return;
         }
         ///&& Player.numFactory + structuresToBuild.size() < 4 
+        //remove dead units from structures
+        /*
+        Set<Integer> keySet = structures.keySet();
+        for (Integer id : keySet) {
+            if (!Player.workerIds.contains(id)) {
+                structures.remove(id);
+            }
+        }*/
+        /*
+        System.out.println("---------------------");
+        System.out.println(structuresToBuild.size());
+        System.out.println(structures.size());*/
         if (Player.prevBlocked < 10 && gc.karbonite() + Player.karboniteGonnaUse >= 200 && gc.round() != 1 && (Player.numFactory + structuresToBuild.size() < (split.get(myId) ? 3 : 6)) || gc.karbonite() + Player.karboniteGonnaUse >= 1000) {
             startStructure(UnitType.Factory);
             Worker.run(curUnit);
