@@ -124,7 +124,6 @@ public class Player {
                     e.printStackTrace();
                 }
             }
-            prevBlocked = blockedCount;
             for (int i = 0; i < newUnits.size(); i++) {
                 Unit curUnit = newUnits.get(i);
                 try {
@@ -157,13 +156,15 @@ public class Player {
                     e.printStackTrace();
                 }
             }
+            prevBlocked = blockedCount;
+            System.out.println(prevBlocked);
             newUnits.clear();
             chooseTarget();
 
             if (gc.round() % 10 == 0) {
                 System.gc();
             }
-            System.out.println(gc.getTimeLeftMs());
+            //System.out.println(gc.getTimeLeftMs());
             gc.nextTurn();
         }
     }

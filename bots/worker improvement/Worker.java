@@ -187,6 +187,8 @@ public class Worker {
         MapLocation factory = healFactory.get(curUnit.id());
         //factory ded
         if (!gc.hasUnitAtLocation(factory)) {
+            healFactory.remove(curUnit.id());
+            Worker.run(curUnit);
             return;
         }
         Unit theFact = gc.senseUnitAtLocation(factory);
