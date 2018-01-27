@@ -66,7 +66,7 @@ public class Worker {
         if (Player.prevBlocked < 10 && gc.karbonite() + Player.karboniteGonnaUse >= 200 && gc.round() != 1 && Player.numFactory + structuresToBuild.size() < (split.get(myId) ? 3 : 6)) {
             startStructure(UnitType.Factory);
             Worker.run(curUnit);
-        } else if (gc.karbonite() + Player.karboniteGonnaUse >= 150 && Player.numFactory >= 2 && gc.researchInfo().getLevel(UnitType.Rocket) > 0 && Player.numRanger - numRangerGoingToRocket >= 5 && Player.numHealer - numHealerGoingToRocket >= 2) {
+        } else if (gc.karbonite() + Player.karboniteGonnaUse >= 150 && Player.numFactory >= 1 && gc.researchInfo().getLevel(UnitType.Rocket) > 0 && Player.numRanger - numRangerGoingToRocket >= 5 && Player.numHealer - numHealerGoingToRocket >= 2) {
             startStructure(UnitType.Rocket);
             Worker.run(curUnit);
         } else {
