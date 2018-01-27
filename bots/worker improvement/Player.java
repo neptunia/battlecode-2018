@@ -34,6 +34,7 @@ public class Player {
         Healer.gc = gc;
         Rocket.gc = gc;
         Knight.gc = gc;
+        Mage.gc = gc;
 
         myTeam = gc.team();
         enemyTeam = (myTeam == Team.Red ? Team.Blue : Team.Red);
@@ -109,13 +110,9 @@ public class Player {
                         case Factory:
                             Factory.run(curUnit);
                             break;
-                            
-                        
-                        /*
                         case Mage:
                             Mage.run(gc, curUnit);
                             break;
-                        */
                         case Knight:
                             Knight.run(curUnit);
                             break;
@@ -135,6 +132,7 @@ public class Player {
                     
                 } catch (Exception e) {
                     System.out.println("unit died");
+                    e.printStackTrace();
                 }
             }
             prevBlocked = blockedCount;
@@ -145,13 +143,9 @@ public class Player {
                         case Factory:
                             Factory.run(curUnit);
                             break;
-                            
-                        
-                        /*
                         case Mage:
                             Mage.run(gc, curUnit);
                             break;
-                        */
                         case Knight:
                             Knight.run(curUnit);
                             break;
@@ -171,6 +165,7 @@ public class Player {
                 
                 } catch (Exception e) {
                     System.out.println("unit died");
+                    e.printStackTrace();
                 }
             }
             newUnits.clear();

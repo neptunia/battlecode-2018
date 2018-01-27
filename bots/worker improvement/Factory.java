@@ -10,11 +10,15 @@ public class Factory {
 	static HashSet<Integer> workers = new HashSet<Integer>();
 	static Direction[] directions = Direction.values();
 	static HashSet<Integer> sentHealSignal = new HashSet<Integer>();
+	static HashMap<Integer, Integer> thingsProduced = new HashMap<Integer, Integer>();
 
 	public static void run(Unit curUnit) {
 
 		Factory.curUnit = curUnit;
 		Factory.curLoc = curUnit.location().mapLocation();
+		if (!thingsProduced.containsKey(curUnit.id())) {
+			thingsProduced.put(curUnit.id(), 0);
+		}
 
 		if (curUnit.structureIsBuilt() == 0) {
 			return;
@@ -53,8 +57,13 @@ public class Factory {
 				gc.produceRobot(curUnit.id(), UnitType.Healer);
 				Player.numHealer++;
 			} else if (gc.canProduceRobot(curUnit.id(), UnitType.Healer) && gc.senseNearbyUnitsByTeam(curLoc, 50, Player.enemyTeam).size() != 0) {
-				gc.produceRobot(curUnit.id(), UnitType.Knight);
-				Player.numKnight++;
+				if (thingsProduced.get(curUnit.id()) % 2 == 0) {
+					gc.produceRobot(curUnit.id(), UnitType.Knight);
+					Player.numKnight++;
+				} else {
+					gc.produceRobot(curUnit.id(), UnitType.Mage);
+				}
+				thingsProduced.put(curUnit.id(), thingsProduced.get(curUnit.id())+1);
 			} else if (gc.canProduceRobot(curUnit.id(), UnitType.Ranger)) {
 				gc.produceRobot(curUnit.id(), UnitType.Ranger);
 				Player.numRanger++;
