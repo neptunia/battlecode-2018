@@ -49,17 +49,6 @@ public class Player {
         }
 
         initialize();
-
-        gc.queueResearch(UnitType.Worker);
-        gc.queueResearch(UnitType.Knight);
-        gc.queueResearch(UnitType.Healer);
-        gc.queueResearch(UnitType.Healer);
-        gc.queueResearch(UnitType.Rocket);
-        gc.queueResearch(UnitType.Healer);
-        gc.queueResearch(UnitType.Ranger);
-        gc.queueResearch(UnitType.Ranger);
-        gc.queueResearch(UnitType.Rocket);
-
         while (true) {
 
             if (gc.planet() == Planet.Mars) {
@@ -268,6 +257,7 @@ public class Player {
         Worker.replicationLimit = new int[(int) startingUnits.size() / 2];
         Worker.counter = new int[(int) startingUnits.size() / 2];
         int c = 0;
+        boolean someSplit = false;
 
         for (int i = 0; i < startingUnits.size(); i++) {
             Unit unit = startingUnits.get(i);
@@ -332,9 +322,31 @@ public class Player {
                     
                 }
                 Worker.split.put(c, spl);
+                someSplit = someSplit || spl;
                 System.out.println(Integer.toString(c) + ", " + Boolean.toString(spl));
                 c++;
             }
+        }
+
+        if (someSplit) {
+            gc.queueResearch(UnitType.Healer);
+            gc.queueResearch(UnitType.Healer);
+            gc.queueResearch(UnitType.Rocket);
+            gc.queueResearch(UnitType.Healer);
+            gc.queueResearch(UnitType.Ranger);
+            gc.queueResearch(UnitType.Ranger);
+            gc.queueResearch(UnitType.Rocket);
+            gc.queueResearch(UnitType.Rocket);
+        } else {
+            gc.queueResearch(UnitType.Worker);
+            gc.queueResearch(UnitType.Knight);
+            gc.queueResearch(UnitType.Healer);
+            gc.queueResearch(UnitType.Healer);
+            gc.queueResearch(UnitType.Rocket);
+            gc.queueResearch(UnitType.Healer);
+            gc.queueResearch(UnitType.Ranger);
+            gc.queueResearch(UnitType.Ranger);
+            gc.queueResearch(UnitType.Rocket);
         }
         //Worker.spots = ret;
         Worker.karbonitePatches = spots;

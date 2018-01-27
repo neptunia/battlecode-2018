@@ -10,6 +10,7 @@ public class Worker {
 	static Direction[] directions = Direction.values();
 	static int[] counter;
 	static int myId;
+    static int numRangerGoingToRocket = 0, numHealerGoingToRocket = 0;
     static boolean noMoreKarbonite = false;
     static boolean fullyReplicated = false;
 	static HashMap<Integer, Integer> id = new HashMap<Integer, Integer>();
@@ -62,10 +63,10 @@ public class Worker {
             return;
         }
         ///&& Player.numFactory + structuresToBuild.size() < 4 
-        if (Player.prevBlocked < 10 && gc.karbonite() + Player.karboniteGonnaUse >= 200 && gc.round() != 1 && Player.numFactory + structuresToBuild.size() < 6) {
+        if (Player.prevBlocked < 10 && gc.karbonite() + Player.karboniteGonnaUse >= 200 && gc.round() != 1 && Player.numFactory + structuresToBuild.size() < (split.get(myId) ? 3 : 6)) {
             startStructure(UnitType.Factory);
             Worker.run(curUnit);
-        } else if (gc.karbonite() + Player.karboniteGonnaUse >= 150 && gc.researchInfo().getLevel(UnitType.Rocket) > 0) {
+        } else if (gc.karbonite() + Player.karboniteGonnaUse >= 150 && gc.researchInfo().getLevel(UnitType.Rocket) > 0 && Player.numRanger - numRangerGoingToRocket >= 5 && Player.numHealer - numHealerGoingToRocket >= 2) {
             startStructure(UnitType.Rocket);
             Worker.run(curUnit);
         } else {
@@ -404,9 +405,11 @@ public class Worker {
                     if (!Player.priorityTarget.containsKey(there.id())) {
                         if (temp == UnitType.Ranger && rangersNeeded > 0) {
                             rangersNeeded--;
+                            numRangerGoingToRocket++;
                             Player.priorityTarget.put(there.id(), rocketLoc);
                         } else if (temp == UnitType.Healer && healersNeeded > 0) {
                             healersNeeded--;
+                            numHealerGoingToRocket++;
                             Player.priorityTarget.put(there.id(), rocketLoc);
                         } else if (temp == UnitType.Worker && workersNeeded > 0) {
                             workersNeeded--;

@@ -45,10 +45,16 @@ public class Rocket {
             //on earth, load units
             VecUnit adjacentUnits = gc.senseNearbyUnitsByTeam(curUnit.location().mapLocation(), 2, Player.myTeam);
             for (int i = 0; i < adjacentUnits.size(); i++) {
-                int id = adjacentUnits.get(i).id();
+                Unit unit = adjacentUnits.get(i);
+                int id = unit.id();
                 if (gc.canLoad(curUnit.id(), id) && Player.priorityTarget.containsKey(id)) {
                     Player.priorityTarget.remove(id);
                     gc.load(curUnit.id(), id);
+                    if (unit.unitType() == UnitType.Ranger) {
+                        Worker.numRangerGoingToRocket--;
+                    } else if (unit.unitType() == UnitType.Healer) {
+                        Worker.numHealerGoingToRocket--;
+                    }
                 }
             }
 
