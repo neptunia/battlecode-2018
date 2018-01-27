@@ -24,7 +24,7 @@ public class Factory {
 		if (curUnit.health() != curUnit.maxHealth()) {
 			findWorkersToHealMe();
 			sentHealSignal.add(curUnit.id());
-		} else if (sentHealSignal.contains(curUnit.id)) {
+		} else if (sentHealSignal.contains(curUnit.id())) {
 			sentHealSignal.remove(curUnit.id());
 		}
 
