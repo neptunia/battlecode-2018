@@ -295,7 +295,7 @@ public class Worker {
             //replicate
             //TODO: optimize
             MapLocation spot = findKarboniteSpot();
-            if (spot != null) {
+            if (spot != null && curUnit.abilityHeat() < 10) {
                 replicateNearestTo(spot);
             }
             if (Player.numWorker > (int) replicationLimit[myId] / 4.0) {
