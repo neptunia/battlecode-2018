@@ -291,11 +291,11 @@ public class Worker {
             fullyReplicated = false;
             return;
         }
-        if (Player.numWorker < replicationLimit[myId] && patchesOccupied.size() < replicationLimit[myId]) {
+        if (Player.numWorker < replicationLimit[myId] && patchesOccupied.size() < replicationLimit[myId] && curUnit.abilityHeat() < 10) {
             //replicate
             //TODO: optimize
             MapLocation spot = findKarboniteSpot();
-            if (spot != null && curUnit.abilityHeat() < 10) {
+            if (spot != null) {
                 replicateNearestTo(spot);
             }
             if (Player.numWorker > (int) replicationLimit[myId] / 4.0) {
@@ -638,12 +638,13 @@ public class Worker {
             	move(target);
                 return;
             } else {
-            	//System.out.println("cant get there worker");
+            	System.out.println("cant get there worker");
             }
         }
         if (gc.isMoveReady(curUnit.id())) {
             moveCloser(target);
         }
+        
         if (gc.isMoveReady(curUnit.id())) {
             MapLocation toMove = curLoc.add(best);
             HashSet<Integer> temp = new HashSet<Integer>();

@@ -163,7 +163,7 @@ public class Player {
             if (gc.round() % 10 == 0) {
                 System.gc();
             }
-            //System.out.println(gc.getTimeLeftMs());
+            System.out.println(gc.getTimeLeftMs());
             gc.nextTurn();
         }
     }
