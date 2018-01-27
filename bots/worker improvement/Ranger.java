@@ -36,6 +36,7 @@ public class Ranger {
             if (gc.hasUnitAtLocation(rocket) && gc.senseUnitAtLocation(rocket).unitType() == UnitType.Rocket) {
                 move2(Player.priorityTarget.get(curUnit.id()));
             } else {
+                Worker.numRangerGoingToRocket--;
                 Player.priorityTarget.remove(curUnit.id());
                 Ranger.run(curUnit);
             }
