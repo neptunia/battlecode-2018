@@ -39,7 +39,7 @@ public class Healer {
         if (Player.timesReachedTarget >= 3 && gc.planet() == Planet.Earth) {
             move(Player.initialWorkerStartingLocation.get(myId));
             if (canHeal()) {
-                healNearbyAllies();
+                healWeakestAllies();
             }
             return;
         }
@@ -58,7 +58,7 @@ public class Healer {
 
             // then heal whoever's available
             if (canHeal()) {
-                healNearbyAllies();
+                healWeakestAllies();
             }
 
             findOverchargeTarget();
@@ -168,13 +168,13 @@ public class Healer {
 
     public static boolean moveHeal() {
         VecUnit nearbyUnits = gc.senseNearbyUnits(curUnit.location().mapLocation(), 48);
-        long maxHp = -1;
+        long maxHp = 9999999;
         int id = -1;
         for (int i = 0; i < nearbyUnits.size(); i++) {
             Unit unit = nearbyUnits.get(i);
             //if can attack this enemy unit
             if (unit.team() == gc.team() && gc.isHealReady(curUnit.id()) && unit.unitType() != UnitType.Rocket && unit.unitType() != UnitType.Factory) {
-                if (unit.health() > maxHp && unit.maxHealth() - unit.health() >= Math.abs(curUnit.damage())) {
+                if (unit.health() < maxHp) {
                     maxHp = unit.health();
                     id = unit.id();
                 }
@@ -191,7 +191,7 @@ public class Healer {
                 return true;
             }
         }
-        healNearbyAllies();
+        healWeakestAllies();
         return true;
     }
 
