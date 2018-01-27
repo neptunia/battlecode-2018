@@ -17,7 +17,7 @@ public class Healer {
         Healer.curUnit = curUnit;
         curPlanet = gc.planet();
 
-        if (curUnit.location().isInGarrison()) {
+        if (curUnit.location().isInGarrison() || curUnit.location().isInSpace()) {
             return;
         }
 
@@ -291,7 +291,7 @@ public class Healer {
         int x = curLoc.getX();
         int y = curLoc.getY();
         int currentDist = Player.pathDistances[targetHash][x][y];
-        if (currentDist != -1) {
+        if (currentDist != 696969) {
             if (x < Player.gridX - 1 && Player.pathDistances[targetHash][x + 1][y] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.East)) {
                 gc.moveRobot(curUnit.id(), Direction.East);
             } else if (x > 0 && Player.pathDistances[targetHash][x - 1][y] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.West)) {
