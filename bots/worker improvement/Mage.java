@@ -277,7 +277,7 @@ public class Mage {
         int dist = distance(myLoc, enemyLoc);
         int closestdist = distance(myLoc, enemyLoc);
 
-        if (closestdist <= 2) {
+        if (closestdist <= 20) {
             // too close!
             // only attack it if I can kill it. If not, it's a lost cause anyways.
             // TODO: if an enemy worker is next to me i don't really care
@@ -294,7 +294,9 @@ public class Mage {
                 if (canAttack()) {
                     gc.attack(curUnit.id(), enemyid);
                 }
-                moveAway(enemyLoc);
+                if (gc.isMoveReady(curUnit.id())) {
+                    moveAway(enemyLoc);
+                }
             }
 
             return;
