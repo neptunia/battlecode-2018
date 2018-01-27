@@ -281,6 +281,22 @@ public class Worker {
         numberWorkersAssigned.put(hash(blueprintLocation), workerCount);
     }
 
+    public static int enemyTooClose() {
+        int p = -1;
+        VecUnit nearby = gc.senseNearbyUnitsByTeam(curUnit.location().mapLocation(), 70, Player.enemyTeam);
+        int smallest1 = 9999999;
+        for (int i = 0; i < nearby.size(); i++) {
+            Unit temp3 = nearby.get(i);
+            MapLocation temp2 = temp3.location().mapLocation();
+            int temp = distance(curUnit.location().mapLocation(), temp2);
+            if (temp < smallest1) {
+                smallest1 = temp;
+                p = temp3.id();
+            }
+        }
+        return p;
+    }
+
 	public static void goMine() {
 		if (!target.containsKey(curUnit.id()) && !noMoreKarbonite) {
 			MapLocation temp = findKarboniteSpot();
@@ -295,7 +311,14 @@ public class Worker {
         if (target.containsKey(curUnit.id())) {
             move(target.get(curUnit.id()));
         } else {
-            move(Player.initialWorkerStartingLocation.get(myId));
+		    if (gc.isMoveReady(curUnit.id())) {
+                int closestEnemy = enemyTooClose();
+                if (closestEnemy == -1) {
+                    move(Player.initialWorkerStartingLocation.get(myId));
+                } else {
+                    moveAway(gc.unit(closestEnemy).location().mapLocation());
+                }
+            }
         }
 		
         harvestAroundMe();
@@ -319,6 +342,24 @@ public class Worker {
             }
         }
 	}
+
+    //calc which direction maximizes distance between enemy and ranger
+    public static boolean moveAway(MapLocation enemy) {
+        int best = distance(curUnit.location().mapLocation(), enemy);
+        Direction bestd = null;
+        for (int i = 0; i < directions.length; i++) {
+            MapLocation temp = curUnit.location().mapLocation().add(directions[i]);
+            if (gc.canMove(curUnit.id(), directions[i]) && distance(temp, enemy) > best) {
+                best = distance(temp, enemy);
+                bestd = directions[i];
+            }
+        }
+        if (bestd != null) {
+            gc.moveRobot(curUnit.id(), bestd);
+            return true;
+        }
+        return false;
+    }
 
     public static MapLocation findKarboniteSpot() {
         LinkedList<MapLocation> queue = new LinkedList<MapLocation>();
