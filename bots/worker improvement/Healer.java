@@ -21,6 +21,9 @@ public class Healer {
             return;
         }
 
+        myId = Worker.id.get(curUnit.id());
+        curLoc = curUnit.location().mapLocation();
+
         if (Player.priorityTarget.containsKey(curUnit.id())) {
             MapLocation rocket = Player.priorityTarget.get(curUnit.id());
             if (gc.hasUnitAtLocation(rocket) && gc.senseUnitAtLocation(rocket).unitType() == UnitType.Rocket) {
@@ -31,9 +34,6 @@ public class Healer {
             }
             return;
         }
-
-        myId = Worker.id.get(curUnit.id());
-        curLoc = curUnit.location().mapLocation();
 
         if (Player.timesReachedTarget >= 3 && gc.planet() == Planet.Earth) {
             move(Player.initialWorkerStartingLocation.get(myId));
