@@ -648,7 +648,7 @@ public class Worker {
         if (gc.isMoveReady(curUnit.id())) {
             MapLocation toMove = curLoc.add(best);
             HashSet<Integer> temp = new HashSet<Integer>();
-            temp.add(hash(toMove));
+            temp.add(hash(curLoc));
             moveAway(toMove, temp);
             if (gc.canMove(curUnit.id(), best)) {
                 gc.moveRobot(curUnit.id(), best);
