@@ -56,8 +56,8 @@ public class Factory {
 			if (Player.numRanger + Player.numKnight > 3 * Player.numHealer && gc.researchInfo().getLevel(UnitType.Healer) >= 1 && gc.canProduceRobot(curUnit.id(), UnitType.Healer)) {
 				gc.produceRobot(curUnit.id(), UnitType.Healer);
 				Player.numHealer++;
-			} else if (gc.canProduceRobot(curUnit.id(), UnitType.Healer) && gc.senseNearbyUnitsByTeam(curLoc, 50, Player.enemyTeam).size() != 0) {
-				if (thingsProduced.get(curUnit.id()) % 2 == 0 && gc.round() < 200) {
+			} else if (gc.canProduceRobot(curUnit.id(), UnitType.Healer) && gc.round() < 200 && gc.senseNearbyUnitsByTeam(curLoc, 50, Player.enemyTeam).size() != 0) {
+				if (thingsProduced.get(curUnit.id()) % 2 == 0) {
 					gc.produceRobot(curUnit.id(), UnitType.Knight);
 					Player.numKnight++;
 				} else {
