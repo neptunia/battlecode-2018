@@ -375,7 +375,6 @@ public class Worker {
             } else {
                 done.add(best);
             }
-            
         }
     }
 
