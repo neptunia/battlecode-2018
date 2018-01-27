@@ -60,6 +60,10 @@ public class Player {
                     Worker.karbonitePatches[asteroid.getX()][asteroid.getY()] = true;
                     Worker.noMoreKarbonite = false;
                 }
+            } else {
+                if (gc.round() > 750) {
+                    gc.nextTurn();
+                }
             }
 
             myUnits = gc.myUnits();
