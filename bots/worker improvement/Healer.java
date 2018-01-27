@@ -261,7 +261,9 @@ public class Healer {
                 }
             }
         }
-        gc.heal(curUnit.id(), id);
+        if (id != -1) {
+            gc.heal(curUnit.id(), id);
+        }
     }
 
     public static boolean canMove() {
