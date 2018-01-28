@@ -34,12 +34,18 @@ public class Worker {
             return;
         }
 
-        if (gc.planet() == Planet.Mars && !id.containsKey(curUnit.id())) {
-            id.put(curUnit.id(), 0);
+        curLoc = curUnit.location().mapLocation();
+
+        if (!id.containsKey(curUnit.id())) {
+            for (int i = 0; i < Player.gotoable.length; i++) {
+                if (Player.gotoable[i][curLoc.getX()][curLoc.getY()]) {
+                    id.put(curUnit.id(), i);
+                    break;
+                }
+            }
         }
 
         Worker.myId = id.get(curUnit.id());
-		curLoc = curUnit.location().mapLocation();
 
         if (gc.planet() == Planet.Mars) {
             if (!noMoreKarbonite) {
