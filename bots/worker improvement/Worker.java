@@ -51,12 +51,7 @@ public class Worker {
             if (!noMoreKarbonite) {
                 marsMine();
             } else {
-                System.out.println("move to the deets");
-                System.out.println("My id: " + Integer.toString(myId));
-                System.out.println(Player.enemyLocation[myId]);
-                System.out.println("Done printing enemyLocation");
                 move(Player.enemyLocation[myId]);
-                System.out.println("done moving");
             }
             if ((gc.round() > 750 || Player.numWorker < 6) && curUnit.abilityHeat() < 10) {
                 //System.out.println("wew replicate");
