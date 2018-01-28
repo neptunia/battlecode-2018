@@ -486,7 +486,11 @@ public class Player {
             if (enemyLocation[i] != null) {
                 if (gc.senseNearbyUnitsByTeam(enemyLocation[i], 0, myTeam).size() > 0) {
                     timesReachedTarget++;
-                    enemyLocation[i] = chooseNextTarget(i);
+                    if (gridX == gridY) {
+                        enemyLocation[i] = chooseNextTarget(i);
+                    } else {
+                        enemyLocation[i] = chooseFarthestPoint(i);
+                    }
                 }
             }
             
