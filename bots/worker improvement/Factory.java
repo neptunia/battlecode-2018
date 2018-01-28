@@ -53,7 +53,7 @@ public class Factory {
 		}
 
 		if ((Player.prevBlocked < 8 && ((Player.timesReachedTarget < 1 && gc.round() < 600)) && (gc.karbonite() + Player.karboniteGonnaUse > 140 || gc.researchInfo().getLevel(UnitType.Rocket) == 0)) || (Player.numRanger < 10 && Player.numHealer < 4)) {
-			if (Player.numRanger + Player.numKnight > 3 * Player.numHealer && gc.researchInfo().getLevel(UnitType.Healer) >= 1 && gc.canProduceRobot(curUnit.id(), UnitType.Healer)) {
+			if (Player.numRanger > 1.5 * Player.numHealer && gc.researchInfo().getLevel(UnitType.Healer) >= 1 && gc.canProduceRobot(curUnit.id(), UnitType.Healer)) {
 				gc.produceRobot(curUnit.id(), UnitType.Healer);
 				Player.numHealer++;
 			} else if (gc.canProduceRobot(curUnit.id(), UnitType.Healer) && gc.round() < 200 && gc.senseNearbyUnitsByTeam(curLoc, 50, Player.enemyTeam).size() != 0) {
