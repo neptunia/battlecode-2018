@@ -51,10 +51,14 @@ public class Worker {
             if (!noMoreKarbonite) {
                 marsMine();
             } else {
+                System.out.println("move to the deets");
+                System.out.println("My id: " + Integer.toString(myId));
+                System.out.println(Player.enemyLocation[myId]);
+                System.out.println("Done printing enemyLocation");
                 move(Player.enemyLocation[myId]);
-                harvestAroundMe();
+                System.out.println("done moving");
             }
-            if ((gc.round() > 750 || Player.numWorker < 6) && curUnit.abilityHeat() < 10) {
+            if ((gc.round() > 750 || Player.numWorker < 6) && curUnit.abilityHeat() < 10 && gc.karbonite() >= 60) {
                 System.out.println("wew replicate");
                 for (int i = 0; i < directions.length; i++) {
                     if (gc.canReplicate(curUnit.id(), directions[i])) {
@@ -138,7 +142,7 @@ public class Worker {
             }
             if (manDistance(curLoc, toBuild.loc) == 1) {
                 //TODO: replicate around it if factory doesnt already have 8 workers
-                if (numberWorkersAssigned.get(hash(toBuild.loc)) < 8 && Player.numWorker < 6 && curUnit.abilityHeat() < 10) {
+                if (numberWorkersAssigned.get(hash(toBuild.loc)) < 8 && Player.numWorker < 6 && curUnit.abilityHeat() < 10 && gc.karbonite() >= 60) {
                     MapLocation temp = null;
                     for (int i = 0; i < directions.length; i++) {
                         temp = curLoc.add(directions[i]);
@@ -432,6 +436,9 @@ public class Worker {
 
     public static void replicateNearestTo(MapLocation loc) {
         //TODO: optimize bigly
+        if (curUnit.workerHasActed() != 0 || gc.karbonite() < 60) {
+            return;
+        }
         HashSet<Direction> done = new HashSet<Direction>();
         for (int i = 0; i < directions.length; i++) {
             Direction best = null;
@@ -720,20 +727,20 @@ public class Worker {
         if (gc.isMoveReady(curUnit.id())) {
             moveCloser(target);
         }
-        
-        if (gc.isMoveReady(curUnit.id())) {
-            MapLocation toMove = curLoc.add(best);
-            HashSet<Integer> temp = new HashSet<Integer>();
-            temp.add(hash(curLoc));
-            moveAway(toMove, temp);
-            if (gc.canMove(curUnit.id(), best)) {
-                gc.moveRobot(curUnit.id(), best);
-                curLoc = curLoc.add(best);
-            } else {
-                //System.out.println("priority move didn't work");
+        if (gc.planet() == Planet.Earth) {
+            if (gc.isMoveReady(curUnit.id())) {
+                MapLocation toMove = curLoc.add(best);
+                HashSet<Integer> temp = new HashSet<Integer>();
+                temp.add(hash(curLoc));
+                moveAway(toMove, temp);
+                if (gc.canMove(curUnit.id(), best)) {
+                    gc.moveRobot(curUnit.id(), best);
+                    curLoc = curLoc.add(best);
+                } else {
+                    //System.out.println("priority move didn't work");
+                }
             }
         }
-
     }
 
     public static int hash(MapLocation loc) {
