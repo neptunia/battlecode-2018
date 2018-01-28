@@ -524,7 +524,7 @@ public class Player {
 	                continue;
                 }
                 double tempDist = distanceSq(i, j, avgX, avgY);
-	            if (tempDist > greatest) {
+	            if (tempDist > greatest && !prevTargets.contains(hash(i, j))) {
 	                greatest = tempDist;
 	                smallX = i;
 	                smallY = j;
