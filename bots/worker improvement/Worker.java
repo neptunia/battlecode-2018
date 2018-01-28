@@ -87,10 +87,10 @@ public class Worker {
         System.out.println("---------------------");
         System.out.println(structuresToBuild.size());
         System.out.println(structures.size());*/
-        if (Player.prevBlocked < 10 && gc.karbonite() + Player.karboniteGonnaUse >= 200 && gc.round() != 1 && gc.round() < 550 && (Player.numFactory + structuresToBuild.size() < (split.get(myId) ? 3 : 6)) || gc.karbonite() + Player.karboniteGonnaUse >= 1000) {
+        if (Player.prevBlocked < 10 && gc.karbonite() + Player.karboniteGonnaUse >= 200 && gc.round() != 1 && gc.round() < 550 && (Player.numFactory + structuresToBuild.size() < (split.get(myId) ? 3 : 6)) || (split.get(myId) ? false : gc.karbonite() + Player.karboniteGonnaUse >= 1000)) {
             startStructure(UnitType.Factory);
             Worker.run(curUnit);
-        } else if (gc.karbonite() + Player.karboniteGonnaUse >= 150 && Player.numFactory >= 1 && (gc.round() < 550 ? (Player.prevBlocked >= 8 || Player.timesReachedTarget >= 2) : true) && gc.researchInfo().getLevel(UnitType.Rocket) > 0 && Player.numRanger - numRangerGoingToRocket >= 5 && Player.numHealer - numHealerGoingToRocket >= 2) {
+        } else if (gc.karbonite() + Player.karboniteGonnaUse >= 150 && Player.numFactory >= 1 && (gc.round() < 550 ? (Player.prevBlocked >= 8 || Player.timesReachedTarget >= 2 || split.get(myId)) : true) && gc.researchInfo().getLevel(UnitType.Rocket) > 0 && Player.numRanger - numRangerGoingToRocket >= 5 && Player.numHealer - numHealerGoingToRocket >= 2) {
             startStructure(UnitType.Rocket);
             Worker.run(curUnit);
         } else {

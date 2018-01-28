@@ -52,7 +52,7 @@ public class Factory {
 			Player.numWorker++;
 		}
 
-		if ((Player.prevBlocked < 8 && ((Player.timesReachedTarget < 1 && gc.round() < 600)) && (gc.karbonite() + Player.karboniteGonnaUse > 140 || gc.researchInfo().getLevel(UnitType.Rocket) == 0)) || (Player.numRanger < 10 && Player.numHealer < 4)) {
+		if ((Player.prevBlocked < 8 && Player.timesReachedTarget < 1 && gc.round() < 600 && (gc.karbonite() + Player.karboniteGonnaUse > 140 || gc.researchInfo().getLevel(UnitType.Rocket) == 0)) || (Player.numRanger < 10 || Player.numHealer < 4)) {
 			if (Player.numRanger > 1.5 * Player.numHealer && gc.researchInfo().getLevel(UnitType.Healer) >= 1 && gc.canProduceRobot(curUnit.id(), UnitType.Healer)) {
 				gc.produceRobot(curUnit.id(), UnitType.Healer);
 				Player.numHealer++;
