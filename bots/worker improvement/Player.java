@@ -66,6 +66,9 @@ public class Player {
                     gc.nextTurn();
                 }
             }
+            if (gc.getTimeLeftMs() < 300) {
+                gc.nextTurn();
+            }
 
             myUnits = gc.myUnits();
 
