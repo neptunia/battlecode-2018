@@ -441,8 +441,8 @@ public class Worker {
         queue.add(rocketLoc);
         visited.add(hash(rocketLoc));
         //int workersNeeded = 1;
-        int rangersNeeded = 5;
-        int healersNeeded = 2;
+        int rangersNeeded = 4;
+        int healersNeeded = 3;
         int workersNeeded = 1;
         while (!queue.isEmpty()) {
             MapLocation current = queue.poll();
