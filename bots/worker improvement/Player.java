@@ -72,6 +72,9 @@ public class Player {
             }
 
             myUnits = gc.myUnits();
+            if (myUnits.size() == 0 && gc.planet() == Planet.Earth) {
+                gc.writeTeamArray(0, 69);
+            }
 
             //count units
             numFactory = 0;
@@ -539,7 +542,7 @@ public class Player {
 	                continue;
                 }
                 double tempDist = distanceSq(i, j, avgX, avgY);
-	            if (tempDist > greatest) {
+	            if (tempDist > greatest && !prevTargets.contains(hash(i, j))) {
 	                greatest = tempDist;
 	                smallX = i;
 	                smallY = j;
