@@ -59,7 +59,7 @@ public class Worker {
         }
 
         if (structures.containsKey(curUnit.id())) {
-            System.out.println("SOMEONE TREID BUILDING");
+            //System.out.println("SOMEONE TREID BUILDING");
             Player.someoneTriedBuilding = true;
             buildStructure();
             return;
@@ -481,7 +481,7 @@ public class Worker {
                 
             }
         }
-        System.out.println("Rip not enough units to put into rocket");
+        //System.out.println("Rip not enough units to put into rocket");
     }
 
     public static void marsMine() {
@@ -700,7 +700,7 @@ public class Worker {
             	move(target);
                 return;
             } else {
-            	System.out.println("cant get there worker");
+            	//System.out.println("cant get there worker");
             }
         }
         if (gc.isMoveReady(curUnit.id())) {
@@ -716,7 +716,7 @@ public class Worker {
                 gc.moveRobot(curUnit.id(), best);
                 curLoc = curLoc.add(best);
             } else {
-                System.out.println("priority move didn't work");
+                //System.out.println("priority move didn't work");
             }
         }
 
