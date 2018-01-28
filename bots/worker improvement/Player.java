@@ -481,8 +481,26 @@ public class Player {
                 }
             }
         }
+
+        PlanetMap planetMap = gc.startingMap(gc.planet());
+
+        boolean isThereKarbonite = false;
+
+        for (int i = 0; i < gridX; i++) {
+            for (int a = 0; a < gridY; a++) {
+                if (planetMap.initialKarboniteAt(new MapLocation(gc.planet(), i, a)) > 0) {
+                    Worker.karbonitePatches[i][a] = true;
+                    isThereKarbonite = true;
+                }
+            }
+        }
+        if (isThereKarbonite) {
+            Worker.noMoreKarbonite = false;
+        }
         enemyLocation = new MapLocation[1];
         enemyLocation[0] = chooseFarthestPoint(0);
+
+
     }
 
     public static void chooseTarget() {

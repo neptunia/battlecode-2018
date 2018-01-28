@@ -48,11 +48,7 @@ public class Worker {
         Worker.myId = id.get(curUnit.id());
 
         if (gc.planet() == Planet.Mars) {
-            if (!noMoreKarbonite) {
-                marsMine();
-            } else {
-                move(Player.enemyLocation[myId]);
-            }
+            marsMine();
             if ((gc.round() > 750 || Player.numWorker < 6) && curUnit.abilityHeat() < 10) {
                 //System.out.println("wew replicate");
                 for (int i = 0; i < directions.length; i++) {
@@ -504,9 +500,10 @@ public class Worker {
     public static void marsMine() {
         //System.out.println("wew mars mine");
         //TODO: mining karbonite on mars
-        if (!target.containsKey(curUnit.id())) {
+        if (!target.containsKey(curUnit.id()) && !noMoreKarbonite) {
             MapLocation temp = findKarboniteSpot();
             if (temp != null) {
+                System.out.println("Assigned: " + temp.toString());
                 target.put(curUnit.id(), temp);
                 patchesOccupied.add(hash(temp));
             } else {
@@ -516,6 +513,8 @@ public class Worker {
 
         if (target.containsKey(curUnit.id())) {
             move(target.get(curUnit.id()));
+        } else {
+            move(Player.enemyLocation[myId]);
         }
         
         harvestAroundMe();
