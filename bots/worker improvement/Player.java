@@ -24,6 +24,7 @@ public class Player {
     static boolean someoneTriedBuilding;
     static HashSet<Integer> workerIds = new HashSet<Integer>();
     static HashMap<Integer, MapLocation> priorityTarget = new HashMap<Integer, MapLocation>();
+    static HashSet<Integer> prevTargets = new HashSet<Integer>();
 
 
 	public static void main(String args[]) {
@@ -485,11 +486,44 @@ public class Player {
             if (enemyLocation[i] != null) {
                 if (gc.senseNearbyUnitsByTeam(enemyLocation[i], 0, myTeam).size() > 0) {
                     timesReachedTarget++;
-                    enemyLocation[i] = chooseFarthestPoint(i);
+                    enemyLocation[i] = chooseNextTarget(i);
                 }
             }
             
         }
+    }
+
+    public static MapLocation chooseNextTarget(int parent) {
+	    double greatest = -1;
+	    int smallX = -1;
+	    int smallY = -1;
+        int avgX = 0;
+        int avgY = 0;
+        for (int k : prevTargets) {
+            int tempY = k % 69;
+            int tempX = (k - tempY) / 69;
+            avgX += tempX;
+            avgY += tempY;
+        }
+        avgX /= prevTargets.size();
+        avgY /= prevTargets.size();
+	    for (int i = 0; i < gridX; i++) {
+	        for (int j = 0; j < gridY; j++) {
+	            if (!gotoable[parent][i][j]) {
+	                continue;
+                }
+                double tempDist = distanceSq(i, j, avgX, avgY);
+	            if (tempDist > greatest) {
+	                greatest = tempDist;
+	                smallX = i;
+	                smallY = j;
+                }
+            }
+        }
+        MapLocation point = new MapLocation(gc.planet(), smallX, smallY);
+	    prevTargets.add(hash(point));
+	    bfs(point);
+	    return point;
     }
 
     public static MapLocation chooseFarthestPoint(int parent) {
@@ -513,6 +547,7 @@ public class Player {
             }
         }
         MapLocation point = new MapLocation(gc.planet(), smallX, smallY);
+        prevTargets.add(hash(point));
         //BFS the whole map
         bfs(point);
         return point;
