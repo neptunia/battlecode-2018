@@ -87,26 +87,30 @@ public class Player {
             blockedCount = 0;
             unitLocationCounter = 0;
             for (int i = 0; i < myUnits.size(); i++) {
-                Unit curUnit = myUnits.get(i);
-                UnitType type = curUnit.unitType();
-                if (curUnit.location().isInGarrison()) {
-                    continue;
+                try {
+                    Unit curUnit = myUnits.get(i);
+                    UnitType type = curUnit.unitType();
+                    if (curUnit.location().isInGarrison()) {
+                        continue;
+                    }
+                    if (type == UnitType.Factory) {
+                        numFactory++;
+                    } else if (type == UnitType.Ranger) {
+                        numRanger++;
+                    } else if (type == UnitType.Healer) {
+                        numHealer++;
+                    } else if (type == UnitType.Worker) {
+                        workerIds.add(curUnit.id());
+                        numWorker++;
+                    } else if (type == UnitType.Knight) {
+                        numKnight++;
+                    }
+
+                    unitLocations[unitLocationCounter] = curUnit.location().mapLocation();
+                    unitLocationCounter++;
+                } catch (Exception e) {
+
                 }
-                if (type == UnitType.Factory) {
-                    numFactory++;
-                } else if (type == UnitType.Ranger) {
-                    numRanger++;
-                } else if (type == UnitType.Healer) {
-                    numHealer++;
-                } else if (type == UnitType.Worker) {
-                    workerIds.add(curUnit.id());
-                    numWorker++;
-                } else if (type == UnitType.Knight) {
-                    numKnight++;
-                }
-                
-                unitLocations[unitLocationCounter] = curUnit.location().mapLocation();
-                unitLocationCounter++;
             }
             
             for (int i = 0; i < myUnits.size(); i++) {
@@ -139,8 +143,8 @@ public class Player {
                     }
                     
                 } catch (Exception e) {
-                    System.out.println("unit died");
-                    e.printStackTrace();
+                    //System.out.println("unit died");
+                    //e.printStackTrace();
                 }
             }
             for (int i = 0; i < newUnits.size(); i++) {
@@ -171,8 +175,8 @@ public class Player {
                     }
                 
                 } catch (Exception e) {
-                    System.out.println("unit died");
-                    e.printStackTrace();
+                    //System.out.println("unit died");
+                    //e.printStackTrace();
                 }
             }
             if (!someoneTriedBuilding) {
@@ -180,7 +184,11 @@ public class Player {
             }
             prevBlocked = blockedCount;
             newUnits.clear();
-            chooseTarget();
+            try {
+                chooseTarget();
+            } catch (Exception e) {
+
+            }
 
             if (gc.round() % 10 == 0) {
                 System.gc();
@@ -550,6 +558,10 @@ public class Player {
 	                smallY = j;
                 }
             }
+        }
+        if (smallX == -1 && smallY == -1) {
+	        prevTargets.clear();
+	        return chooseFarthestPoint(parent);
         }
         MapLocation point = new MapLocation(gc.planet(), smallX, smallY);
 	    prevTargets.add(hash(point));
