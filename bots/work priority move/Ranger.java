@@ -191,6 +191,61 @@ public class Ranger {
         return curUnit.attackHeat() < 10;
     }
 
+    public static void attackHeuristicEnemies(int distance) {
+        VecUnit nearby = gc.senseNearbyUnitsByTeam(curUnit.location().mapLocation(), distance, Player.enemyTeam);
+        int best = -1;
+        float bestScore = 0;
+        for (int i = 0; i < nearby.size(); i++) {
+            Unit unit = nearby.get(i);
+            //if can attack this enemy unit
+            float score = 0;
+            if (gc.isAttackReady(curUnit.id()) && gc.canAttack(curUnit.id(), unit.id())) {
+                // NOTE HARDCODED RANGER DAMAGE VALUE
+                
+                // hp heuristic
+                if (unit.unitType == UnitType.Knight && unit.health <= 30 - unit.knightDefense()) {
+                    score += 100;
+                } else if (unit.health() <= 30) {
+                    score += 100;
+                }
+
+                score += ((float) unit.health()) / unit.maxHealth();
+
+                // type heuristic
+                if (unit.unitType() == UnitType.Mage) {
+                    score += 10;
+                } else if (unit.unitType == UnitType.Knight) {
+                    score += 5;
+                } else if (unit.unitType == UnitType.Healer) {
+                    score += 5;
+                } else if (unit.unitType == UnitType.Ranger) {
+                    score += 5;
+                } else if (unit.unitType == UnitType.Factory) {
+                    score += 5;
+                } else if (unit.unitType == UnitType.Rocket) {
+                    score += 5;
+                } else if (unit.unitType == UnitType.Worker) {
+                    score += 5;
+                }
+
+                if (distance(unit.location.mapLocation(), curLoc) <= 10) {
+                    score *= 0;
+                }
+
+                if (score > bestScore) {
+                    bestScore = score;
+                    best = unit.id();
+                }
+
+                
+            }
+        }
+        if (best != -1 && gc.isAttackReady(curUnit.id()) && gc.canAttack(curUnit.id(), best)) {
+            gc.attack(curUnit.id(), best);
+            return;
+        }
+    }
+
     public static void attackWeakEnemies(int distance) {
         VecUnit nearby = gc.senseNearbyUnitsByTeam(curUnit.location().mapLocation(), distance, Player.enemyTeam);
         int best = -1;
