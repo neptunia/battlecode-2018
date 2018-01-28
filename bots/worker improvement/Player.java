@@ -64,11 +64,13 @@ public class Player {
             } else {
                 if (gc.round() > 750) {
                     gc.nextTurn();
+                    continue;
                 }
             }
             if (gc.getTimeLeftMs() < 300) {
                 System.out.println("next turn time");
                 gc.nextTurn();
+                continue;
             }
 
             myUnits = gc.myUnits();
