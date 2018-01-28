@@ -55,7 +55,7 @@ public class Worker {
                 harvestAroundMe();
             }
             if ((gc.round() > 750 || Player.numWorker < 6) && curUnit.abilityHeat() < 10) {
-                System.out.println("wew replicate");
+                //System.out.println("wew replicate");
                 for (int i = 0; i < directions.length; i++) {
                     if (gc.canReplicate(curUnit.id(), directions[i])) {
                         gc.replicate(curUnit.id(), directions[i]);
@@ -500,7 +500,7 @@ public class Worker {
     }
 
     public static void marsMine() {
-        System.out.println("wew mars mine");
+        //System.out.println("wew mars mine");
         //TODO: mining karbonite on mars
         if (!target.containsKey(curUnit.id())) {
             MapLocation temp = findKarboniteSpot();
