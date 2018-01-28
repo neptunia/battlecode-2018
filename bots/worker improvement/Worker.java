@@ -53,7 +53,7 @@ public class Worker {
             } else {
                 move(Player.enemyLocation[myId]);
             }
-            if ((gc.round() > 750 || Player.numWorker < 6) && curUnit.abilityHeat() < 10) {
+            if ((gc.round() > 750 || Player.numWorker < 6 || gc.getTeamArray(Planet.Earth).get(0) == 69) && curUnit.abilityHeat() < 10) {
                 //System.out.println("wew replicate");
                 for (int i = 0; i < directions.length; i++) {
                     if (gc.canReplicate(curUnit.id(), directions[i])) {

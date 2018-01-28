@@ -492,7 +492,7 @@ public class Player {
             if (enemyLocation[i] != null) {
                 if (gc.senseNearbyUnitsByTeam(enemyLocation[i], 0, myTeam).size() > 0) {
                     timesReachedTarget++;
-                    if (!Player.enemySighting == null && Player.gotoable[i][Player.enemySighting.getX()][Player.enemySighting.getY()]) {
+                    if (!(Player.enemySighting == null) && Player.gotoable[i][Player.enemySighting.getX()][Player.enemySighting.getY()]) {
                         enemyLocation[i] = enemySighting;
                         bfs(enemySighting);
                     } else if (gridX == gridY && gc.planet() != Planet.Mars) {

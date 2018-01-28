@@ -72,6 +72,9 @@ public class Player {
             }
 
             myUnits = gc.myUnits();
+            if (myUnits.size() == 0 && gc.planet() == Planet.Earth) {
+                gc.writeTeamArray(0, 69);
+            }
 
             //count units
             numFactory = 0;
