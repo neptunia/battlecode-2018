@@ -171,13 +171,47 @@ public class Knight {
 	//attack nearest enemy found
 	public static void attackNearbyEnemies() {
 		VecUnit nearbyUnits = gc.senseNearbyUnits(curUnit.location().mapLocation(), (int) curUnit.attackRange());
+		int bestScore = 0;
+		int bestUnit = -1;
 		for (int i = 0; i < nearbyUnits.size(); i++) {
 			Unit unit = nearbyUnits.get(i);
 			//if can attack this enemy unit
-			if (unit.team() != gc.team() && gc.isAttackReady(curUnit.id()) && gc.canAttack(curUnit.id(), unit.id())) {
-				gc.attack(curUnit.id(), unit.id());
-				return;
+			int score = 0;
+			if (unit.team() != gc.team()) {
+				// allows for extensibility in scoring, take into account health and whatnot
+				if (unit.unitType() == UnitType.Mage) {
+					score += 100;
+				} else if (unit.unitType() == UnitType.Knight) {
+					score += 90;
+				} else if (unit.unitType() == UnitType.Healer) {
+					score += 80;
+				} else if (unit.unitType() == UnitType.Ranger) {
+					score += 70;
+				} else if (unit.unitType() == UnitType.Factory) {
+					score += 60;
+				} else if (unit.unitType() == UnitType.Rocket) {
+					score += 50;
+				} else if (unit.unitType() == UnitType.Worker) {
+					score += 40;
+				}
+
+				// prioritize killing blows slightly
+				if (unit.health() <= 80) {
+					//haha enemy knights will screw this up but who cares, its just picking lowest health
+					score += 1;
+				}
+
+				if (score > bestScore) {
+					bestScore = score;
+					bestUnit = unit.id();
+				}
+
 			}
+		}
+		if (bestUnit != -1 && gc.isAttackReady(curUnit.id()) && gc.canAttack(curUnit.id(), bestUnit)) {
+			gc.attack(curUnit.id(), bestUnit);
+			targets.put(curUnit.id(), bestUnit);
+			return;
 		}
 	}
 
