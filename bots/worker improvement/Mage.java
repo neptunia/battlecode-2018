@@ -275,7 +275,7 @@ public class Mage {
         MapLocation myLoc = curUnit.location().mapLocation();
         
         int dist = distance(myLoc, enemyLoc);
-        int closestdist = distance(myLoc, enemyLoc);
+        int closestdist = distance(myLoc, closestLoc);
 
         if (closestdist <= 30) {
             // too close!
