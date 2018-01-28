@@ -34,6 +34,10 @@ public class Worker {
             return;
         }
 
+        if (gc.planet() == Planet.Mars && !id.containsKey(curUnit.id())) {
+            id.put(curUnit.id(), 0);
+        }
+
         Worker.myId = id.get(curUnit.id());
 		curLoc = curUnit.location().mapLocation();
 
