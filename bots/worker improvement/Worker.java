@@ -275,7 +275,7 @@ public class Worker {
             }
             if (gc.hasUnitAtLocation(current)) {
                 Unit temp = gc.senseUnitAtLocation(current);
-                if (temp.unitType() == UnitType.Worker && !structures.containsKey(temp.id())) {
+                if (temp.unitType() == UnitType.Worker && !structures.containsKey(temp.id()) && !healFactory.containsKey(curUnit.id())) {
                     structures.put(temp.id(), theBlueprint);
                     workerCount++;
                 }
