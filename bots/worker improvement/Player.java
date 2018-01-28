@@ -360,8 +360,8 @@ public class Player {
 
         if (someSplit) {
             gc.queueResearch(UnitType.Healer);
-            gc.queueResearch(UnitType.Healer);
             gc.queueResearch(UnitType.Rocket);
+            gc.queueResearch(UnitType.Healer);
             gc.queueResearch(UnitType.Healer);
             gc.queueResearch(UnitType.Ranger);
             gc.queueResearch(UnitType.Ranger);
