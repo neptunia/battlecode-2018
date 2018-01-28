@@ -25,6 +25,7 @@ public class Player {
     static HashSet<Integer> workerIds = new HashSet<Integer>();
     static HashMap<Integer, MapLocation> priorityTarget = new HashMap<Integer, MapLocation>();
     static HashSet<Integer> prevTargets = new HashSet<Integer>();
+    static MapLocation enemySighting;
 
 
 	public static void main(String args[]) {
@@ -52,6 +53,7 @@ public class Player {
 
         initialize();
         while (true) {
+            enemySighting = null;
             someoneTriedBuilding = false;
 
             if (gc.planet() == Planet.Mars) {
@@ -490,7 +492,10 @@ public class Player {
             if (enemyLocation[i] != null) {
                 if (gc.senseNearbyUnitsByTeam(enemyLocation[i], 0, myTeam).size() > 0) {
                     timesReachedTarget++;
-                    if (gridX == gridY && gc.planet() != Planet.Mars) {
+                    if (!Player.enemySighting == null && Player.gotoable[i][Player.enemySighting.getX()][Player.enemySighting.getY()]) {
+                        enemyLocation[i] = enemySighting;
+                        bfs(enemySighting);
+                    } else if (gridX == gridY && gc.planet() != Planet.Mars) {
                         enemyLocation[i] = chooseNextTarget(i);
                     } else {
                         enemyLocation[i] = chooseFarthestPoint(i);

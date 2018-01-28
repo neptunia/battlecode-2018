@@ -275,7 +275,7 @@ public class Mage {
         MapLocation myLoc = curUnit.location().mapLocation();
         
         int dist = distance(myLoc, enemyLoc);
-        int closestdist = distance(myLoc, enemyLoc);
+        int closestdist = distance(myLoc, closestLoc);
 
         if (closestdist <= 30) {
             // too close!
@@ -300,6 +300,9 @@ public class Mage {
                 }
                 if (gc.isMoveReady(curUnit.id())) {
                     moveAway(closestLoc);
+                }
+                if (gc.isAttackReady(curUnit.id()) && gc.canAttack(curUnit.id(), closestenemy)) {
+                    gc.attack(curUnit.id(), closestenemy);
                 }
             }
 

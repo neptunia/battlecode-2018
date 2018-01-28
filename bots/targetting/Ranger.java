@@ -49,6 +49,9 @@ public class Ranger {
             return;
         }
         if (target.enemyClosest != -1) {
+            if (Player.enemySighting == null) {
+                Player.enemySighting = gc.unit(target.enemyClosest).location().mapLocation();
+            }
             Player.timesReachedTarget = 0;
             rangerMicro(target.enemyClosest);
         } else if (target.enemyClosest == -1) {
