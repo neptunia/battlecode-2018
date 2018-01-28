@@ -282,20 +282,24 @@ public class Mage {
             // only attack it if I can kill it. If not, it's a lost cause anyways.
             // TODO: if an enemy worker is next to me i don't really care
             if (isKillable(closestenemy)) {
-                if (gc.isMoveReady(curUnit.id())) {
-                    moveAway(enemyLoc);    
+                if (gc.isMoveReady(curUnit.id()) && closestdist <= 2) {
+                    moveAway(closestLoc);
                 }
                 // note: putting attack here means that the mage commits suicide if it was unable to move.
                 // however, it also kills the enemy. Maybe change later.
-                if (canAttack()) {
+                if (canAttack() && gc.canAttack(curUnit.id(), closestenemy)) {
                     gc.attack(curUnit.id(), closestenemy);
                 }
+
+                if (gc.isMoveReady(curUnit.id())) {
+                    moveAway(closestLoc);
+                }
             } else {
-                if (canAttack()) {
+                if (canAttack() && gc.canAttack(curUnit.id(), enemyid)) {
                     gc.attack(curUnit.id(), enemyid);
                 }
                 if (gc.isMoveReady(curUnit.id())) {
-                    moveAway(enemyLoc);
+                    moveAway(closestLoc);
                 }
             }
 

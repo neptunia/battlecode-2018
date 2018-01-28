@@ -223,8 +223,12 @@ public class Healer {
         }
         if (id != -1 && gc.canOvercharge(curUnit.id(), id)) {
             Ranger.run(gc.unit(id));
-            gc.overcharge(curUnit.id(), id);
-            Ranger.run(gc.unit(id));
+            if (gc.canOvercharge(curUnit.id(), id)) {
+                gc.overcharge(curUnit.id(), id);
+                Ranger.run(gc.unit(id));
+            } else {
+                findOverchargeTarget();
+            }
         }
     }
 
