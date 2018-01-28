@@ -301,6 +301,9 @@ public class Mage {
                 if (gc.isMoveReady(curUnit.id())) {
                     moveAway(closestLoc);
                 }
+                if (canAttack() && gc.canAttack(curUnit.id(), closestenemy)) {
+                    gc.attack(curUnit.id(), closestenemy);
+                }
             }
 
             return;
