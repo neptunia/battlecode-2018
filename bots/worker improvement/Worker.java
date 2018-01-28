@@ -42,16 +42,22 @@ public class Worker {
 		curLoc = curUnit.location().mapLocation();
 
         if (gc.planet() == Planet.Mars) {
-            marsMine();
-            if (gc.round() > 750 || Player.numWorker < 6) {
+            if (!noMoreKarbonite) {
+                marsMine();
+            } else {
+                move(Player.enemyLocation[myId]);
+                harvestAroundMe();
+            }
+            if ((gc.round() > 750 || Player.numWorker < 6) && curUnit.abilityHeat() < 10) {
+                System.out.println("wew replicate");
                 for (int i = 0; i < directions.length; i++) {
                     if (gc.canReplicate(curUnit.id(), directions[i])) {
                         gc.replicate(curUnit.id(), directions[i]);
                         Player.numWorker++;
-                        Unit newUnit = gc.senseUnitAtLocation(curLoc.add(directions[i]));
-                        id.put(newUnit.id(), myId);
-                        Player.newUnits.add(newUnit);
-                        break;
+                        //Unit newUnit = gc.senseUnitAtLocation(curLoc.add(directions[i]));
+                        //id.put(newUnit.id(), myId);
+                        //Player.newUnits.add(newUnit);
+                        return;
                     }
                 }
             }
@@ -59,7 +65,6 @@ public class Worker {
         }
 
         if (structures.containsKey(curUnit.id())) {
-            System.out.println("SOMEONE TREID BUILDING");
             Player.someoneTriedBuilding = true;
             buildStructure();
             return;
@@ -188,7 +193,7 @@ public class Worker {
                     }
                     //placedAlready.add(hash(toBuild.loc));
                 } else {
-                    System.out.println("Couldn't place down blueprint??");
+                    //System.out.println("Couldn't place down blueprint??");
                 }
                 
             } else if (distanceToBlueprint == 0) {
@@ -389,6 +394,9 @@ public class Worker {
     }
 
     public static void harvestAroundMe() {
+        if (curUnit.workerHasActed() != 0) {
+            return;
+        }
         long most = -1;
         Direction mostDir = null;
         for (int i = 0; i < directions.length; i++) {
@@ -408,6 +416,7 @@ public class Worker {
         }
         if (most == 0 && target.containsKey(curUnit.id()) && hash(target.get(curUnit.id())) == hash(curLoc)) {
             //no more karbonite at this spot
+            karbonitePatches[target.get(curUnit.id()).getX()][target.get(curUnit.id()).getY()] = false;
             target.remove(curUnit.id());
             //TODO: maybe another actions
         } else if (gc.canHarvest(curUnit.id(), mostDir)) {
@@ -485,8 +494,9 @@ public class Worker {
     }
 
     public static void marsMine() {
+        System.out.println("wew mars mine");
         //TODO: mining karbonite on mars
-        if (!target.containsKey(curUnit.id()) && !noMoreKarbonite) {
+        if (!target.containsKey(curUnit.id())) {
             MapLocation temp = findKarboniteSpot();
             if (temp != null) {
                 target.put(curUnit.id(), temp);
@@ -498,8 +508,6 @@ public class Worker {
 
         if (target.containsKey(curUnit.id())) {
             move(target.get(curUnit.id()));
-        } else {
-            move(Player.enemyLocation[myId]);
         }
         
         harvestAroundMe();

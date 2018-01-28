@@ -67,6 +67,7 @@ public class Player {
                 }
             }
             if (gc.getTimeLeftMs() < 300) {
+                System.out.println("next turn time");
                 gc.nextTurn();
             }
 
