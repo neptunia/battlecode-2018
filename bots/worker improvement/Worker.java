@@ -356,6 +356,7 @@ public class Worker {
         }
         if (bestd != null) {
             gc.moveRobot(curUnit.id(), bestd);
+            curLoc = curLoc.add(bestd);
             return true;
         }
         return false;
