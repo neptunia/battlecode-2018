@@ -204,7 +204,7 @@ public class Ranger {
                 // NOTE HARDCODED RANGER DAMAGE VALUE
                 if (unit.health() <= 30) {
                     gc.attack(curUnit.id(), unit.id());
-                    inCombat.put(curUnit.id, true);
+                    inCombat.put(curUnit.id(), true);
                     return;
                 }
                 if (unit.health() < weakest) {
@@ -216,7 +216,7 @@ public class Ranger {
         }
         if (best != -1 && gc.isAttackReady(curUnit.id()) && gc.canAttack(curUnit.id(), best)) {
             gc.attack(curUnit.id(), best);
-            inCombat.put(curUnit.id, true);
+            inCombat.put(curUnit.id(), true);
             return;
         }
 
@@ -229,7 +229,7 @@ public class Ranger {
             //if can attack this enemy unit
             if (unit.team() != gc.team() && gc.isAttackReady(curUnit.id()) && gc.canAttack(curUnit.id(), unit.id())) {
                 gc.attack(curUnit.id(), unit.id());
-                inCombat.put(curUnit.id, true);
+                inCombat.put(curUnit.id(), true);
                 return;
             }
         }
