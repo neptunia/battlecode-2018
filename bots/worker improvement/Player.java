@@ -139,6 +139,9 @@ public class Player {
                         case Knight:
                             Knight.run(curUnit);
                             break;
+                        case Rocket:
+                            Rocket.run(curUnit);
+                            break;
                         case Healer:
                             Healer.run(curUnit);
                             break;

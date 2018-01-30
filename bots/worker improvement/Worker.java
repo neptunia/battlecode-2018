@@ -324,7 +324,7 @@ public class Worker {
 		    if (gc.isMoveReady(curUnit.id())) {
                 int closestEnemy = enemyTooClose();
                 if (closestEnemy == -1) {
-                    move(Player.initialWorkerStartingLocation.get(myId));
+                    move2(Player.initialWorkerStartingLocation.get(myId));
                 } else {
                     moveAway(gc.unit(closestEnemy).location().mapLocation());
                 }
@@ -736,8 +736,100 @@ public class Worker {
         }
     }
 
+    public static void move2(MapLocation target) {
+        int targetHash = hash(target);
+        if (hash(curLoc) == targetHash || !gc.isMoveReady(curUnit.id())) {
+            return;
+        }
+        int x = curLoc.getX();
+        int y = curLoc.getY();
+        int currentDist = Player.pathDistances[targetHash][x][y];
+        Direction best = null;
+        if (currentDist != 696969) {
+            if (x < Player.gridX - 1 && Player.pathDistances[targetHash][x + 1][y] - currentDist < 0) {
+                if (gc.canMove(curUnit.id(), Direction.East)) {
+                    gc.moveRobot(curUnit.id(), Direction.East);
+                    curLoc = curLoc.add(Direction.East);
+                }
+                best = Direction.East;
+            } else if (x > 0 && Player.pathDistances[targetHash][x - 1][y] - currentDist < 0) {
+                if (gc.canMove(curUnit.id(), Direction.West)) {
+                    gc.moveRobot(curUnit.id(), Direction.West);
+                    curLoc = curLoc.add(Direction.West);
+                }
+                best = Direction.West;
+            } else if (y < Player.gridY - 1 && Player.pathDistances[targetHash][x][y + 1] - currentDist < 0) {
+                if (gc.canMove(curUnit.id(), Direction.North)) {
+                    gc.moveRobot(curUnit.id(), Direction.North);
+                    curLoc = curLoc.add(Direction.North);
+                }
+                best = Direction.North;
+            } else if (y > 0 && Player.pathDistances[targetHash][x][y - 1] - currentDist < 0) {
+                if (gc.canMove(curUnit.id(), Direction.South)) {
+                    gc.moveRobot(curUnit.id(), Direction.South);
+                    curLoc = curLoc.add(Direction.South);
+                }
+                best = Direction.South;
+            } else if (y < Player.gridY - 1 && x < Player.gridX - 1 && Player.pathDistances[targetHash][x + 1][y + 1] - currentDist < 0) {
+                if (gc.canMove(curUnit.id(), Direction.Northeast)) {
+                    gc.moveRobot(curUnit.id(), Direction.Northeast);
+                    curLoc = curLoc.add(Direction.Northeast);
+                }
+                best = Direction.Northeast;
+            } else if (y > 0 && x < Player.gridX - 1 && Player.pathDistances[targetHash][x + 1][y - 1] - currentDist < 0) {
+                if (gc.canMove(curUnit.id(), Direction.Southeast)) {
+                    gc.moveRobot(curUnit.id(), Direction.Southeast);
+                    curLoc = curLoc.add(Direction.Southeast);
+
+                }
+                best = Direction.Southeast;
+            } else if (x > 0 && y < Player.gridY - 1 && Player.pathDistances[targetHash][x - 1][y + 1] - currentDist < 0) {
+                if (gc.canMove(curUnit.id(), Direction.Northwest)) {
+                    gc.moveRobot(curUnit.id(), Direction.Northwest);
+                    curLoc = curLoc.add(Direction.Northwest);
+                }
+                best = Direction.Northwest;
+            } else if (x > 0 && y > 0 && Player.pathDistances[targetHash][x - 1][y - 1] - currentDist < 0) {
+                if (gc.canMove(curUnit.id(), Direction.Southwest)) {
+                    gc.moveRobot(curUnit.id(), Direction.Southwest);
+                    curLoc = curLoc.add(Direction.Southwest);
+                }
+                best = Direction.Southwest;
+            }
+        } else {
+            //bfs hasnt been run yet
+            //Player.bfsMin(target, curLoc);
+            if (Player.bfsMin(target, curLoc)) {
+                move(target);
+                return;
+            } else {
+                //System.out.println("cant get there worker");
+            }
+        }
+        if (gc.isMoveReady(curUnit.id())) {
+            moveCloser2(target);
+        }
+    }
+
     public static int hash(MapLocation loc) {
         return 69 * loc.getX() + loc.getY();
+    }
+
+    public static boolean moveCloser2(MapLocation enemy) {
+        int best = distance(curUnit.location().mapLocation(), enemy);
+        Direction bestd = null;
+        for (int i = 0; i < directions.length; i++) {
+            MapLocation temp = curUnit.location().mapLocation().add(directions[i]);
+            if (gc.canMove(curUnit.id(), directions[i]) && distance(temp, enemy) < best) {
+                best = distance(temp, enemy);
+                bestd = directions[i];
+            }
+        }
+        if (bestd != null) {
+            gc.moveRobot(curUnit.id(), bestd);
+            return true;
+        }
+        return false;
     }
 
     public static boolean moveCloser(MapLocation enemy) {
