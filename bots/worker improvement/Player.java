@@ -44,7 +44,7 @@ public class Player {
 
         VecUnit myUnits = gc.myUnits();
 
-        numUnits = new int[(int) myUnits.size()][2]; //0 ranger, 1 healer
+        numUnits = new int[3][2]; //0 ranger, 1 healer
 
         for (int i = 0; i < myUnits.size(); i++) {
             Unit curUnit = myUnits.get(i);
@@ -120,7 +120,7 @@ public class Player {
                     unitLocations[unitLocationCounter] = curUnit.location().mapLocation();
                     unitLocationCounter++;
                 } catch (Exception e) {
-
+                    e.printStackTrace();
                 }
             }
             
@@ -155,7 +155,7 @@ public class Player {
                     
                 } catch (Exception e) {
                     //System.out.println("unit died");
-                    //e.printStackTrace();
+                    e.printStackTrace();
                 }
             }
             for (int i = 0; i < newUnits.size(); i++) {

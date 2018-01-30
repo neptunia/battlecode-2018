@@ -605,7 +605,7 @@ public class Worker {
             }
             for (int i = 0; i < directions.length; i++) {
                 MapLocation temp = toGo.add(directions[i]);
-                if (!cantGo.contains(hash(toGo)) && checkPassable(temp) && manDistance(temp, blueprintLoc) <= 1 && unit.unitType() != UnitType.Factory && unit.unitType() != UnitType.Rocket) {
+                if (!cantGo.contains(hash(temp)) && checkPassable(temp) && manDistance(temp, blueprintLoc) <= 1 && unit.unitType() != UnitType.Factory && unit.unitType() != UnitType.Rocket) {
                     HashSet<Integer> tempCantGo = new HashSet<Integer>();
                     tempCantGo.addAll(cantGo);
                     tempCantGo.add(hash(toGo));
@@ -630,7 +630,7 @@ public class Worker {
             }
             for (int i = 0; i < directions.length; i++) {
                 MapLocation temp = toGo.add(directions[i]);
-                if (!cantGo.contains(hash(toGo)) && onMap(temp) && Player.gotoable[myId][temp.getX()][temp.getY()]) {
+                if (!cantGo.contains(hash(temp)) && onMap(temp) && Player.gotoable[myId][temp.getX()][temp.getY()]) {
                     HashSet<Integer> tempCantGo = new HashSet<Integer>();
                     tempCantGo.addAll(cantGo);
                     tempCantGo.add(hash(toGo));

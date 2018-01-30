@@ -108,10 +108,52 @@ public class Rocket {
         //launch
         MapLocation marsStart = new MapLocation(Planet.Mars, x, y);
         if (gc.canLaunchRocket(curUnit.id(), marsStart)) {
+            HashSet<Integer> cantGo = new HashSet<Integer>();
+            MapLocation current = curUnit.location().mapLocation();
+            for (int i = 0; i < directions.length; i++) {
+                cantGo.add(hash(current.add(directions[i])));
+            }
+            for (int i = 0; i < directions.length && directions[i] != Direction.Center; i++) {
+                if (gc.hasUnitAtLocation(current.add(directions[i]))) {
+                    rocketMoveAway(current.add(directions[i]), cantGo);
+                }
+            }
             gc.launchRocket(curUnit.id(), marsStart);
             landSpotNumber++;
         } else {
             //System.out.println("Rocket precomputation borked");
         }
+    }
+
+    public static boolean rocketMoveAway(MapLocation toGo, HashSet<Integer> cantGo) {
+        if (gc.hasUnitAtLocation(toGo)) {
+            Unit unit = gc.senseUnitAtLocation(toGo);
+            if (!gc.isMoveReady(unit.id()) || unit.unitType() == UnitType.Factory || unit.unitType() == UnitType.Rocket) {
+                return false;
+            }
+            for (int i = 0; i < directions.length; i++) {
+                MapLocation temp = toGo.add(directions[i]);
+                if (!cantGo.contains(hash(temp)) && onMap(temp) && Player.gotoable[myId][temp.getX()][temp.getY()]) {
+                    HashSet<Integer> tempCantGo = new HashSet<Integer>();
+                    tempCantGo.addAll(cantGo);
+                    tempCantGo.add(hash(temp));
+                    if (rocketMoveAway(temp, tempCantGo)) {
+                        gc.moveRobot(unit.id(), directions[i]);
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+            }
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    public static boolean onMap(MapLocation loc) {
+        int x = loc.getX();
+        int y = loc.getY();
+        return x >= 0 && y >= 0 && x < Player.gridX && y < Player.gridY;
     }
 }
