@@ -25,6 +25,7 @@ public class Player {
     static HashSet<Integer> workerIds = new HashSet<Integer>();
     static HashMap<Integer, MapLocation> priorityTarget = new HashMap<Integer, MapLocation>();
     static HashSet<Integer> prevTargets = new HashSet<Integer>();
+    static int[][] numUnits;
 
 
 	public static void main(String args[]) {
@@ -42,6 +43,8 @@ public class Player {
         enemyTeam = (myTeam == Team.Red ? Team.Blue : Team.Red);
 
         VecUnit myUnits = gc.myUnits();
+
+        numUnits = new int[3][2]; //0 ranger, 1 healer
 
         for (int i = 0; i < myUnits.size(); i++) {
             Unit curUnit = myUnits.get(i);
@@ -86,6 +89,12 @@ public class Player {
             numKnight = 0;
             blockedCount = 0;
             unitLocationCounter = 0;
+            for (int i = 0; i < numUnits.length; i++) {
+                for (int a = 0 ; a < numUnits[i].length; a++) {
+                    numUnits[i][a] = 0;
+                }
+            }
+
             for (int i = 0; i < myUnits.size(); i++) {
                 try {
                     Unit curUnit = myUnits.get(i);
@@ -97,8 +106,10 @@ public class Player {
                         numFactory++;
                     } else if (type == UnitType.Ranger) {
                         numRanger++;
+                        numUnits[Worker.id.get(curUnit.id())][0]++;
                     } else if (type == UnitType.Healer) {
                         numHealer++;
+                        numUnits[Worker.id.get(curUnit.id())][1]++;
                     } else if (type == UnitType.Worker) {
                         workerIds.add(curUnit.id());
                         numWorker++;
@@ -109,7 +120,7 @@ public class Player {
                     unitLocations[unitLocationCounter] = curUnit.location().mapLocation();
                     unitLocationCounter++;
                 } catch (Exception e) {
-
+                    e.printStackTrace();
                 }
             }
             
@@ -144,7 +155,7 @@ public class Player {
                     
                 } catch (Exception e) {
                     //System.out.println("unit died");
-                    //e.printStackTrace();
+                    e.printStackTrace();
                 }
             }
             for (int i = 0; i < newUnits.size(); i++) {
