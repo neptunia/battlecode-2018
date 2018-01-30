@@ -140,8 +140,6 @@ public class Rocket {
                     if (rocketMoveAway(temp, tempCantGo)) {
                         gc.moveRobot(unit.id(), directions[i]);
                         return true;
-                    } else {
-                        return false;
                     }
                 }
             }
