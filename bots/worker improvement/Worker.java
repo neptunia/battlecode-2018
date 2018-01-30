@@ -750,7 +750,7 @@ public class Worker {
                 bestd = directions[i];
             }
         }
-        if (bestd != null) {
+        if (bestd != null && bestd != Direction.Center) {
             gc.moveRobot(curUnit.id(), bestd);
             curLoc = curLoc.add(bestd);
             return true;
