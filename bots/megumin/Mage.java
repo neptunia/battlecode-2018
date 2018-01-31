@@ -210,7 +210,38 @@ public class Mage {
                         }
                         System.out.println(countOvercharges(current, actualOverchargeUsed));
                         //now kill the enemy
-                        geyMage();
+                        VecUnit nearby = gc.senseNearbyUnits(curLoc, 30);
+                        ArrayList<Integer> nearbyHealers = new ArrayList<Integer> ();
+
+                        int overchargesAvailable = 0;
+                        for (int i = 0; i < nearby.size(); i++) {
+                            Unit temp = nearby.get(i);
+                            if (temp.team() == gc.team() && temp.unitType() == UnitType.Healer && temp.abilityHeat() < 10) {
+                                overchargesAvailable++;
+                                nearbyHealers.add(temp.id());
+                            }
+                        }
+
+                        int target = bestAttack(overchargesAvailable);
+
+                        if (target != -1) {
+                            // just stand there and attack
+                            while (overchargesAvailable >= 0) {
+                                if (canAttack() && gc.canAttack(curUnit.id(), target)) {
+                                    gc.attack(curUnit.id(), target);
+                                }
+                                
+                                target = bestAttack(overchargesAvailable);
+                                if (target == -1) {
+                                    break;
+                                }
+                                siceHealer = getOvercharges(current, enemy.location().mapLocation(), actualOverchargeUsed);
+                                actualOverchargeUsed.add(hash(siceHealer));
+                                gc.overcharge(gc.senseUnitAtLocation(siceHealer).id(), curUnit.id());
+                                overchargesAvailable--;
+
+                            }
+                        }
                         return true;
                     } else {
                         return false;
