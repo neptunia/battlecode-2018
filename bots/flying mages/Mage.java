@@ -26,7 +26,7 @@ public class Mage {
         curLoc = curUnit.location().mapLocation();
 
         if (gc.researchInfo().getLevel(UnitType.Healer) == 3) {
-            if (gc.isMoveReady(curUnit.id()) && canAttack() && canGetLethal()) {
+            if (gc.round() % 10 == 0 && gc.isMoveReady(curUnit.id()) && canAttack() && canGetLethal()) {
                 //i nuked someone
                 System.out.println("nuked someone " + Long.toString(gc.round()));
                 return;
