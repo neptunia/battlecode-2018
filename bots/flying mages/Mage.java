@@ -231,6 +231,9 @@ public class Mage {
                                     return false;
                                 }
                             }
+                        }
+                        for (int j = 0; j < pathToEnemy.size(); j++) {
+                            MapLocation temp = pathToEnemy.get(j);
                             gc.moveRobot(curUnit.id(), current.directionTo(temp));
                             current = temp;
                             siceHealer = getOvercharges(current, enemy.location().mapLocation(), actualOverchargeUsed);
