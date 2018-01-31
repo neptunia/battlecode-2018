@@ -70,7 +70,7 @@ public class Mage {
         int net = 0;
         int total = 0;
 
-        VecUnit nearby = gc.senseNearbyUnitsByTeam(curLoc, 30, Player.enemyTeam);
+        VecUnit nearby = gc.senseNearbyUnitsByTeam(curUnit.location().mapLocation(), 30, Player.enemyTeam);
         if (nearby.size() == 0) {
             return ret;
         }
