@@ -258,6 +258,11 @@ public class Worker {
         } else {
             Player.karboniteGonnaUse -= 150;
         }
+        int minimumWorkers = 3;
+        if (gc.senseNearbyUnitsByTeam(blueprintLocation, 30, Player.enemyTeam).size() >= 1) {
+            minimumWorkers = 6;
+        }
+        
         
         structuresToBuild.add(hash(blueprintLocation));
         Blueprint theBlueprint = new Blueprint(blueprintLocation, type);
@@ -269,7 +274,7 @@ public class Worker {
         int workerCount = 0;
         while (!queue.isEmpty()) {
             MapLocation current = queue.poll();
-            if ((manDistance(blueprintLocation, current) > 6 || workerCount == 8) && workerCount > 2) {
+            if ((manDistance(blueprintLocation, current) > 6 || workerCount == 8) && workerCount > minimumWorkers - 1) {
                 numberWorkersAssigned.put(hash(blueprintLocation), workerCount);
                 return;
             }
@@ -406,7 +411,7 @@ public class Worker {
                 continue;
             }
             long amnt = gc.karboniteAt(temp);
-            if (onMap(temp) && amnt > 2 && gc.canHarvest(curUnit.id(), directions[i])) {
+            if (onMap(temp) && amnt >= curUnit.workerHarvestAmount() && gc.canHarvest(curUnit.id(), directions[i])) {
                 gc.harvest(curUnit.id(), directions[i]);
                 return;
             }
@@ -415,7 +420,7 @@ public class Worker {
                 mostDir = directions[i];
             }
         }
-        if (most == 0 && target.containsKey(curUnit.id()) && hash(target.get(curUnit.id())) == hash(curLoc)) {
+        if (most < curUnit.workerHarvestAmount() && target.containsKey(curUnit.id()) && hash(target.get(curUnit.id())) == hash(curLoc)) {
             //no more karbonite at this spot
             karbonitePatches[target.get(curUnit.id()).getX()][target.get(curUnit.id()).getY()] = false;
             target.remove(curUnit.id());
