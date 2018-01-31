@@ -26,11 +26,16 @@ public class Mage {
         curLoc = curUnit.location().mapLocation();
 
         if (gc.researchInfo().getLevel(UnitType.Healer) == 3) {
-            if (gc.round() % 10 == 0 && gc.isMoveReady(curUnit.id()) && canAttack() && canGetLethal()) {
-                //i nuked someone
-                System.out.println("nuked someone " + Long.toString(gc.round()));
-                return;
+            try {
+                if (gc.round() % 10 == 0 && gc.isMoveReady(curUnit.id()) && canAttack() && canGetLethal()) {
+                    //i nuked someone
+                    System.out.println("nuked someone " + Long.toString(gc.round()));
+                    return;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+            
         }
 
         Pair bestunit = findBestUnit();
@@ -90,8 +95,8 @@ public class Mage {
                 temptotal += curUnit.damage();
                 // weight kills more i guess
                 if (isKillable(nearby.get(i).id(),numOvercharges)) {
-                    tempnet += 100;
-                    temptotal += 100;
+                    tempnet += 200;
+                    temptotal += 200;
                 }
             }
             for (int j = 0; j < directions.length; j++) {
@@ -104,8 +109,8 @@ public class Mage {
                         temptotal += curUnit.damage();
                         // weight kills more i guess
                         if (isKillable(temp.id(),numOvercharges)) {
-                            tempnet += 100;
-                            temptotal += 100;
+                            tempnet += 200;
+                            temptotal += 200;
                         }
                     }
                 }
@@ -140,8 +145,8 @@ public class Mage {
                 tempnet += curUnit.damage();
                 temptotal += curUnit.damage();
                 if (isKillable(nearby.get(i).id(),0)) {
-                    tempnet += 100;
-                    temptotal += 100;
+                    tempnet += 200;
+                    temptotal += 200;
                 }
             }
             for (int j = 0; j < directions.length; j++) {
@@ -153,15 +158,18 @@ public class Mage {
                         tempnet += curUnit.damage();
                         temptotal += curUnit.damage();
                         if (isKillable(nearby.get(i).id(),0)) {
-                            tempnet += 100;
-                            temptotal += 100;
+                            tempnet += 200;
+                            temptotal += 200;
                         }
                     }
                 } catch (Exception e) {
                     continue;
                 }
             }
-            retval.put(tempnet, nearby.get(i));
+            if (tempnet > 300) {
+                retval.put(tempnet, nearby.get(i));
+            }
+            
         }
         return retval;
     }
@@ -223,12 +231,13 @@ public class Mage {
                         //System.out.println(countOvercharges(current, actualOverchargeUsed));
                         int overchargesLeft = countOvercharges(current, actualOverchargeUsed);
                         //now kill the enemy
+                        /*
                         for (int j = 0; j < numberOfShots; j++) {
                             gc.attack(curUnit.id(), enemy.id());
                             siceHealer = getOvercharges(current, enemy.location().mapLocation(), actualOverchargeUsed);
                             actualOverchargeUsed.add(hash(siceHealer));
                             gc.overcharge(gc.senseUnitAtLocation(siceHealer).id(), curUnit.id());
-                        }
+                        }*/
 
                         System.out.println("Overcharges left: " + Integer.toString(overchargesLeft - numberOfShots));
 
@@ -241,7 +250,6 @@ public class Mage {
                         if (canAttack() && gc.canAttack(curUnit.id(), target)) {
                             gc.attack(curUnit.id(), target);
                         }
-                        System.out.println(target);
                         if (target != -1) {
                             // just stand there and attack
                             while (overchargesAvailable > 0) {
