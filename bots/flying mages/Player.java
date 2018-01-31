@@ -126,6 +126,13 @@ public class Player {
                     e.printStackTrace();
                 }
             }
+
+            for (int i = 0; i < myUnits.size(); i++) {
+                Unit curUnit = myUnits.get(i);
+                if (curUnit.unitType() == UnitType.Mage) {
+                    Mage.run(gc, curUnit);
+                }
+            }
             
             for (int i = 0; i < myUnits.size(); i++) {
                 Unit curUnit = myUnits.get(i);
@@ -136,9 +143,10 @@ public class Player {
                         case Factory:
                             Factory.run(curUnit);
                             break;
+                            /*
                         case Mage:
                             Mage.run(gc, curUnit);
-                            break;
+                            break;*/
                         case Knight:
                             Knight.run(curUnit);
                             break;

@@ -253,7 +253,7 @@ public class Mage {
             } else {
                 return null;
             }
-            if (hash(current) == hash(loc)) {
+            if (distance(current, loc) <= 30) {
                 return path;
             }
         }
