@@ -173,7 +173,7 @@ public class Worker {
                 //oh no, it got killed
                 structures.remove(curUnit.id());
                 Player.newUnits.add(curUnit);
-
+                placedAlready.remove(hash(toBuild.loc));
             }
             int distanceToBlueprint = manDistance(curLoc, toBuild.loc);
             if (distanceToBlueprint == 1) {
