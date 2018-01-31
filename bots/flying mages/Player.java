@@ -396,7 +396,6 @@ public class Player {
             gc.queueResearch(UnitType.Mage);
             gc.queueResearch(UnitType.Mage);
             gc.queueResearch(UnitType.Mage);
-            gc.queueResearch(UnitType.Mage);
             gc.queueResearch(UnitType.Rocket);
             gc.queueResearch(UnitType.Ranger);
             gc.queueResearch(UnitType.Ranger);

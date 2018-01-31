@@ -64,7 +64,7 @@ public class Factory {
 					gc.produceRobot(curUnit.id(), UnitType.Mage);
 				}
 				thingsProduced.put(curUnit.id(), thingsProduced.get(curUnit.id())+1);
-			} else if ((Player.numRanger + Player.numHealer) > 10 * Player.numMage && gc.canProduceRobot(curUnit.id(), UnitType.Mage)) {
+			} else if ((Player.numRanger + Player.numHealer) > 10 * Player.numMage && gc.canProduceRobot(curUnit.id(), UnitType.Mage) && gc.researchInfo().getLevel(UnitType.Healer) >= 3) {
 				gc.produceRobot(curUnit.id(), UnitType.Mage);
 				Player.numMage++;
 			} else if (gc.canProduceRobot(curUnit.id(), UnitType.Ranger)) {
