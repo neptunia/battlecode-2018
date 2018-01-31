@@ -407,6 +407,7 @@ public class Player {
                 }
                 System.out.println("Min distance:" + Integer.toString(minDistance));
                 if (minDistance < 20) {
+                    gc.queueResearch(UnitType.Worker);
                     gc.queueResearch(UnitType.Knight);
                 }
                 gc.queueResearch(UnitType.Healer);
