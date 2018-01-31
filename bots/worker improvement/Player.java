@@ -532,11 +532,7 @@ public class Player {
             if (enemyLocation[i] != null) {
                 if (gc.senseNearbyUnitsByTeam(enemyLocation[i], 0, myTeam).size() > 0) {
                     timesReachedTarget++;
-                    if (gridX == gridY && gc.planet() != Planet.Mars) {
-                        enemyLocation[i] = chooseNextTarget(i);
-                    } else {
-                        enemyLocation[i] = chooseFarthestPoint(i);
-                    }
+                    enemyLocation[i] = chooseFarthestPoint(i);
                 }
             }
             
@@ -579,7 +575,7 @@ public class Player {
 	    bfs(point);
 	    return point;
     }
-
+    /*
     public static MapLocation chooseFarthestPoint(int parent) {
         double greatest = -1;
         int smallX = -1;
@@ -592,6 +588,33 @@ public class Player {
                 double tempDist = 0;
                 for (int j = 0; j < unitLocationCounter; j++) {
                     tempDist += distanceSq(i, a, unitLocations[j].getX(), unitLocations[j].getY());
+                }
+                if (tempDist > greatest) {
+                    greatest = tempDist;
+                    smallX = i;
+                    smallY = a;
+                }
+            }
+        }
+        MapLocation point = new MapLocation(gc.planet(), smallX, smallY);
+        prevTargets.add(hash(point));
+        //BFS the whole map
+        bfs(point);
+        return point;
+    }*/
+
+    public static MapLocation chooseFarthestPoint(int parent) {
+        double greatest = -1;
+        int smallX = -1;
+        int smallY = -1;
+        for (int i = 0; i < gridX; i++) {
+            for (int a = 0; a < gridY; a++) {
+                if (!gotoable[parent][i][a]) {
+                    continue;
+                }
+                double tempDist = 0;
+                for (int j = 0; j < unitLocationCounter; j++) {
+                    tempDist = Math.min(tempDist, distanceSq(i, a, unitLocations[j].getX(), unitLocations[j].getY()));
                 }
                 if (tempDist > greatest) {
                     greatest = tempDist;
