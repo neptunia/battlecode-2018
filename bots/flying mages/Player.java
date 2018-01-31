@@ -406,8 +406,15 @@ public class Player {
                     }
                 }
                 System.out.println("Min distance:" + Integer.toString(minDistance));
-                if (minDistance < 20) {
+                int maxReplicationLimit = -1;
+                for (int i = 0; i < Worker.replicationLimit.length; i++) {
+                    maxReplicationLimit = Math.max(maxReplicationLimit, Worker.replicationLimit[i]);
+                }
+                System.out.println("Replication limit: " + Integer.toString(maxReplicationLimit));
+                if (maxReplicationLimit >= 15) {
                     gc.queueResearch(UnitType.Worker);
+                }
+                if (minDistance < 20) {
                     gc.queueResearch(UnitType.Knight);
                 }
                 gc.queueResearch(UnitType.Healer);
