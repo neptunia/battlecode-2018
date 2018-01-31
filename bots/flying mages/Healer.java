@@ -221,6 +221,7 @@ public class Healer {
                 break;
             }
         }
+        /*
         if (id != -1 && gc.canOvercharge(curUnit.id(), id)) {
             Ranger.run(gc.unit(id));
             if (gc.canOvercharge(curUnit.id(), id)) {
@@ -229,7 +230,7 @@ public class Healer {
             } else {
                 findOverchargeTarget();
             }
-        }
+        }*/
     }
 
     public static void healNearbyAllies() {
