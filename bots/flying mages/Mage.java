@@ -48,8 +48,12 @@ public class Mage {
         } else {
             //good attack opportunity
             //moves away if there is an adjacent unit, else do nothing
-            mageMicro(bestunit.unit1, bestunit.unit2);
-
+            if (distance(curLoc, gc.unit(bestunit.unit2).location().mapLocation()) <= 48 && gc.round() < 200) {
+                mageMicro(bestunit.unit1, bestunit.unit2);
+            } else {
+                passiveMageMicro(bestunit.unit1, bestunit.unit2);
+            }
+            
             /*
             if (canAttack() && gc.canAttack(curUnit.id(), bestunit.unit1)) {
                 gc.attack(curUnit.id(), bestunit.unit1);
@@ -63,6 +67,57 @@ public class Mage {
             }
             */
         }
+    }
+
+    public static int bestAttack(int numOvercharges, MapLocation currentLocation) {
+        int ret = -1;
+        int net = 0;
+        int total = 0;
+
+        VecUnit nearby = gc.senseNearbyUnitsByTeam(currentLocation, 30, Player.enemyTeam);
+        if (nearby.size() == 0) {
+            System.out.println("wow nothing is alive in range im op");
+            return ret;
+        }
+        for (int i = 0; i < nearby.size(); i++) {
+            int tempnet = 0;
+            int temptotal = 0;
+            MapLocation point = nearby.get(i).location().mapLocation();
+            if (nearby.get(i).team() == gc.team()) {
+                tempnet -= curUnit.damage();
+            } else {
+                tempnet += curUnit.damage();
+                temptotal += curUnit.damage();
+                // weight kills more i guess
+                if (isKillable(nearby.get(i).id(),numOvercharges)) {
+                    tempnet += 100;
+                    temptotal += 100;
+                }
+            }
+            for (int j = 0; j < directions.length; j++) {
+                if (gc.hasUnitAtLocation(point.add(directions[j]))) {
+                    Unit temp = gc.senseUnitAtLocation(point.add(directions[j]));
+                    if (temp.team() == gc.team()) {
+                        tempnet -= curUnit.damage();
+                    } else {
+                        tempnet += curUnit.damage();
+                        temptotal += curUnit.damage();
+                        // weight kills more i guess
+                        if (isKillable(temp.id(),numOvercharges)) {
+                            tempnet += 100;
+                            temptotal += 100;
+                        }
+                    }
+                }
+            }
+            if (tempnet > net || (tempnet == net && temptotal > total)) {
+                net = tempnet;
+                total = temptotal;
+                ret = nearby.get(i).id();
+            }
+        }
+        return ret;
+
     }
 
     public static TreeMap<Integer, Unit> bestAttack() {
@@ -179,6 +234,34 @@ public class Mage {
 
                         //insert kevin's geydog mage code
 
+                        int overchargesAvailable = overchargesLeft - numberOfShots;
+
+                        int target = bestAttack(overchargesAvailable, current);
+
+                        if (canAttack() && gc.canAttack(curUnit.id(), target)) {
+                            gc.attack(curUnit.id(), target);
+                        }
+                        System.out.println(target);
+                        if (target != -1) {
+                            // just stand there and attack
+                            while (overchargesAvailable > 0) {
+                                
+                                
+                                target = bestAttack(overchargesAvailable, current);
+                                if (target == -1) {
+                                    break;
+                                }
+                                siceHealer = getOvercharges(current, enemy.location().mapLocation(), actualOverchargeUsed);
+                                actualOverchargeUsed.add(hash(siceHealer));
+                                gc.overcharge(gc.senseUnitAtLocation(siceHealer).id(), curUnit.id());
+                                overchargesAvailable--;
+
+                                if (canAttack() && gc.canAttack(curUnit.id(), target)) {
+                                    gc.attack(curUnit.id(), target);
+                                }
+
+                            }
+                        }
 
                         return true;
                     } else {
@@ -550,6 +633,63 @@ public class Mage {
         }
     }
 
+    public static void passiveMageMicro(int enemyid, int closestenemy) {
+
+        MapLocation enemyLoc = gc.unit(enemyid).location().mapLocation();
+        MapLocation closestLoc = gc.unit(closestenemy).location().mapLocation();
+        MapLocation myLoc = curUnit.location().mapLocation();
+        
+        int dist = distance(myLoc, enemyLoc);
+        int closestdist = distance(myLoc, closestLoc);
+
+        if (closestdist <= 30) {
+            // too close!
+            // only attack it if I can kill it. If not, it's a lost cause anyways.
+            // TODO: if an enemy worker is next to me i don't really care
+            if (isKillable(closestenemy)) {
+                if (gc.isMoveReady(curUnit.id()) && closestdist <= 2) {
+                    moveAway(closestLoc);
+                }
+                // note: putting attack here means that the mage commits suicide if it was unable to move.
+                // however, it also kills the enemy. Maybe change later.
+                if (canAttack() && gc.canAttack(curUnit.id(), closestenemy)) {
+                    gc.attack(curUnit.id(), closestenemy);
+                }
+
+                if (gc.isMoveReady(curUnit.id())) {
+                    moveAway(closestLoc);
+                }
+            } else {
+                if (canAttack() && gc.canAttack(curUnit.id(), enemyid)) {
+                    gc.attack(curUnit.id(), enemyid);
+                }
+                if (gc.isMoveReady(curUnit.id())) {
+                    moveAway(closestLoc);
+                }
+                if (gc.isAttackReady(curUnit.id()) && gc.canAttack(curUnit.id(), closestenemy)) {
+                    gc.attack(curUnit.id(), closestenemy);
+                }
+            }
+
+            return;
+        }
+        // if they're in attack range, attack them and run
+        if (dist <= 30) {
+            if (canAttack()) {
+                gc.attack(curUnit.id(), enemyid);
+            }
+            if (gc.isMoveReady(curUnit.id())) {
+                moveAway(enemyLoc);
+            }
+            return;
+        }
+
+        if (gc.isMoveReady(curUnit.id())) {
+            moveAway(closestLoc);
+        }
+        
+    }
+    
     public static void moveIfNeeded(MapLocation enemy) {
         if (distance(enemy, curUnit.location().mapLocation()) <= 2) {
             moveAway(enemy);
@@ -606,11 +746,12 @@ public class Mage {
         }
     }
 
+
     //finds best unit to attack
     public static Pair findBestUnit() {
         Pair ret = new Pair();
         // 48 is attackmove range
-        VecUnit nearby = gc.senseNearbyUnits(curLoc, 48);
+        VecUnit nearby = gc.senseNearbyUnits(curLoc, 50);
         if (nearby.size() == 0) {
             return ret;
         }
