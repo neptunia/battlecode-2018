@@ -254,11 +254,9 @@ public class Mage {
                             gc.overcharge(gc.senseUnitAtLocation(siceHealer).id(), curUnit.id());
                         }*/
 
-                        System.out.println("Overcharges left: " + Integer.toString(overchargesLeft - numberOfShots));
-
                         //insert kevin's geydog mage code
 
-                        int overchargesAvailable = overchargesLeft - numberOfShots;
+                        int overchargesAvailable = overchargesLeft;
 
                         int target = bestAttack(overchargesAvailable, current);
 
