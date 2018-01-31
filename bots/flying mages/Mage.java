@@ -77,9 +77,19 @@ public class Mage {
             HashSet<Integer> overchargeUsed = new HashSet<Integer>();
             for (int a = 0; a < pathToEnemy.size(); a++) {
                 MapLocation cur = pathToEnemy.get(a);
+                MapLocation siceHealer = getOvercharges(cur, enemy.location().mapLocation(), overchargeUsed);
+
+                if (siceHealer == null) {
+                    //rip cant find a healer
+                    return false;
+                } else {
+                    overchargeUsed.add(hash(siceHealer));
+                }
                 if (distance(cur, enemy.location().mapLocation()) <= 30) {
                     //in attack range
-                    if (countOvercharges(cur, overchargeUsed) >= (enemy.health() / curUnit.damage()) + 1) {
+                    int numberOfShots = (int) ((enemy.health() / curUnit.damage()) + 1);
+                    if (countOvercharges(cur, overchargeUsed) >= numberOfShots) {
+                        System.out.println(countOvercharges(cur, overchargeUsed));
                         //i can nuke them
                         System.out.println("CAN NUKE");
                         //first use overcharges to move into position
@@ -92,32 +102,24 @@ public class Mage {
                             }
                             gc.moveRobot(curUnit.id(), current.directionTo(temp));
                             current = temp;
-                            MapLocation siceHealer = getOvercharges(cur, enemy.location().mapLocation(), actualOverchargeUsed);
+                            siceHealer = getOvercharges(current, enemy.location().mapLocation(), actualOverchargeUsed);
                             actualOverchargeUsed.add(hash(siceHealer));
                             gc.overcharge(gc.senseUnitAtLocation(siceHealer).id(), curUnit.id());
                             if (distance(current, enemy.location().mapLocation()) <= 30) {
                                 break;
                             }
                         }
+                        System.out.println(countOvercharges(current, actualOverchargeUsed));
                         //now kill the enemy
-                        for (int j = 0; j < (enemy.health() / curUnit.damage()) + 1; j++) {
+                        for (int j = 0; j < numberOfShots; j++) {
                             gc.attack(curUnit.id(), enemy.id());
-                            MapLocation siceHealer = getOvercharges(cur, enemy.location().mapLocation(), actualOverchargeUsed);
+                            siceHealer = getOvercharges(current, enemy.location().mapLocation(), actualOverchargeUsed);
                             actualOverchargeUsed.add(hash(siceHealer));
                             gc.overcharge(gc.senseUnitAtLocation(siceHealer).id(), curUnit.id());
                         }
                         return true;
                     } else {
                         return false;
-                    }
-                } else {
-                    MapLocation siceHealer = getOvercharges(cur, enemy.location().mapLocation(), overchargeUsed);
-
-                    if (siceHealer == null) {
-                        //rip cant find a healer
-                        return false;
-                    } else {
-                        overchargeUsed.add(hash(siceHealer));
                     }
                 }
             }
