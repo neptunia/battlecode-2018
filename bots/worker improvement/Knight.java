@@ -283,7 +283,7 @@ public class Knight {
 			if (Player.bfsMin(target, curLoc)) {
 				move(target);
 			} else {
-				System.out.println("cant get there knight");
+				//System.out.println("cant get there knight");
 			}
 		}
 		if (gc.isMoveReady(curUnit.id())) {
