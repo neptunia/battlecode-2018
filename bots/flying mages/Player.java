@@ -405,7 +405,10 @@ public class Player {
                         }
                     }
                 }
-                System.out.println("Min distancE:" + Integer.toString(minDistance));
+                System.out.println("Min distance:" + Integer.toString(minDistance));
+                if (minDistance < 20) {
+                    gc.queueResearch(UnitType.Knight);
+                }
                 gc.queueResearch(UnitType.Healer);
                 gc.queueResearch(UnitType.Healer);
                 gc.queueResearch(UnitType.Healer);

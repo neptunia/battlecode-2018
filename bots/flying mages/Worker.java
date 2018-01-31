@@ -258,10 +258,10 @@ public class Worker {
         } else {
             Player.karboniteGonnaUse -= 150;
         }
-        int minimumWorkers = 3;
-        if (gc.senseNearbyUnitsByTeam(blueprintLocation, 30, Player.enemyTeam).size() >= 1) {
-            minimumWorkers = 6;
-        }
+        int minimumWorkers = 6;
+        //if (gc.senseNearbyUnitsByTeam(blueprintLocation, 30, Player.enemyTeam).size() >= 1) {
+            //minimumWorkers = 6;
+        //}
         
         
         structuresToBuild.add(hash(blueprintLocation));
@@ -584,13 +584,7 @@ public class Worker {
                 }
             }
             nearby = gc.senseNearbyUnitsByTeam(current, 8, Player.enemyTeam);
-            for (int i = 0; i < nearby.size(); i++) {
-                UnitType temp = nearby.get(i).unitType();
-                //TODO maybe add unittype.rocket too
-                if (temp == UnitType.Factory || temp == UnitType.Knight || temp == UnitType.Mage || temp == UnitType.Ranger || temp == UnitType.Healer) {
-                    around++;
-                }
-            }
+            around += nearby.size();
             int tempX = current.getX();
             int tempY = current.getY();
             //on the map and gotoable and doesnt block off any spots
