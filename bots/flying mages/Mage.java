@@ -25,6 +25,18 @@ public class Mage {
 
         curLoc = curUnit.location().mapLocation();
 
+        if (Player.priorityTarget.containsKey(curUnit.id())) {
+            MapLocation rocket = Player.priorityTarget.get(curUnit.id());
+            if (gc.hasUnitAtLocation(rocket) && gc.senseUnitAtLocation(rocket).unitType() == UnitType.Rocket) {
+                move(Player.priorityTarget.get(curUnit.id()));
+            } else {
+                Worker.numMageGoingToRocket--;
+                Player.priorityTarget.remove(curUnit.id());
+                Mage.run(gc, curUnit);
+            }
+            return;
+        }
+
         if (gc.researchInfo().getLevel(UnitType.Healer) == 3) {
             try {
                 if (gc.round() % 10 == 0 && gc.isMoveReady(curUnit.id()) && canAttack() && canGetLethal()) {
@@ -900,40 +912,35 @@ public class Mage {
         int x = curLoc.getX();
         int y = curLoc.getY();
         int currentDist = Player.pathDistances[targetHash][x][y];
-        if (currentDist != -1) {
+        if (currentDist != 696969) {
             if (x < Player.gridX - 1 && Player.pathDistances[targetHash][x + 1][y] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.East)) {
                 gc.moveRobot(curUnit.id(), Direction.East);
-                curLoc = curUnit.location().mapLocation();
             } else if (x > 0 && Player.pathDistances[targetHash][x - 1][y] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.West)) {
                 gc.moveRobot(curUnit.id(), Direction.West);
-                curLoc = curUnit.location().mapLocation();
             } else if (y < Player.gridY - 1 && Player.pathDistances[targetHash][x][y + 1] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.North)) {
                 gc.moveRobot(curUnit.id(), Direction.North);
-                curLoc = curUnit.location().mapLocation();
             } else if (y > 0 && Player.pathDistances[targetHash][x][y - 1] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.South)) {
                 gc.moveRobot(curUnit.id(), Direction.South);
-                curLoc = curUnit.location().mapLocation();
             } else if (y < Player.gridY - 1 && x < Player.gridX - 1 && Player.pathDistances[targetHash][x + 1][y + 1] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.Northeast)) {
                 gc.moveRobot(curUnit.id(), Direction.Northeast);
-                curLoc = curUnit.location().mapLocation();
             } else if (y > 0 && x < Player.gridX - 1 && Player.pathDistances[targetHash][x + 1][y - 1] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.Southeast)) {
                 gc.moveRobot(curUnit.id(), Direction.Southeast);
-                curLoc = curUnit.location().mapLocation();
             } else if (x > 0 && y < Player.gridY - 1 && Player.pathDistances[targetHash][x - 1][y + 1] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.Northwest)) {
                 gc.moveRobot(curUnit.id(), Direction.Northwest);
-                curLoc = curUnit.location().mapLocation();
             } else if (x > 0 && y > 0 && Player.pathDistances[targetHash][x - 1][y - 1] - currentDist < 0 && gc.canMove(curUnit.id(), Direction.Southwest)) {
                 gc.moveRobot(curUnit.id(), Direction.Southwest);
-                curLoc = curUnit.location().mapLocation();
             }
         } else {
-            //bfs hasnt been run yet
-            Player.bfs(target);
-            move(target);
+            //cant get there
+            if (Player.bfsMin(target, curLoc)) {
+                move(target);
+            } else {
+                System.out.println("cant get there mage");
+            }
         }
-        //i didn't move :(
         if (gc.isMoveReady(curUnit.id())) {
             Player.blockedCount++;
+            moveCloser(target);
         }
     }
 

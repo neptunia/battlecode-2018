@@ -10,7 +10,7 @@ public class Worker {
 	static Direction[] directions = Direction.values();
 	static int[] counter;
 	static int myId;
-    static int numRangerGoingToRocket = 0, numHealerGoingToRocket = 0;
+    static int numRangerGoingToRocket = 0, numHealerGoingToRocket = 0, numMageGoingToRocket = 0;
     static boolean noMoreKarbonite = false;
     static boolean fullyReplicated = false;
 	static HashMap<Integer, Integer> id = new HashMap<Integer, Integer>();
@@ -90,7 +90,7 @@ public class Worker {
         if (Player.prevBlocked < 10 && gc.karbonite() + Player.karboniteGonnaUse >= 200 && gc.round() != 1 && gc.round() < 550 && (Player.numFactory + structuresToBuild.size() < (split.get(myId) ? 3 : 6)) || (split.get(myId) ? false : gc.karbonite() + Player.karboniteGonnaUse >= 1000)) {
             startStructure(UnitType.Factory);
             Worker.run(curUnit);
-        } else if (gc.karbonite() + Player.karboniteGonnaUse >= 150 && Player.numFactory >= 1 && (gc.round() < 550 ? (Player.prevBlocked >= 8 || Player.timesReachedTarget >= 2 || split.get(myId)) : true) && gc.researchInfo().getLevel(UnitType.Rocket) > 0 && Player.numUnits[myId][0] - numRangerGoingToRocket >= 5 && Player.numUnits[myId][1] - numHealerGoingToRocket >= 2) {
+        } else if (gc.karbonite() + Player.karboniteGonnaUse >= 150 && Player.numFactory >= 1 && (gc.round() < 550 ? (Player.prevBlocked >= 8 || Player.timesReachedTarget >= 2 || split.get(myId)) : true) && gc.researchInfo().getLevel(UnitType.Rocket) > 0 && Player.numUnits[myId][0] - numRangerGoingToRocket >= 5 && Player.numUnits[myId][1] - numHealerGoingToRocket >= 2 && Player.numUnits[myId][2] - numMageGoingToRocket >= 1) {
             startStructure(UnitType.Rocket);
             Worker.run(curUnit);
         } else {
@@ -459,9 +459,10 @@ public class Worker {
         queue.add(rocketLoc);
         visited.add(hash(rocketLoc));
         //int workersNeeded = 1;
-        int rangersNeeded = 4;
+        int rangersNeeded = 3;
         int healersNeeded = 3;
         int workersNeeded = 1;
+        int magesNeeded = 1;
         while (!queue.isEmpty()) {
             MapLocation current = queue.poll();
             for (int i = 0; i < directions.length; i++) {
@@ -470,7 +471,7 @@ public class Worker {
                     queue.add(toCheck);
                     visited.add(hash(toCheck));
                 }
-                if (rangersNeeded == 0 && healersNeeded == 0 && workersNeeded == 0) {
+                if (rangersNeeded == 0 && healersNeeded == 0 && workersNeeded == 0 && magesNeeded == 0) {
                     return;
                 }
                 if (gc.hasUnitAtLocation(toCheck)) {
@@ -487,6 +488,10 @@ public class Worker {
                             Player.priorityTarget.put(there.id(), rocketLoc);
                         } else if (temp == UnitType.Worker && workersNeeded > 0) {
                             workersNeeded--;
+                            Player.priorityTarget.put(there.id(), rocketLoc);
+                        } else if (temp == UnitType.Mage && magesNeeded > 0) {
+                            magesNeeded--;
+                            numMageGoingToRocket++;
                             Player.priorityTarget.put(there.id(), rocketLoc);
                         }
                     }

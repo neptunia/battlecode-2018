@@ -44,7 +44,7 @@ public class Player {
 
         VecUnit myUnits = gc.myUnits();
 
-        numUnits = new int[3][2]; //0 ranger, 1 healer
+        numUnits = new int[3][3]; //0 ranger, 1 healer, 2 mage
 
         for (int i = 0; i < myUnits.size(); i++) {
             Unit curUnit = myUnits.get(i);
@@ -118,6 +118,7 @@ public class Player {
                         numKnight++;
                     } else if (type == UnitType.Mage) {
                         numMage++;
+                        numUnits[Worker.id.get(curUnit.id())][2]++;
                     }
 
                     unitLocations[unitLocationCounter] = curUnit.location().mapLocation();
