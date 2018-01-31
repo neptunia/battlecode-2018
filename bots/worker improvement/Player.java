@@ -198,7 +198,7 @@ public class Player {
             try {
                 chooseTarget();
             } catch (Exception e) {
-
+                e.printStackTrace();
             }
 
             if (gc.round() % 10 == 0) {
@@ -612,7 +612,7 @@ public class Player {
                 if (!gotoable[parent][i][a]) {
                     continue;
                 }
-                double tempDist = 0;
+                double tempDist = 99999999;
                 for (int j = 0; j < unitLocationCounter; j++) {
                     tempDist = Math.min(tempDist, distanceSq(i, a, unitLocations[j].getX(), unitLocations[j].getY()));
                 }
@@ -624,7 +624,6 @@ public class Player {
             }
         }
         MapLocation point = new MapLocation(gc.planet(), smallX, smallY);
-        prevTargets.add(hash(point));
         //BFS the whole map
         bfs(point);
         return point;
