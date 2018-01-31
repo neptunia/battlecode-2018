@@ -65,14 +65,67 @@ public class Mage {
         }
     }
 
+    public static TreeMap<Integer, Unit> bestAttack() {
+        //int ret = -1;
+        //int net = 0;
+        //int total = 0;
+        TreeMap<Integer, Unit> retval = new TreeMap<Integer, Unit>(Collections.reverseOrder()); 
+
+        VecUnit nearby = gc.senseNearbyUnitsByTeam(curUnit.location().mapLocation(), 100, Player.enemyTeam);
+        if (nearby.size() == 0) {
+            return retval;
+        }
+        for (int i = 0; i < nearby.size(); i++) {
+            int tempnet = 0;
+            int temptotal = 0;
+            MapLocation point = nearby.get(i).location().mapLocation();
+            if (nearby.get(i).team() == gc.team()) {
+                tempnet -= curUnit.damage();
+            } else {
+                tempnet += curUnit.damage();
+                temptotal += curUnit.damage();
+                if (isKillable(nearby.get(i).id(),0)) {
+                    tempnet += 100;
+                    temptotal += 100;
+                }
+            }
+            for (int j = 0; j < directions.length; j++) {
+                try {
+                    Unit temp = gc.senseUnitAtLocation(point.add(directions[j]));
+                    if (temp.team() == gc.team()) {
+                        tempnet -= curUnit.damage();
+                    } else {
+                        tempnet += curUnit.damage();
+                        temptotal += curUnit.damage();
+                        if (isKillable(nearby.get(i).id(),0)) {
+                            tempnet += 100;
+                            temptotal += 100;
+                        }
+                    }
+                } catch (Exception e) {
+                    continue;
+                }
+            }
+            retval.put(tempnet, nearby.get(i));
+        }
+        return retval;
+    }
+
     public static boolean canGetLethal() {
-        VecUnit enemies = gc.senseNearbyUnitsByTeam(curLoc, 100, Player.enemyTeam);
-        for (int i = 0; i < enemies.size(); i++) {
+        TreeMap<Integer, Unit> enemies = bestAttack();
+        for (Unit enemy : enemies.values()) {
+            if (enemy.unitType() == UnitType.Worker) {
+                continue;
+            }
             //for each enemy, see if i can get lethal on him
-            Unit enemy = enemies.get(i);
             ArrayList<MapLocation> pathToEnemy = getDirectPath(enemy.location().mapLocation());
             if (pathToEnemy == null) {
-                return false;
+                continue;
+            }
+            HashSet<Integer> cantGo = new HashSet<Integer>();
+            cantGo.add(hash(curLoc));
+            for (MapLocation tempLoc : pathToEnemy) {
+                cantGo.add(hash(tempLoc));
             }
             HashSet<Integer> overchargeUsed = new HashSet<Integer>();
             for (int a = 0; a < pathToEnemy.size(); a++) {
@@ -81,7 +134,7 @@ public class Mage {
 
                 if (siceHealer == null) {
                     //rip cant find a healer
-                    return false;
+                    break;
                 } else {
                     overchargeUsed.add(hash(siceHealer));
                 }
@@ -89,16 +142,19 @@ public class Mage {
                     //in attack range
                     int numberOfShots = (int) ((enemy.health() / curUnit.damage()) + 1);
                     if (countOvercharges(cur, overchargeUsed) >= numberOfShots) {
-                        System.out.println(countOvercharges(cur, overchargeUsed));
+                        //System.out.println(countOvercharges(cur, overchargeUsed));
                         //i can nuke them
-                        System.out.println("CAN NUKE");
+                        //System.out.println("CAN NUKE");
                         //first use overcharges to move into position
                         HashSet<Integer> actualOverchargeUsed = new HashSet<Integer>();
                         MapLocation current = curLoc;
                         for (int j = 0; j < pathToEnemy.size(); j++) {
                             MapLocation temp = pathToEnemy.get(j);
                             if (gc.hasUnitAtLocation(temp)) {
-                                gc.disintegrateUnit(gc.senseUnitAtLocation(temp).id());
+                                if (!moveAway(temp, cantGo)) {
+                                    System.out.println("path blocked");
+                                    return false;
+                                }
                             }
                             gc.moveRobot(curUnit.id(), current.directionTo(temp));
                             current = temp;
@@ -109,7 +165,7 @@ public class Mage {
                                 break;
                             }
                         }
-                        System.out.println(countOvercharges(current, actualOverchargeUsed));
+                        //System.out.println(countOvercharges(current, actualOverchargeUsed));
                         //now kill the enemy
                         for (int j = 0; j < numberOfShots; j++) {
                             gc.attack(curUnit.id(), enemy.id());
@@ -119,12 +175,36 @@ public class Mage {
                         }
                         return true;
                     } else {
-                        return false;
+                        break;
                     }
                 }
             }
         }
         return false;
+    }
+
+    public static boolean moveAway(MapLocation toGo, HashSet<Integer> cantGo) {
+        if (gc.hasUnitAtLocation(toGo)) {
+            Unit unit = gc.senseUnitAtLocation(toGo);
+            if (!gc.isMoveReady(unit.id()) || unit.unitType() == UnitType.Factory || unit.unitType() == UnitType.Rocket) {
+                return false;
+            }
+            for (int i = 0; i < directions.length; i++) {
+                MapLocation temp = toGo.add(directions[i]);
+                if (!cantGo.contains(hash(temp)) && checkPassable(temp)) {
+                    HashSet<Integer> tempCantGo = new HashSet<Integer>();
+                    tempCantGo.addAll(cantGo);
+                    tempCantGo.add(hash(temp));
+                    if (moveAway(temp, tempCantGo)) {
+                        gc.moveRobot(unit.id(), directions[i]);
+                        return true;
+                    }
+                }
+            }
+            return false;
+        } else {
+            return true;
+        }
     }
 
     public static MapLocation getOvercharges(MapLocation loc, MapLocation target, HashSet<Integer> overchargeUsed) {
@@ -178,6 +258,15 @@ public class Mage {
             }
         }
         return null;
+    }
+
+    public static boolean isKillable(int enemyid, int numOvercharges) {
+        int myDamage = curUnit.damage();
+        if (gc.unit(enemyid).unitType() == UnitType.Knight) {
+            return (myDamage - gc.unit(enemyid).knightDefense())*(1+numOvercharges) > gc.unit(enemyid).health();
+        } else {
+            return myDamage*(1+numOvercharges) > gc.unit(enemyid).health();
+        }
     }
 
     // guaranteed killability. Assumes rushing knight research.
