@@ -67,7 +67,8 @@ public class Mage {
 
     public static int bestAttack(int numOvercharges) {
         int ret = -1;
-        net = 0;
+        int net = 0;
+        int total = 0;
 
         VecUnit nearby = gc.senseNearbyUnitsByTeam(curLoc, 30, Player.enemyTeam);
         if (nearby.size() == 0) {
@@ -83,7 +84,7 @@ public class Mage {
                 tempnet += curUnit.damage();
                 temptotal += curUnit.damage();
                 // weight kills more i guess
-                if isKillable(nearby.get(i).id(),numOvercharges) {
+                if (isKillable(nearby.get(i).id(),numOvercharges)) {
                     tempnet += 100;
                     temptotal += 100;
                 }
@@ -97,7 +98,7 @@ public class Mage {
                         tempnet += curUnit.damage();
                         temptotal += curUnit.damage();
                         // weight kills more i guess
-                        if isKillable(temp.id(),numOvercharges) {
+                        if (isKillable(temp.id(),numOvercharges)) {
                             tempnet += 100;
                             temptotal += 100;
                         }
@@ -109,7 +110,7 @@ public class Mage {
             if (tempnet > net || (tempnet == net && temptotal > total)) {
                 net = tempnet;
                 total = temptotal;
-                ret = i.id();
+                ret = nearby.get(i).id();
             }
         }
         return ret;
@@ -124,44 +125,6 @@ public class Mage {
         } else {
             return myDamage*(1+numOvercharges) > gc.unit(enemyid).health();
         }
-    }
-
-    public static void geyMage() {
-        VecUnit nearby = gc.senseNearbyUnits(curLoc, 30);
-        ArrayList<Integer> nearbyHealers = new ArrayList<Integer> ();
-
-        int overchargesAvailable = 0;
-        for (int i = 0; i < nearby.size(); i++) {
-            Unit temp = nearby.get(i);
-            if (temp.team() == gc.team() && temp.unitType() == UnitType.Healer && temp.abilityHeat() < 10) {
-                overchargesAvailable++;
-                nearbyHealers.add(temp.id());
-            }
-        }
-
-        int tar = bestAttack(overchargesAvailable);
-
-        if (tar != -1) {
-            // just stand there and attack
-            while (overchargesAvailable >= 0) {
-                if (canAttack() && gc.canAttack(curUnit.id(), tar)) {
-                    gc.attack(curUnit.id(), tar);
-                }
-                
-                int tar = bestAttack(overchargesAvailable);
-                if (tar == -1) {
-                    break;
-                }
-
-                gc.overcharge(healerid, curUnit.id());
-                overchargesAvailable--;
-
-            }
-        }
-
-        
-
-
     }
 
     public static boolean canGetLethal() {
@@ -214,8 +177,8 @@ public class Mage {
                         ArrayList<Integer> nearbyHealers = new ArrayList<Integer> ();
 
                         int overchargesAvailable = 0;
-                        for (int i = 0; i < nearby.size(); i++) {
-                            Unit temp = nearby.get(i);
+                        for (int z = 0; z < nearby.size(); z++) {
+                            Unit temp = nearby.get(z);
                             if (temp.team() == gc.team() && temp.unitType() == UnitType.Healer && temp.abilityHeat() < 10) {
                                 overchargesAvailable++;
                                 nearbyHealers.add(temp.id());
