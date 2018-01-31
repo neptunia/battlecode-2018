@@ -139,21 +139,21 @@ public class Mage {
             }
         }
 
-        int target = bestAttack(overchargesAvailable);
+        int tar = bestAttack(overchargesAvailable);
 
-        if (target != -1) {
+        if (tar != -1) {
             // just stand there and attack
             while (overchargesAvailable >= 0) {
-                if (canAttack() && gc.canAttack(curUnit.id(), target)) {
-                    gc.attack(curUnit.id(), target);
+                if (canAttack() && gc.canAttack(curUnit.id(), tar)) {
+                    gc.attack(curUnit.id(), tar);
                 }
                 
-                int target = bestAttack(overchargesAvailable);
-                if (target == -1) {
+                int tar = bestAttack(overchargesAvailable);
+                if (tar == -1) {
                     break;
                 }
 
-                gc.overcharge(healerid, curUnit.id);
+                gc.overcharge(healerid, curUnit.id());
                 overchargesAvailable--;
 
             }
@@ -176,18 +176,44 @@ public class Mage {
             HashSet<Integer> overchargeUsed = new HashSet<Integer>();
             for (int a = 0; a < pathToEnemy.size(); a++) {
                 MapLocation cur = pathToEnemy.get(a);
+                MapLocation siceHealer = getOvercharges(cur, enemy.location().mapLocation(), overchargeUsed);
+
+                if (siceHealer == null) {
+                    //rip cant find a healer
+                    return false;
+                } else {
+                    overchargeUsed.add(hash(siceHealer));
+                }
                 if (distance(cur, enemy.location().mapLocation()) <= 30) {
                     //in attack range
-                    geyMage();
-                    return true;
-                } else {
-                    MapLocation siceHealer = getOvercharges(cur, enemy.location().mapLocation(), overchargeUsed);
-
-                    if (siceHealer == null) {
-                        //rip cant find a healer
-                        return false;
+                    int numberOfShots = (int) ((enemy.health() / curUnit.damage()) + 1);
+                    if (countOvercharges(cur, overchargeUsed) >= numberOfShots) {
+                        System.out.println(countOvercharges(cur, overchargeUsed));
+                        //i can nuke them
+                        System.out.println("CAN NUKE");
+                        //first use overcharges to move into position
+                        HashSet<Integer> actualOverchargeUsed = new HashSet<Integer>();
+                        MapLocation current = curLoc;
+                        for (int j = 0; j < pathToEnemy.size(); j++) {
+                            MapLocation temp = pathToEnemy.get(j);
+                            if (gc.hasUnitAtLocation(temp)) {
+                                gc.disintegrateUnit(gc.senseUnitAtLocation(temp).id());
+                            }
+                            gc.moveRobot(curUnit.id(), current.directionTo(temp));
+                            current = temp;
+                            siceHealer = getOvercharges(current, enemy.location().mapLocation(), actualOverchargeUsed);
+                            actualOverchargeUsed.add(hash(siceHealer));
+                            gc.overcharge(gc.senseUnitAtLocation(siceHealer).id(), curUnit.id());
+                            if (distance(current, enemy.location().mapLocation()) <= 30) {
+                                break;
+                            }
+                        }
+                        System.out.println(countOvercharges(current, actualOverchargeUsed));
+                        //now kill the enemy
+                        geyMage();
+                        return true;
                     } else {
-                        overchargeUsed.add(hash(siceHealer));
+                        return false;
                     }
                 }
             }
