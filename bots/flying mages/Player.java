@@ -15,7 +15,7 @@ public class Player {
     static HashMap<Integer, MapLocation> initialWorkerStartingLocation = new HashMap<Integer, MapLocation>();
     static MapLocation[] enemyLocation;
     static long karboniteGonnaUse = 0;
-    static int numFactory, numRanger, numHealer, numWorker, numKnight;
+    static int numFactory, numRanger, numHealer, numWorker, numKnight, numMage;
     static int timesReachedTarget = 0;
     static int blockedCount, prevBlocked = 0;
     static boolean marsBfsDone = false;
@@ -87,6 +87,7 @@ public class Player {
             numHealer = 0;
             numWorker = 0;
             numKnight = 0;
+            numMage = 0;
             blockedCount = 0;
             unitLocationCounter = 0;
             for (int i = 0; i < numUnits.length; i++) {
@@ -115,6 +116,8 @@ public class Player {
                         numWorker++;
                     } else if (type == UnitType.Knight) {
                         numKnight++;
+                    } else if (type == UnitType.Mage) {
+                        numMage++;
                     }
 
                     unitLocations[unitLocationCounter] = curUnit.location().mapLocation();

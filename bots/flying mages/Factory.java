@@ -53,7 +53,7 @@ public class Factory {
 		}
 
 		if ((Player.prevBlocked < 8 && Player.timesReachedTarget < 1 && gc.round() < (Worker.split.get(myId) ? 75 : 570) && (gc.karbonite() + Player.karboniteGonnaUse > 140 || gc.researchInfo().getLevel(UnitType.Rocket) == 0)) || (Player.numRanger < 8 || Player.numHealer < 5)) {
-			if (Player.numRanger > 1.5 * Player.numHealer && gc.researchInfo().getLevel(UnitType.Healer) >= 1 && gc.canProduceRobot(curUnit.id(), UnitType.Healer)) {
+			if ((Player.numRanger + Player.numMage) * 4 > 7 * Player.numHealer && gc.researchInfo().getLevel(UnitType.Healer) >= 1 && gc.canProduceRobot(curUnit.id(), UnitType.Healer)) {
 				gc.produceRobot(curUnit.id(), UnitType.Healer);
 				Player.numHealer++;
 			} else if (gc.canProduceRobot(curUnit.id(), UnitType.Healer) && gc.round() < 200 && gc.senseNearbyUnitsByTeam(curLoc, 50, Player.enemyTeam).size() != 0) {
@@ -64,6 +64,9 @@ public class Factory {
 					gc.produceRobot(curUnit.id(), UnitType.Mage);
 				}
 				thingsProduced.put(curUnit.id(), thingsProduced.get(curUnit.id())+1);
+			} else if ((Player.numRanger + Player.numHealer) > 10 * Player.numMage && gc.canProduceRobot(curUnit.id(), UnitType.Mage)) {
+				gc.produceRobot(curUnit.id(), UnitType.Mage);
+				Player.numMage++;
 			} else if (gc.canProduceRobot(curUnit.id(), UnitType.Ranger)) {
 				gc.produceRobot(curUnit.id(), UnitType.Ranger);
 				Player.numRanger++;
