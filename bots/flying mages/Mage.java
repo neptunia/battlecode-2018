@@ -166,6 +166,7 @@ public class Mage {
                             }
                         }
                         //System.out.println(countOvercharges(current, actualOverchargeUsed));
+                        int overchargesLeft = countOvercharges(current, actualOverchargeUsed);
                         //now kill the enemy
                         for (int j = 0; j < numberOfShots; j++) {
                             gc.attack(curUnit.id(), enemy.id());
@@ -173,6 +174,12 @@ public class Mage {
                             actualOverchargeUsed.add(hash(siceHealer));
                             gc.overcharge(gc.senseUnitAtLocation(siceHealer).id(), curUnit.id());
                         }
+
+                        System.out.println("Overcharges left: " + Integer.toString(overchargesLeft - numberOfShots));
+
+                        //insert kevin's geydog mage code
+
+
                         return true;
                     } else {
                         break;
