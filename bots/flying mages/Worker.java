@@ -23,7 +23,7 @@ public class Worker {
     static HashMap<Integer, MapLocation> healFactory = new HashMap<Integer, MapLocation>();
     static boolean[][] karbonitePatches;
     static HashSet<Integer> patchesOccupied = new HashSet<Integer>();
-    //static HashSet<Integer> placedAlready = new HashSet<Integer>();
+    static HashSet<Integer> placedAlready = new HashSet<Integer>();
     static int[] replicationLimit;
 
 	public static void run(Unit curUnit) {
@@ -169,12 +169,12 @@ public class Worker {
             }
         } else {
             //no one put it down yet
-            /*if (placedAlready.contains(hash(toBuild.loc))) {
+            if (placedAlready.contains(hash(toBuild.loc))) {
                 //oh no, it got killed
                 structures.remove(curUnit.id());
                 Player.newUnits.add(curUnit);
 
-            }*/
+            }
             int distanceToBlueprint = manDistance(curLoc, toBuild.loc);
             if (distanceToBlueprint == 1) {
                 if (gc.hasUnitAtLocation(toBuild.loc)) {
@@ -192,7 +192,7 @@ public class Worker {
                     } else {
                         Player.karboniteGonnaUse += 150;
                     }
-                    //placedAlready.add(hash(toBuild.loc));
+                    placedAlready.add(hash(toBuild.loc));
                 } else {
                     //System.out.println("Couldn't place down blueprint??");
                 }

@@ -391,6 +391,9 @@ public class Player {
             gc.queueResearch(UnitType.Rocket);
             gc.queueResearch(UnitType.Rocket);
         } else {
+            for (int i = 0; i < startingUnits.size(); i++) {
+                Unit unit = startingUnits.get(i);
+            }
             gc.queueResearch(UnitType.Healer);
             gc.queueResearch(UnitType.Healer);
             gc.queueResearch(UnitType.Healer);
