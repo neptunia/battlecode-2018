@@ -92,7 +92,7 @@ public class Mage {
                             }
                             gc.moveRobot(curUnit.id(), current.directionTo(temp));
                             current = temp;
-                            MapLocation siceHealer = getOvercharges(cur, enemy.location().mapLocation(), actualOverchargeUsed);
+                            MapLocation siceHealer = getOvercharges(current, enemy.location().mapLocation(), actualOverchargeUsed);
                             actualOverchargeUsed.add(hash(siceHealer));
                             gc.overcharge(gc.senseUnitAtLocation(siceHealer).id(), curUnit.id());
                             if (distance(current, enemy.location().mapLocation()) <= 30) {
@@ -102,7 +102,7 @@ public class Mage {
                         //now kill the enemy
                         for (int j = 0; j < (enemy.health() / curUnit.damage()) + 1; j++) {
                             gc.attack(curUnit.id(), enemy.id());
-                            MapLocation siceHealer = getOvercharges(cur, enemy.location().mapLocation(), actualOverchargeUsed);
+                            MapLocation siceHealer = getOvercharges(current, enemy.location().mapLocation(), actualOverchargeUsed);
                             actualOverchargeUsed.add(hash(siceHealer));
                             gc.overcharge(gc.senseUnitAtLocation(siceHealer).id(), curUnit.id());
                         }
