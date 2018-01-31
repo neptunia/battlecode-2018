@@ -583,6 +583,14 @@ public class Worker {
                     around++;
                 }
             }
+            nearby = gc.senseNearbyUnitsByTeam(current, 8, Player.enemyTeam);
+            for (int i = 0; i < nearby.size(); i++) {
+                UnitType temp = nearby.get(i).unitType();
+                //TODO maybe add unittype.rocket too
+                if (temp == UnitType.Factory || temp == UnitType.Knight || temp == UnitType.Mage || temp == UnitType.Ranger || temp == UnitType.Healer) {
+                    around++;
+                }
+            }
             int tempX = current.getX();
             int tempY = current.getY();
             //on the map and gotoable and doesnt block off any spots

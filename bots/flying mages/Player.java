@@ -380,30 +380,43 @@ public class Player {
                 c++;
             }
         }
-
-        if (someSplit) {
-            gc.queueResearch(UnitType.Healer);
-            gc.queueResearch(UnitType.Rocket);
-            gc.queueResearch(UnitType.Healer);
-            gc.queueResearch(UnitType.Healer);
-            gc.queueResearch(UnitType.Ranger);
-            gc.queueResearch(UnitType.Ranger);
-            gc.queueResearch(UnitType.Rocket);
-            gc.queueResearch(UnitType.Rocket);
-        } else {
-            for (int i = 0; i < startingUnits.size(); i++) {
-                Unit unit = startingUnits.get(i);
+        if (gc.planet() == Planet.Earth) {
+            if (someSplit) {
+                gc.queueResearch(UnitType.Healer);
+                gc.queueResearch(UnitType.Rocket);
+                gc.queueResearch(UnitType.Healer);
+                gc.queueResearch(UnitType.Healer);
+                gc.queueResearch(UnitType.Ranger);
+                gc.queueResearch(UnitType.Ranger);
+                gc.queueResearch(UnitType.Rocket);
+                gc.queueResearch(UnitType.Rocket);
+            } else {
+                int minDistance = 9999999;
+                for (int i = 0; i < startingUnits.size(); i++) {
+                    Unit unit = startingUnits.get(i);
+                    if (unit.team() == myTeam) {
+                        bfs(unit.location().mapLocation());
+                        for (int j = 0; j < startingUnits.size(); j++) {
+                            Unit unit2 = startingUnits.get(j);
+                            MapLocation temp2 = unit2.location().mapLocation();
+                            if (unit2.team() == enemyTeam) {
+                                minDistance = Math.min(minDistance, pathDistances[hash(unit.location().mapLocation())][temp2.getX()][temp2.getY()]);
+                            }
+                        }
+                    }
+                }
+                System.out.println("Min distancE:" + Integer.toString(minDistance));
+                gc.queueResearch(UnitType.Healer);
+                gc.queueResearch(UnitType.Healer);
+                gc.queueResearch(UnitType.Healer);
+                gc.queueResearch(UnitType.Mage);
+                gc.queueResearch(UnitType.Mage);
+                gc.queueResearch(UnitType.Rocket);
+                gc.queueResearch(UnitType.Mage);
+                gc.queueResearch(UnitType.Ranger);
+                gc.queueResearch(UnitType.Ranger);
+                gc.queueResearch(UnitType.Rocket);
             }
-            gc.queueResearch(UnitType.Healer);
-            gc.queueResearch(UnitType.Healer);
-            gc.queueResearch(UnitType.Healer);
-            gc.queueResearch(UnitType.Mage);
-            gc.queueResearch(UnitType.Mage);
-            gc.queueResearch(UnitType.Rocket);
-            gc.queueResearch(UnitType.Mage);
-            gc.queueResearch(UnitType.Ranger);
-            gc.queueResearch(UnitType.Ranger);
-            gc.queueResearch(UnitType.Rocket);
         }
         //Worker.spots = ret;
         Worker.karbonitePatches = spots;
