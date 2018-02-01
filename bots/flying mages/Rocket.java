@@ -9,7 +9,6 @@ public class Rocket {
     static Direction[] directions = Direction.values();
     static int myId;
     static HashSet<Integer> workersPerRocket = new HashSet<Integer>();
-    static HashMap<Integer, Integer> turnsSinceBuilt = new HashMap<Integer, Integer>();
     //static HashMap<Integer, HashSet<Integer>> assignedUnits = new HashMap<Integer, HashSet<Integer>>();
     static HashSet<Integer> assignedUnits = new HashSet<Integer>();
     static int landSpotNumber = 0;
@@ -31,13 +30,6 @@ public class Rocket {
             if (curUnit.health() == curUnit.maxHealth()) {
                 if (gc.round() == 749) {
                     launch();
-                }
-                if (!turnsSinceBuilt.containsKey(curUnit.id())) {
-                    turnsSinceBuilt.put(curUnit.id(), 1);
-                } else if (turnsSinceBuilt.get(curUnit.id()) > 100 && curUnit.structureGarrison().size() != 0) {
-                    launch();
-                } else {
-                    turnsSinceBuilt.put(curUnit.id(), turnsSinceBuilt.get(curUnit.id())+1);
                 }
             } else if (curUnit.structureGarrison().size() != 0) {
                 launch();
