@@ -341,7 +341,7 @@ public class Worker {
             //too many workers dying, stop replication
             noMoreKarbonite = true;
             target.clear();
-            System.out.println("RUN AWAY!!!");
+            //System.out.println("RUN AWAY!!!");
             fullyReplicated = false;
             return;
         }

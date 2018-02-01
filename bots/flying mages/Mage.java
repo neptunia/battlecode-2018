@@ -41,11 +41,11 @@ public class Mage {
             try {
                 if (gc.round() % 10 == 0 && gc.isMoveReady(curUnit.id()) && canAttack() && canGetLethal()) {
                     //i nuked someone
-                    System.out.println("nuked someone " + Long.toString(gc.round()));
+                    //System.out.println("nuked someone " + Long.toString(gc.round()));
                     return;
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                //e.printStackTrace();
             }
             
         }
@@ -93,7 +93,7 @@ public class Mage {
 
         VecUnit nearby = gc.senseNearbyUnitsByTeam(currentLocation, 30, Player.enemyTeam);
         if (nearby.size() == 0) {
-            System.out.println("wow nothing is alive in range im op");
+            //System.out.println("wow nothing is alive in range im op");
             return ret;
         }
         for (int i = 0; i < nearby.size(); i++) {
@@ -227,7 +227,7 @@ public class Mage {
                             MapLocation temp = pathToEnemy.get(j);
                             if (gc.hasUnitAtLocation(temp)) {
                                 if (!moveAway(temp, cantGo)) {
-                                    System.out.println("path blocked");
+                                    //System.out.println("path blocked");
                                     return false;
                                 }
                             }
@@ -936,7 +936,7 @@ public class Mage {
             if (Player.bfsMin(target, curLoc)) {
                 move(target);
             } else {
-                System.out.println("cant get there mage");
+                //System.out.println("cant get there mage");
             }
         }
         if (gc.isMoveReady(curUnit.id())) {

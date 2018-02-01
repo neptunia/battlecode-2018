@@ -71,7 +71,7 @@ public class Player {
                 }
             }
             if (gc.getTimeLeftMs() < 300) {
-                System.out.println("next turn time");
+                //System.out.println("next turn time");
                 gc.nextTurn();
                 continue;
             }
@@ -124,7 +124,7 @@ public class Player {
                     unitLocations[unitLocationCounter] = curUnit.location().mapLocation();
                     unitLocationCounter++;
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    //e.printStackTrace();
                 }
             }
 
@@ -167,7 +167,7 @@ public class Player {
                     
                 } catch (Exception e) {
                     //System.out.println("unit died");
-                    e.printStackTrace();
+                    //e.printStackTrace();
                 }
             }
             for (int i = 0; i < newUnits.size(); i++) {
@@ -199,7 +199,7 @@ public class Player {
                 
                 } catch (Exception e) {
                     //System.out.println("unit died");
-                    e.printStackTrace();
+                    //e.printStackTrace();
                 }
             }
             if (!someoneTriedBuilding) {
@@ -210,7 +210,7 @@ public class Player {
             try {
                 chooseTarget();
             } catch (Exception e) {
-                e.printStackTrace();
+                //e.printStackTrace();
             }
 
             if (gc.round() % 10 == 0) {
@@ -376,7 +376,7 @@ public class Player {
                 }
                 Worker.split.put(c, spl);
                 someSplit = someSplit || spl;
-                System.out.println(Integer.toString(c) + ", " + Boolean.toString(spl));
+                //System.out.println(Integer.toString(c) + ", " + Boolean.toString(spl));
                 c++;
             }
         }
@@ -405,12 +405,12 @@ public class Player {
                         }
                     }
                 }
-                System.out.println("Min distance:" + Integer.toString(minDistance));
+                //System.out.println("Min distance:" + Integer.toString(minDistance));
                 int maxReplicationLimit = -1;
                 for (int i = 0; i < Worker.replicationLimit.length; i++) {
                     maxReplicationLimit = Math.max(maxReplicationLimit, Worker.replicationLimit[i]);
                 }
-                System.out.println("Replication limit: " + Integer.toString(maxReplicationLimit));
+                //System.out.println("Replication limit: " + Integer.toString(maxReplicationLimit));
                 if (maxReplicationLimit >= 15) {
                     gc.queueResearch(UnitType.Worker);
                 }

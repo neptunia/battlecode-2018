@@ -272,7 +272,7 @@ public class Ranger {
             if (Player.bfsMin(target, curLoc)) {
                 move(target);
             } else {
-                System.out.println("cant get there ranger");
+                //System.out.println("cant get there ranger");
             }
         }
         if (gc.isMoveReady(curUnit.id())) {
@@ -312,7 +312,7 @@ public class Ranger {
             if (Player.bfsMin(target, curLoc)) {
                 move(target);
             } else {
-                System.out.println("cant get there ranger");
+                //System.out.println("cant get there ranger");
             }
         }
         if (gc.isMoveReady(curUnit.id())) {
